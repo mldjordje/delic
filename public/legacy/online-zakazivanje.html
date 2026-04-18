@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auto Delić | Zakazivanje (legacy + Next API)</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <style>
+      .ad-api-box {
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 1.5rem;
+        background: #111;
+        color: #eee;
+        border-radius: 8px;
+        font-family: system-ui, sans-serif;
+      }
+      .ad-api-box button {
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 1px solid #444;
+        background: #2563eb;
+        color: #fff;
+      }
+      .ad-api-box select,
+      .ad-api-box input {
+        width: 100%;
+        padding: 0.5rem;
+        margin-top: 0.25rem;
+        border-radius: 6px;
+        border: 1px solid #444;
+        background: #0b1220;
+        color: #eee;
+      }
+      .slot-btn {
+        margin: 0.25rem;
+        padding: 0.35rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid #555;
+        background: #0b1220;
+        color: #eee;
+      }
+      .slot-btn.active {
+        border-color: #22c55e;
+        background: #14532d;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="ad-api-box">
+      <h1>Online zakazivanje</h1>
+      <p>
+        Ova stranica koristi <strong>isti izgled putanje</strong> (<code>/legacy/...</code>) i poziva Next API na istom domenu.
+        Morate biti ulogovani (OTP) na <a href="/prijava" style="color:#93c5fd">/prijava</a>, zatim izaberite vozilo i termin.
+      </p>
+      <p style="color:#94a3b8;font-size:14px">
+        Ako hostujete samo statiku na drugom domenu, postavite apsolutni URL ka Vercelu u skripti (vidi README) i CORS env.
+      </p>
+
+      <label>Vozilo</label>
+      <select id="vehicle"></select>
+
+      <label style="display:block;margin-top:1rem">Datum</label>
+      <input type="date" id="datum" />
+
+      <div style="margin-top:1rem">
+        <div style="font-size:14px;color:#94a3b8">Slobodni termini (30 min)</div>
+        <div id="slots"></div>
+      </div>
+
+      <button type="button" id="send" style="margin-top:1rem">Pošalji zahtev</button>
+      <pre id="out" style="margin-top:1rem;white-space:pre-wrap"></pre>
+    </main>
+    <script>
+      const API = "";
+      let selectedStart = null;
+
+      async function loadVehicles() {
+        const r = await fetch(API + "/api/me/vehicles", { credentials: "include" });
+        const j = await r.json();
+        const sel = document.getElementById("vehicle");
+        sel.innerHTML = "";
+        if (!r.ok) {
+          document.getElementById("out").textContent =
+            "Niste ulogovani. Otvorite /prijava i vratite se ovde.";
+          return;
+        }
+        (j.vehicles || []).forEach((v) => {
+          const o = document.createElement("option");
+          o.value = v.id;
+          o.textContent = v.make + " (" + v.year + ")";
+          sel.appendChild(o);
+        });
+      }
+
+      document.getElementById("datum").addEventListener("change", async function () {
+        const date = this.value;
+        selectedStart = null;
+        document.getElementById("slots").innerHTML = "Učitavam…";
+        const r = await fetch(API + "/api/bookings/availability?date=" + encodeURIComponent(date), {
+          credentials: "include",
+        });
+        const j = await r.json();
+        const box = document.getElementById("slots");
+        box.innerHTML = "";
+        if (!r.ok) {
+          box.textContent = j.message || "Greška";
+          return;
+        }
+        (j.slots || [])
+          .filter((s) => s.available)
+          .forEach((s) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "slot-btn";
+            const t = new Date(s.startAt).toLocaleTimeString("sr-RS", {
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "Europe/Belgrade",
+            });
+            b.textContent = t;
+            b.onclick = () => {
+              selectedStart = s.startAt;
+              Array.from(box.querySelectorAll("button")).forEach((x) => x.classList.remove("active"));
+              b.classList.add("active");
+            };
+            box.appendChild(b);
+          });
+      });
+
+      document.getElementById("send").addEventListener("click", async () => {
+        const vehicleId = document.getElementById("vehicle").value;
+        const out = document.getElementById("out");
+        if (!vehicleId || !selectedStart) {
+          out.textContent = "Izaberite vozilo, datum i vreme.";
+          return;
+        }
+        const r = await fetch(API + "/api/bookings", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vehicleId, startAt: selectedStart }),
+        });
+        const j = await r.json();
+        out.textContent = JSON.stringify(j, null, 2);
+      });
+
+      loadVehicles();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1122 @@
+import { and, asc, desc, eq, gte, inArray, isNull, lte, or } from "drizzle-orm";
+import { CONSULTATION_SELECTION_ID } from "@/lib/booking/constants";
+import { getDb, schema } from "@/lib/db/client";
+import { getClinicSettings, getDefaultEmployee } from "@/lib/booking/config";
+import {
+  getWorkingIntervalsForDate,
+  isSundayDateKey,
+  loadMorningShiftActivations,
+  loadSundayAvailability,
+  mapMorningShiftActivationsByDate,
+  mapSundayAvailabilityByDate,
+  toBelgradeDateKey,
+  toMinutes,
+} from "@/lib/booking/schedule";
+
+const BELGRADE_DATE_FORMATTER = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Belgrade",
+});
+const BELGRADE_TIME_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/Belgrade",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+const BELGRADE_OFFSET_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Europe/Belgrade",
+  timeZoneName: "shortOffset",
+});
+
+const MAX_BOOKING_DURATION_MIN = 60;
+export { CONSULTATION_SELECTION_ID };
+const CONSULTATION_DURATION_MIN = 15;
+const HYALURONIC_BRAND_OPTIONS = {
+  revolax: { label: "Revolax", unitPriceRsd: 180 },
+  teoxane: { label: "Teoxane", unitPriceRsd: 220 },
+  juvederm: { label: "Juvederm", unitPriceRsd: 220 },
+};
+
+export function addMinutes(dateValue, minutes) {
+  return new Date(dateValue.getTime() + minutes * 60 * 1000);
+}
+
+export function isWithinBookingWindow(dateValue, bookingWindowDays) {
+  const now = new Date();
+  const max = addMinutes(now, bookingWindowDays * 24 * 60);
+  return dateValue >= now && dateValue <= max;
+}
+
+export function hasCancelWindow(startAt) {
+  const diffMs = new Date(startAt).getTime() - Date.now();
+  return diffMs >= 2 * 60 * 60 * 1000;
+}
+
+function isWithinWorkingIntervals(startAt, durationMin, workingIntervals = []) {
+  const start = new Date(startAt);
+  if (Number.isNaN(start.getTime())) {
+    return false;
+  }
+  const end = addMinutes(start, durationMin);
+  const startMin = getBelgradeClockMinutes(start);
+  const endMin = getBelgradeClockMinutes(end);
+
+  return workingIntervals.some((interval) => {
+    const dayStartMinutes = toMinutes(interval.start);
+    const dayEndMinutes = toMinutes(interval.end);
+    return startMin >= dayStartMinutes && endMin <= dayEndMinutes;
+  });
+}
+
+export async function isWithinWorkHours(startAt, durationMin, settings) {
+  const effectiveSettings = settings || (await getClinicSettings());
+  const dateKey = toBelgradeDateKey(startAt);
+  const [activationRows, sundayRows] = await Promise.all([
+    loadMorningShiftActivations({
+      startDate: dateKey,
+      endDate: dateKey,
+    }),
+    isSundayDateKey(dateKey)
+      ? loadSundayAvailability({ startDate: dateKey, endDate: dateKey })
+      : Promise.resolve([]),
+  ]);
+  const sundayRow = isSundayDateKey(dateKey) ? sundayRows[0] || null : null;
+  const workingIntervals = getWorkingIntervalsForDate(
+    dateKey,
+    activationRows,
+    sundayRow
+  );
+
+  return isWithinWorkingIntervals(startAt, durationMin, workingIntervals, effectiveSettings);
+}
+
+function getBelgradeClockMinutes(dateValue) {
+  const parts = BELGRADE_TIME_FORMATTER.formatToParts(dateValue);
+  const hour = Number(parts.find((part) => part.type === "hour")?.value || 0);
+  const minute = Number(parts.find((part) => part.type === "minute")?.value || 0);
+  return hour * 60 + minute;
+}
+
+function getBelgradeOffsetMinutes(dateValue) {
+  const parts = BELGRADE_OFFSET_FORMATTER.formatToParts(dateValue);
+  const zonePart = parts.find((part) => part.type === "timeZoneName")?.value || "GMT+0";
+  const match = zonePart.match(/^GMT([+-])(\d{1,2})(?::?(\d{2}))?$/i);
+  if (!match) {
+    return 0;
+  }
+
+  const sign = match[1] === "-" ? -1 : 1;
+  const hours = Number(match[2] || 0);
+  const minutes = Number(match[3] || 0);
+  return sign * (hours * 60 + minutes);
+}
+
+function parseDateAtTime(dateStr, timeStr, seconds = 0) {
+  const [year, month, day] = String(dateStr)
+    .split("-")
+    .map((part) => Number(part));
+  const [hours, minutes] = String(timeStr)
+    .split(":")
+    .map((part) => Number(part));
+
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day) ||
+    !Number.isFinite(hours) ||
+    !Number.isFinite(minutes)
+  ) {
+    return new Date(NaN);
+  }
+
+  let utcGuess = Date.UTC(year, month - 1, day, hours, minutes, Number(seconds || 0));
+
+  for (let index = 0; index < 4; index += 1) {
+    const offsetMinutes = getBelgradeOffsetMinutes(new Date(utcGuess));
+    const adjustedUtc =
+      Date.UTC(year, month - 1, day, hours, minutes, Number(seconds || 0)) -
+      offsetMinutes * 60 * 1000;
+
+    if (adjustedUtc === utcGuess) {
+      break;
+    }
+    utcGuess = adjustedUtc;
+  }
+
+  return new Date(utcGuess);
+}
+
+function isOverlapping(aStart, aEnd, bStart, bEnd) {
+  return aStart < bEnd && aEnd > bStart;
+}
+
+function normalizeDate(value) {
+  if (value instanceof Date) {
+    return value;
+  }
+  return new Date(value);
+}
+
+function getPgCode(error) {
+  return String(error?.code || error?.cause?.code || "");
+}
+
+function buildDaySlots({
+  date,
+  totalDurationMin,
+  settings,
+  existingBookings,
+  workingIntervals = [],
+}) {
+  const slots = [];
+
+  for (const interval of workingIntervals) {
+    const dayStartMinutes = toMinutes(interval.start);
+    const dayEndMinutes = toMinutes(interval.end);
+
+    for (
+      let cursor = dayStartMinutes;
+      cursor + totalDurationMin <= dayEndMinutes;
+      cursor += settings.slotMinutes
+    ) {
+      const hh = String(Math.floor(cursor / 60)).padStart(2, "0");
+      const mm = String(cursor % 60).padStart(2, "0");
+      const slotStart = parseDateAtTime(date, `${hh}:${mm}`);
+      const slotEnd = addMinutes(slotStart, totalDurationMin);
+
+      const conflict = existingBookings.some((booking) =>
+        isOverlapping(
+          slotStart,
+          slotEnd,
+          new Date(booking.startsAt),
+          new Date(booking.endsAt)
+        )
+      );
+      const isPast = slotStart.getTime() <= Date.now();
+
+      slots.push({
+        startAt: slotStart.toISOString(),
+        endAt: slotEnd.toISOString(),
+        available: !conflict && !isPast,
+      });
+    }
+  }
+
+  return slots;
+}
+
+function toSafeQuantity(rawQuantity) {
+  const parsed = Number(rawQuantity);
+  if (!Number.isFinite(parsed)) {
+    return 1;
+  }
+  return Math.max(1, Math.floor(parsed));
+}
+
+function normalizeBrand(rawBrand) {
+  if (rawBrand === null || rawBrand === undefined) {
+    return null;
+  }
+  const normalized = String(rawBrand).trim().toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  return normalized;
+}
+
+function getBrandOption(brandKey) {
+  if (!brandKey) {
+    return null;
+  }
+  return HYALURONIC_BRAND_OPTIONS[brandKey] || null;
+}
+
+function isHyaluronicFillerServiceName(name) {
+  return String(name || "").toLowerCase().includes("hijaluronski filer");
+}
+
+export function normalizeServiceSelections(serviceSelections = [], serviceIds = []) {
+  const source =
+    Array.isArray(serviceSelections) && serviceSelections.length
+      ? serviceSelections
+      : Array.isArray(serviceIds)
+        ? serviceIds.map((serviceId) => ({ serviceId, quantity: 1 }))
+        : [];
+
+  const map = new Map();
+  source.forEach((item) => {
+    if (!item) {
+      return;
+    }
+
+    const serviceId =
+      typeof item === "string" ? item.trim() : String(item.serviceId || "").trim();
+    if (!serviceId) {
+      return;
+    }
+    if (serviceId === CONSULTATION_SELECTION_ID) {
+      map.set(CONSULTATION_SELECTION_ID, {
+        serviceId: CONSULTATION_SELECTION_ID,
+        quantity: 1,
+        brand: null,
+      });
+      return;
+    }
+
+    const quantity = toSafeQuantity(
+      typeof item === "string" ? 1 : item.quantity
+    );
+    const brand = normalizeBrand(typeof item === "string" ? null : item.brand);
+    const mapKey = `${serviceId}::${brand || "__none__"}`;
+
+    if (!map.has(mapKey)) {
+      map.set(mapKey, {
+        serviceId,
+        quantity,
+        brand,
+      });
+      return;
+    }
+
+    const existing = map.get(mapKey);
+    existing.quantity += quantity;
+  });
+
+  return Array.from(map.values()).map((item) => ({
+    serviceId: item.serviceId,
+    quantity: item.quantity,
+    brand: item.brand,
+  }));
+}
+
+function calculateMlTotal(basePriceRsd, quantity, discountPercent) {
+  let total = 0;
+  for (let index = 1; index <= quantity; index += 1) {
+    const rawFactor = 1 - ((index - 1) * discountPercent) / 100;
+    const factor = Math.max(0.1, rawFactor);
+    total += Math.round(basePriceRsd * factor);
+  }
+  return total;
+}
+
+function getActivePromoBase(service, now) {
+  const hasPromo =
+    service.promoActive &&
+    service.promoPriceRsd !== null &&
+    service.promoPriceRsd !== undefined &&
+    (!service.promoStartsAt || service.promoStartsAt <= now) &&
+    (!service.promoEndsAt || service.promoEndsAt >= now);
+
+  return {
+    hasPromo: Boolean(hasPromo),
+    promoBase: hasPromo ? Number(service.promoPriceRsd) : Number(service.priceRsd),
+    regularBase: Number(service.priceRsd),
+  };
+}
+
+function getMlDurationMin(baseDurationMin, quantity) {
+  const base = Math.max(5, Number(baseDurationMin || 30));
+  if (quantity <= 2) {
+    return base;
+  }
+  if (quantity === 3) {
+    return Math.min(MAX_BOOKING_DURATION_MIN, Math.max(base + 15, 45));
+  }
+  return MAX_BOOKING_DURATION_MIN;
+}
+
+async function fetchServicesWithActivePromo(db, serviceIds, now) {
+  if (!serviceIds.length) {
+    return [];
+  }
+
+  const rows = await db
+    .select({
+      id: schema.services.id,
+      kind: schema.services.kind,
+      name: schema.services.name,
+      priceRsd: schema.services.priceRsd,
+      durationMin: schema.services.durationMin,
+      colorHex: schema.services.colorHex,
+      supportsMl: schema.services.supportsMl,
+      maxMl: schema.services.maxMl,
+      extraMlDiscountPercent: schema.services.extraMlDiscountPercent,
+      isActive: schema.services.isActive,
+      promoPriceRsd: schema.servicePromotions.promoPriceRsd,
+      promoStartsAt: schema.servicePromotions.startsAt,
+      promoEndsAt: schema.servicePromotions.endsAt,
+      promoActive: schema.servicePromotions.isActive,
+      promoUpdatedAt: schema.servicePromotions.updatedAt,
+      promoCreatedAt: schema.servicePromotions.createdAt,
+    })
+    .from(schema.services)
+    .leftJoin(
+      schema.servicePromotions,
+      and(
+        eq(schema.servicePromotions.serviceId, schema.services.id),
+        eq(schema.servicePromotions.isActive, true),
+        or(isNull(schema.servicePromotions.startsAt), lte(schema.servicePromotions.startsAt, now)),
+        or(isNull(schema.servicePromotions.endsAt), gte(schema.servicePromotions.endsAt, now))
+      )
+    )
+    .where(inArray(schema.services.id, serviceIds))
+    .orderBy(
+      asc(schema.services.id),
+      desc(schema.servicePromotions.updatedAt),
+      desc(schema.servicePromotions.createdAt)
+    );
+
+  const uniqueRows = [];
+  const seenServiceIds = new Set();
+  for (const row of rows) {
+    if (seenServiceIds.has(row.id)) {
+      continue;
+    }
+    seenServiceIds.add(row.id);
+    uniqueRows.push(row);
+  }
+  return uniqueRows;
+}
+
+export async function resolveQuote(input = [], options = {}) {
+  const requireHyaluronicBrand = Boolean(options.requireHyaluronicBrand);
+  const normalizedRootSelections = normalizeServiceSelections(
+    Array.isArray(input) && input.length && typeof input[0] === "object"
+      ? input
+      : [],
+    Array.isArray(input) && input.length && typeof input[0] === "string" ? input : []
+  );
+
+  if (!normalizedRootSelections.length) {
+    throw new Error("At least one service is required.");
+  }
+
+  const includesConsultation = normalizedRootSelections.some(
+    (item) => item.serviceId === CONSULTATION_SELECTION_ID
+  );
+  const rootServiceSelections = normalizedRootSelections.filter(
+    (item) => item.serviceId !== CONSULTATION_SELECTION_ID
+  );
+
+  if (!rootServiceSelections.length && includesConsultation) {
+    return {
+      items: [
+        {
+          serviceId: CONSULTATION_SELECTION_ID,
+          name: "Konsultacija",
+          quantity: 1,
+          unitLabel: "termin",
+          durationMin: CONSULTATION_DURATION_MIN,
+          finalPriceRsd: 0,
+          regularPriceRsd: 0,
+          usedPromotion: false,
+          serviceColor: "#8e939b",
+          sourcePackageServiceId: null,
+          supportsMl: false,
+          maxMl: 1,
+          extraMlDiscountPercent: 0,
+          brand: null,
+          pricingNote: "2000 RSD se obračunava i eventualno odbija naknadno u ordinaciji.",
+        },
+      ],
+      totalDurationMin: CONSULTATION_DURATION_MIN,
+      totalPriceRsd: 0,
+      primaryServiceColor: "#8e939b",
+      currency: "EUR",
+      normalizedSelections: normalizedRootSelections,
+    };
+  }
+
+  const db = getDb();
+  const now = new Date();
+  const rootIds = rootServiceSelections.map((item) => item.serviceId);
+
+  const uniqueRootRows = await fetchServicesWithActivePromo(db, rootIds, now);
+
+  if (uniqueRootRows.length !== rootIds.length) {
+    throw new Error("Some services are invalid or inactive.");
+  }
+
+  const rootById = new Map(uniqueRootRows.map((row) => [row.id, row]));
+  const packageIds = uniqueRootRows
+    .filter((row) => row.kind === "package")
+    .map((row) => row.id);
+
+  const packageItemsRows = packageIds.length
+    ? await db
+        .select({
+          packageServiceId: schema.servicePackageItems.packageServiceId,
+          serviceId: schema.servicePackageItems.serviceId,
+          quantity: schema.servicePackageItems.quantity,
+          sortOrder: schema.servicePackageItems.sortOrder,
+        })
+        .from(schema.servicePackageItems)
+        .where(inArray(schema.servicePackageItems.packageServiceId, packageIds))
+    : [];
+
+  const packageItemsByPackageId = packageItemsRows.reduce((acc, row) => {
+    if (!acc[row.packageServiceId]) {
+      acc[row.packageServiceId] = [];
+    }
+    acc[row.packageServiceId].push(row);
+    return acc;
+  }, {});
+
+  const expandedSelections = new Map();
+  rootServiceSelections.forEach((selection) => {
+    const rootService = rootById.get(selection.serviceId);
+    if (!rootService || !rootService.isActive) {
+      throw new Error("Some services are invalid or inactive.");
+    }
+
+    if (rootService.kind === "package") {
+      const packageItems = packageItemsByPackageId[rootService.id] || [];
+      if (!packageItems.length) {
+        throw new Error(`Package '${rootService.name}' has no configured items.`);
+      }
+
+      packageItems.forEach((item) => {
+        const quantity = Math.max(1, Number(item.quantity || 1)) * selection.quantity;
+        const selectionKey = `${item.serviceId}::__none__`;
+        if (!expandedSelections.has(selectionKey)) {
+          expandedSelections.set(selectionKey, {
+            serviceId: item.serviceId,
+            brand: null,
+            quantity: 0,
+            sourcePackages: new Set(),
+          });
+        }
+        const existing = expandedSelections.get(selectionKey);
+        existing.quantity += quantity;
+        existing.sourcePackages.add(rootService.id);
+      });
+      return;
+    }
+
+    const selectedBrand = normalizeBrand(selection.brand);
+    const selectionKey = `${rootService.id}::${selectedBrand || "__none__"}`;
+
+    if (!expandedSelections.has(selectionKey)) {
+      expandedSelections.set(selectionKey, {
+        serviceId: rootService.id,
+        brand: selectedBrand,
+        quantity: 0,
+        sourcePackages: new Set(),
+      });
+    }
+    const existing = expandedSelections.get(selectionKey);
+    existing.quantity += selection.quantity;
+  });
+
+  const expandedIds = Array.from(
+    new Set(Array.from(expandedSelections.values()).map((item) => item.serviceId))
+  );
+  const uniqueExpandedRows = await fetchServicesWithActivePromo(db, expandedIds, now);
+
+  if (uniqueExpandedRows.length !== expandedIds.length) {
+    throw new Error("Some package items reference missing services.");
+  }
+
+  const expandedRowsById = new Map(uniqueExpandedRows.map((row) => [row.id, row]));
+
+  const items = Array.from(expandedSelections.values()).map((selection) => {
+    const row = expandedRowsById.get(selection.serviceId);
+    if (!row) {
+      throw new Error("Some package items reference missing services.");
+    }
+
+    if (!row.isActive) {
+      throw new Error(`Service '${row.name}' is inactive.`);
+    }
+    if (row.kind !== "single") {
+      throw new Error("Only single services can be booked directly.");
+    }
+
+    const quantity = toSafeQuantity(selection?.quantity || 1);
+    const sourcePackages = selection?.sourcePackages || new Set();
+
+    const { hasPromo, promoBase, regularBase } = getActivePromoBase(row, now);
+    const discountPercent = Math.max(0, Math.min(40, Number(row.extraMlDiscountPercent || 0)));
+    const supportsMl = Boolean(row.supportsMl);
+    const brandKey = normalizeBrand(selection?.brand);
+    const brandOption = getBrandOption(brandKey);
+    const isHyaluronicByBrand =
+      supportsMl && isHyaluronicFillerServiceName(row.name);
+
+    if (supportsMl && quantity > Number(row.maxMl || 1)) {
+      throw new Error(
+        `Service '${row.name}' supports up to ${Number(row.maxMl || 1)} ml.`
+      );
+    }
+
+    if (brandKey && !brandOption) {
+      throw new Error(
+        `Unsupported brand '${selection.brand}' for service '${row.name}'.`
+      );
+    }
+
+    if (isHyaluronicByBrand && sourcePackages.size === 0 && requireHyaluronicBrand && !brandOption) {
+      throw new Error(
+        `Service '${row.name}' requires a selected brand (Revolax, Teoxane, Juvederm).`
+      );
+    }
+
+    const itemName = brandOption ? `${row.name} (${brandOption.label})` : row.name;
+    const effectivePromoBase =
+      brandOption && isHyaluronicByBrand ? brandOption.unitPriceRsd : promoBase;
+    const effectiveRegularBase =
+      brandOption && isHyaluronicByBrand ? brandOption.unitPriceRsd : regularBase;
+
+    const finalPriceRsd = supportsMl
+      ? calculateMlTotal(effectivePromoBase, quantity, discountPercent)
+      : effectivePromoBase * quantity;
+    const regularPriceRsd = supportsMl
+      ? calculateMlTotal(effectiveRegularBase, quantity, discountPercent)
+      : effectiveRegularBase * quantity;
+    const durationMin = supportsMl
+      ? getMlDurationMin(Number(row.durationMin), quantity)
+      : Number(row.durationMin) * quantity;
+
+    let sourcePackageServiceId = null;
+    if (sourcePackages.size === 1) {
+      sourcePackageServiceId = Array.from(sourcePackages)[0];
+    }
+
+    return {
+      serviceId: row.id,
+      name: itemName,
+      quantity,
+      unitLabel: supportsMl ? "ml" : "kom",
+      durationMin,
+      finalPriceRsd,
+      regularPriceRsd,
+      usedPromotion: brandOption && isHyaluronicByBrand ? false : hasPromo,
+      serviceColor: row.colorHex || "#8e939b",
+      sourcePackageServiceId,
+      supportsMl,
+      maxMl: Number(row.maxMl || 1),
+      extraMlDiscountPercent: discountPercent,
+      brand: brandOption?.label || null,
+    };
+  });
+
+  if (includesConsultation) {
+    items.unshift({
+      serviceId: CONSULTATION_SELECTION_ID,
+      name: "Konsultacija",
+      quantity: 1,
+      unitLabel: "termin",
+      durationMin: CONSULTATION_DURATION_MIN,
+      finalPriceRsd: 0,
+      regularPriceRsd: 0,
+      usedPromotion: false,
+      serviceColor: "#8e939b",
+      sourcePackageServiceId: null,
+      supportsMl: false,
+      maxMl: 1,
+      extraMlDiscountPercent: 0,
+      brand: null,
+      pricingNote: "2000 RSD se obračunava i eventualno odbija naknadno u ordinaciji.",
+    });
+  }
+
+  const rawTotalDurationMin = items.reduce((sum, item) => sum + item.durationMin, 0);
+  const totalDurationMin = Math.min(MAX_BOOKING_DURATION_MIN, rawTotalDurationMin);
+
+  const totalPriceRsd = items.reduce((sum, item) => sum + item.finalPriceRsd, 0);
+  const primaryServiceColor = items[0]?.serviceColor || "#8e939b";
+
+  return {
+    items,
+    totalDurationMin,
+    totalPriceRsd,
+    primaryServiceColor,
+    currency: "EUR",
+    normalizedSelections: normalizedRootSelections,
+  };
+}
+
+export async function findConflicts({ employeeId, startsAt, endsAt, tx, excludeBookingId }) {
+  const db = tx || getDb();
+  const startsAtDate = normalizeDate(startsAt);
+  const endsAtDate = normalizeDate(endsAt);
+
+  if (Number.isNaN(startsAtDate.getTime()) || Number.isNaN(endsAtDate.getTime())) {
+    throw new Error("Invalid date range for conflict check.");
+  }
+
+  const bookingRows = await db
+    .select({
+      id: schema.bookings.id,
+      startsAt: schema.bookings.startsAt,
+      endsAt: schema.bookings.endsAt,
+    })
+    .from(schema.bookings)
+    .where(
+      and(
+        eq(schema.bookings.employeeId, employeeId),
+        inArray(schema.bookings.status, ["pending", "confirmed"]),
+        lte(schema.bookings.startsAt, endsAtDate),
+        gte(schema.bookings.endsAt, startsAtDate)
+      )
+    )
+    .limit(20);
+  let blockRows = [];
+  try {
+    blockRows = await db
+      .select({
+        id: schema.bookingBlocks.id,
+        startsAt: schema.bookingBlocks.startsAt,
+        endsAt: schema.bookingBlocks.endsAt,
+      })
+      .from(schema.bookingBlocks)
+      .where(
+        and(
+          eq(schema.bookingBlocks.employeeId, employeeId),
+          lte(schema.bookingBlocks.startsAt, endsAtDate),
+          gte(schema.bookingBlocks.endsAt, startsAtDate)
+        )
+      )
+      .limit(20);
+  } catch (error) {
+    if (getPgCode(error) !== "42P01") {
+      throw error;
+    }
+  }
+
+  const requestedStart = startsAtDate;
+  const requestedEnd = endsAtDate;
+
+  const bookingConflicts = bookingRows.filter((booking) => {
+    if (excludeBookingId && booking.id === excludeBookingId) {
+      return false;
+    }
+    return isOverlapping(
+      requestedStart,
+      requestedEnd,
+      new Date(booking.startsAt),
+      new Date(booking.endsAt)
+    );
+  });
+  const blockConflicts = blockRows.filter((block) =>
+    isOverlapping(
+      requestedStart,
+      requestedEnd,
+      new Date(block.startsAt),
+      new Date(block.endsAt)
+    )
+  );
+
+  return [...bookingConflicts, ...blockConflicts];
+}
+
+export async function getAvailabilityByDay({
+  date,
+  serviceIds = [],
+  serviceSelections = [],
+  requireHyaluronicBrand = false,
+}) {
+  const { totalDurationMin } =
+    serviceSelections.length || serviceIds.length
+      ? await resolveQuote(
+          serviceSelections.length ? serviceSelections : serviceIds,
+          { requireHyaluronicBrand }
+        )
+      : { totalDurationMin: 15 };
+
+  const [settings, employee] = await Promise.all([
+    getClinicSettings(),
+    getDefaultEmployee(),
+  ]);
+  const db = getDb();
+
+  const startOfDay = parseDateAtTime(date, "00:00");
+  const endOfDay = parseDateAtTime(date, "23:59", 59);
+  const [activationRows, sundayRows] = await Promise.all([
+    loadMorningShiftActivations({
+      startDate: date,
+      endDate: date,
+      db,
+    }),
+    isSundayDateKey(date)
+      ? loadSundayAvailability({ startDate: date, endDate: date, db })
+      : Promise.resolve([]),
+  ]);
+  const sundayRow = isSundayDateKey(date) ? sundayRows[0] || null : null;
+  const workingIntervals = getWorkingIntervalsForDate(
+    date,
+    activationRows,
+    sundayRow
+  );
+
+  const existingBookings = await db
+    .select({
+      startsAt: schema.bookings.startsAt,
+      endsAt: schema.bookings.endsAt,
+    })
+    .from(schema.bookings)
+    .where(
+      and(
+        eq(schema.bookings.employeeId, employee.id),
+        inArray(schema.bookings.status, ["pending", "confirmed"]),
+        gte(schema.bookings.startsAt, startOfDay),
+        lte(schema.bookings.startsAt, endOfDay)
+      )
+    );
+
+  let existingBlocks = [];
+  try {
+    existingBlocks = await db
+      .select({
+        startsAt: schema.bookingBlocks.startsAt,
+        endsAt: schema.bookingBlocks.endsAt,
+      })
+      .from(schema.bookingBlocks)
+      .where(
+        and(
+          eq(schema.bookingBlocks.employeeId, employee.id),
+          gte(schema.bookingBlocks.startsAt, startOfDay),
+          lte(schema.bookingBlocks.startsAt, endOfDay)
+        )
+      );
+  } catch (error) {
+    if (getPgCode(error) !== "42P01") {
+      throw error;
+    }
+  }
+
+  const slots = buildDaySlots({
+    date,
+    totalDurationMin,
+    settings,
+    existingBookings: [...existingBookings, ...existingBlocks],
+    workingIntervals,
+  });
+
+  return {
+    date,
+    totalDurationMin,
+    slotMinutes: settings.slotMinutes,
+    slots,
+  };
+}
+
+export async function getAvailabilityByDayDuration({ date, totalDurationMin }) {
+  const safeDuration = Math.max(5, Math.min(MAX_BOOKING_DURATION_MIN, Number(totalDurationMin || 15)));
+  const [settings, employee] = await Promise.all([
+    getClinicSettings(),
+    getDefaultEmployee(),
+  ]);
+  const db = getDb();
+
+  const startOfDay = parseDateAtTime(date, "00:00");
+  const endOfDay = parseDateAtTime(date, "23:59", 59);
+  const [activationRows, sundayRows] = await Promise.all([
+    loadMorningShiftActivations({
+      startDate: date,
+      endDate: date,
+      db,
+    }),
+    isSundayDateKey(date)
+      ? loadSundayAvailability({ startDate: date, endDate: date, db })
+      : Promise.resolve([]),
+  ]);
+  const sundayRow = isSundayDateKey(date) ? sundayRows[0] || null : null;
+  const workingIntervals = getWorkingIntervalsForDate(date, activationRows, sundayRow);
+
+  const existingBookings = await db
+    .select({
+      startsAt: schema.bookings.startsAt,
+      endsAt: schema.bookings.endsAt,
+    })
+    .from(schema.bookings)
+    .where(
+      and(
+        eq(schema.bookings.employeeId, employee.id),
+        inArray(schema.bookings.status, ["pending", "confirmed"]),
+        gte(schema.bookings.startsAt, startOfDay),
+        lte(schema.bookings.startsAt, endOfDay)
+      )
+    );
+
+  let existingBlocks = [];
+  try {
+    existingBlocks = await db
+      .select({
+        startsAt: schema.bookingBlocks.startsAt,
+        endsAt: schema.bookingBlocks.endsAt,
+      })
+      .from(schema.bookingBlocks)
+      .where(
+        and(
+          eq(schema.bookingBlocks.employeeId, employee.id),
+          gte(schema.bookingBlocks.startsAt, startOfDay),
+          lte(schema.bookingBlocks.startsAt, endOfDay)
+        )
+      );
+  } catch (error) {
+    if (getPgCode(error) !== "42P01") {
+      throw error;
+    }
+  }
+
+  const slots = buildDaySlots({
+    date,
+    totalDurationMin: safeDuration,
+    settings,
+    existingBookings: [...existingBookings, ...existingBlocks],
+    workingIntervals,
+  });
+
+  return {
+    date,
+    totalDurationMin: safeDuration,
+    slotMinutes: settings.slotMinutes,
+    slots,
+  };
+}
+
+export async function getAvailabilityByMonthDuration({ month, totalDurationMin }) {
+  const safeDuration = Math.max(5, Math.min(MAX_BOOKING_DURATION_MIN, Number(totalDurationMin || 15)));
+  const [settings, employee] = await Promise.all([
+    getClinicSettings(),
+    getDefaultEmployee(),
+  ]);
+  const db = getDb();
+
+  const [year, monthPart] = month.split("-").map(Number);
+  const lastDay = new Date(year, monthPart, 0).getDate();
+  const firstDayKey = `${month}-01`;
+  const lastDayKey = `${month}-${String(lastDay).padStart(2, "0")}`;
+  const startOfMonth = parseDateAtTime(`${month}-01`, "00:00");
+  const endOfMonth = parseDateAtTime(lastDayKey, "23:59", 59);
+
+  const [activationRows, sundayRows] = await Promise.all([
+    loadMorningShiftActivations({
+      startDate: firstDayKey,
+      endDate: lastDayKey,
+      db,
+    }),
+    loadSundayAvailability({
+      startDate: firstDayKey,
+      endDate: lastDayKey,
+      db,
+    }),
+  ]);
+  const activationsByDate = mapMorningShiftActivationsByDate(
+    activationRows,
+    firstDayKey,
+    lastDayKey
+  );
+  const sundayByDate = mapSundayAvailabilityByDate(sundayRows, firstDayKey, lastDayKey);
+
+  const monthBookings = await db
+    .select({
+      startsAt: schema.bookings.startsAt,
+      endsAt: schema.bookings.endsAt,
+    })
+    .from(schema.bookings)
+    .where(
+      and(
+        eq(schema.bookings.employeeId, employee.id),
+        inArray(schema.bookings.status, ["pending", "confirmed"]),
+        gte(schema.bookings.startsAt, startOfMonth),
+        lte(schema.bookings.startsAt, endOfMonth)
+      )
+    );
+
+  let monthBlocks = [];
+  try {
+    monthBlocks = await db
+      .select({
+        startsAt: schema.bookingBlocks.startsAt,
+        endsAt: schema.bookingBlocks.endsAt,
+      })
+      .from(schema.bookingBlocks)
+      .where(
+        and(
+          eq(schema.bookingBlocks.employeeId, employee.id),
+          gte(schema.bookingBlocks.startsAt, startOfMonth),
+          lte(schema.bookingBlocks.startsAt, endOfMonth)
+        )
+      );
+  } catch (error) {
+    if (getPgCode(error) !== "42P01") {
+      throw error;
+    }
+  }
+
+  const bookingsByDate = monthBookings.reduce((acc, booking) => {
+    const key = toBelgradeDateKey(booking.startsAt);
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(booking);
+    return acc;
+  }, {});
+
+  const blocksByDate = monthBlocks.reduce((acc, block) => {
+    const key = toBelgradeDateKey(block.startsAt);
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(block);
+    return acc;
+  }, {});
+
+  const days = [];
+  for (let day = 1; day <= lastDay; day += 1) {
+    const dayStr = `${month}-${String(day).padStart(2, "0")}`;
+    const slots = buildDaySlots({
+      date: dayStr,
+      totalDurationMin: safeDuration,
+      settings,
+      existingBookings: [...(bookingsByDate[dayStr] || []), ...(blocksByDate[dayStr] || [])],
+      workingIntervals: getWorkingIntervalsForDate(
+        dayStr,
+        activationsByDate[dayStr] || [],
+        sundayByDate[dayStr] || null
+      ),
+    });
+
+    days.push({
+      date: dayStr,
+      availableSlots: slots.filter((slot) => slot.available).length,
+    });
+  }
+
+  return { month, days, totalDurationMin: safeDuration, slotMinutes: settings.slotMinutes };
+}
+
+export async function getAvailabilityByMonth({
+  month,
+  serviceIds = [],
+  serviceSelections = [],
+  requireHyaluronicBrand = false,
+}) {
+  const { totalDurationMin } =
+    serviceSelections.length || serviceIds.length
+      ? await resolveQuote(
+          serviceSelections.length ? serviceSelections : serviceIds,
+          { requireHyaluronicBrand }
+        )
+      : { totalDurationMin: 15 };
+
+  const [settings, employee] = await Promise.all([
+    getClinicSettings(),
+    getDefaultEmployee(),
+  ]);
+  const db = getDb();
+
+  const [year, monthPart] = month.split("-").map(Number);
+  const lastDay = new Date(year, monthPart, 0).getDate();
+  const firstDayKey = `${month}-01`;
+  const lastDayKey = `${month}-${String(lastDay).padStart(2, "0")}`;
+  const startOfMonth = parseDateAtTime(`${month}-01`, "00:00");
+  const endOfMonth = parseDateAtTime(
+    lastDayKey,
+    "23:59",
+    59
+  );
+  const [activationRows, sundayRows] = await Promise.all([
+    loadMorningShiftActivations({
+      startDate: firstDayKey,
+      endDate: lastDayKey,
+      db,
+    }),
+    loadSundayAvailability({
+      startDate: firstDayKey,
+      endDate: lastDayKey,
+      db,
+    }),
+  ]);
+  const activationsByDate = mapMorningShiftActivationsByDate(
+    activationRows,
+    firstDayKey,
+    lastDayKey
+  );
+  const sundayByDate = mapSundayAvailabilityByDate(
+    sundayRows,
+    firstDayKey,
+    lastDayKey
+  );
+
+  const monthBookings = await db
+    .select({
+      startsAt: schema.bookings.startsAt,
+      endsAt: schema.bookings.endsAt,
+    })
+    .from(schema.bookings)
+    .where(
+      and(
+        eq(schema.bookings.employeeId, employee.id),
+        inArray(schema.bookings.status, ["pending", "confirmed"]),
+        gte(schema.bookings.startsAt, startOfMonth),
+        lte(schema.bookings.startsAt, endOfMonth)
+      )
+    );
+
+  let monthBlocks = [];
+  try {
+    monthBlocks = await db
+      .select({
+        startsAt: schema.bookingBlocks.startsAt,
+        endsAt: schema.bookingBlocks.endsAt,
+      })
+      .from(schema.bookingBlocks)
+      .where(
+        and(
+          eq(schema.bookingBlocks.employeeId, employee.id),
+          gte(schema.bookingBlocks.startsAt, startOfMonth),
+          lte(schema.bookingBlocks.startsAt, endOfMonth)
+        )
+      );
+  } catch (error) {
+    if (getPgCode(error) !== "42P01") {
+      throw error;
+    }
+  }
+
+  const bookingsByDate = monthBookings.reduce((acc, booking) => {
+    const key = toBelgradeDateKey(booking.startsAt);
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(booking);
+    return acc;
+  }, {});
+
+  const blocksByDate = monthBlocks.reduce((acc, block) => {
+    const key = toBelgradeDateKey(block.startsAt);
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(block);
+    return acc;
+  }, {});
+
+  const days = [];
+  for (let day = 1; day <= lastDay; day += 1) {
+    const dayStr = `${month}-${String(day).padStart(2, "0")}`;
+    const slots = buildDaySlots({
+      date: dayStr,
+      totalDurationMin,
+      settings,
+      existingBookings: [
+        ...(bookingsByDate[dayStr] || []),
+        ...(blocksByDate[dayStr] || []),
+      ],
+      workingIntervals: getWorkingIntervalsForDate(
+        dayStr,
+        activationsByDate[dayStr] || [],
+        sundayByDate[dayStr] || null
+      ),
+    });
+
+    days.push({
+      date: dayStr,
+      availableSlots: slots.filter((slot) => slot.available).length,
+    });
+  }
+
+  return { month, days };
+}

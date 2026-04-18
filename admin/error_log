@@ -1,0 +1,304 @@
+[15-Nov-2024 02:07:35 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'autodeli_delic'@'localhost' to database 'autodeli_delic' in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[18-Nov-2024 00:25:04 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'marka' in 'field list' in /home/autodeli/public_html/admin/book_appointment.php:33
+Stack trace:
+#0 /home/autodeli/public_html/admin/book_appointment.php(33): mysqli->prepare()
+#1 {main}
+  thrown in /home/autodeli/public_html/admin/book_appointment.php on line 33
+[18-Nov-2024 00:25:19 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'marka' in 'field list' in /home/autodeli/public_html/admin/book_appointment.php:33
+Stack trace:
+#0 /home/autodeli/public_html/admin/book_appointment.php(33): mysqli->prepare()
+#1 {main}
+  thrown in /home/autodeli/public_html/admin/book_appointment.php on line 33
+[19-Nov-2024 15:56:09 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:56:14 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:56:17 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:56:19 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:56:21 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/kreiranje-vozila.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:56:32 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/vozila.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:56:35 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/vozila.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:57:23 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:57:25 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:57:35 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/kreiranje-vozila.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:57:39 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/vozila.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:59:07 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[19-Nov-2024 15:59:14 CET] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'delic'@'localhost' (using password: YES) in /home/autodeli/public_html/admin/parts/mysql.php:9
+Stack trace:
+#0 /home/autodeli/public_html/admin/parts/mysql.php(9): mysqli->__construct()
+#1 /home/autodeli/public_html/admin/tehnicki-pregledi.php(4): require_once('/home/autodeli/...')
+#2 {main}
+  thrown in /home/autodeli/public_html/admin/parts/mysql.php on line 9
+[07-Oct-2025 13:39:27 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 13:39:27 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 13:39:33 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 13:39:33 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 13:39:36 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 13:39:36 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 13:43:29 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:29 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:30 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:30 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:31 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:31 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:33 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:33 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:34 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:34 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:35 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:43:35 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:47:14 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:47:14 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:47:16 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:47:16 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:47:18 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:47:18 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:47:19 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:47:19 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 20
+[07-Oct-2025 13:49:22 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:22 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:23 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:23 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:24 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:24 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:25 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:25 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:25 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:25 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:25 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:25 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:27 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:27 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:41 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:41 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:42 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:42 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:50 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:50 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:51 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:51 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:51 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:49:51 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:51:28 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:51:28 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:51:33 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:51:33 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:68
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 68
+[07-Oct-2025 13:56:02 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 70
+[07-Oct-2025 13:56:02 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:70
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 70
+[07-Oct-2025 13:56:11 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 70
+[07-Oct-2025 13:56:11 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:70
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 70
+[07-Oct-2025 14:02:43 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki_edit.php on line 16
+[07-Oct-2025 14:02:43 CET] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in /home/autodeli/public_html/admin/tehnicki_edit.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki_edit.php on line 16
+[07-Oct-2025 14:04:33 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki_edit.php on line 16
+[07-Oct-2025 14:04:33 CET] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in /home/autodeli/public_html/admin/tehnicki_edit.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki_edit.php on line 16
+[07-Oct-2025 14:26:10 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:10 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:12 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:12 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:12 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:12 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:12 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:12 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:13 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:13 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:14 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:14 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:14 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:14 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:15 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:15 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:18 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:18 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:19 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:19 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:19 CET] PHP Warning:  Undefined variable $pdo in /home/autodeli/public_html/admin/tehnicki.php on line 57
+[07-Oct-2025 14:26:19 CET] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/autodeli/public_html/admin/tehnicki.php:57
+Stack trace:
+#0 {main}
+  thrown in /home/autodeli/public_html/admin/tehnicki.php on line 57
