@@ -12,6 +12,16 @@ Next.js 15 (App Router), Drizzle ORM, Neon Postgres, OTP prijava emailom, zakazi
 | `lib/auth/` | OTP, JWT cookie `autodelic_session` |
 | `public/legacy/` | Statički HTML/CSS/slike starog sajta (kopija) |
 | `scripts/seed.ts` | Podrazumevani zaposleni + `garage_settings` |
+| `app/admin/admin-template.css` | Stilovi admin panela (iz `auto-delic-admin-panel-bootstrap`) |
+
+### Admin panel — vlasnik vs radnik
+
+Jedan **admin UI** (`AdminShellAutoDelic`), ali **meni i API** zavise od uloge:
+
+| Uloga (`users.role`) | Šta vidi |
+|---------------------|----------|
+| **`staff`** | Kalendar, Termini — API vraća samo **današnji** dan za listu termina. Nema kontrolne table, klijenata, analitike, videa, podešavanja. |
+| **`admin`** | Sve: kontrolna tabla, klijenti, analitika, YouTube, podešavanja radnog vremena/slotova. |
 
 ## Lokalno
 
@@ -62,7 +72,15 @@ Ako HTML ostane na starom domenu, postavi `NEXT_PUBLIC_APP_URL` na Vercel URL i 
 | `GET /api/media/videos` | Javni YouTube redovi |
 | `GET/POST /api/admin/media/videos` | Admin CRUD |
 | `PATCH/DELETE /api/admin/media/videos/[id]` | |
+| `GET /api/admin/me` | Uloga za admin shell |
+| `GET /api/admin/stats` | Statistika (samo admin) |
+| `GET /api/admin/clients` | Lista klijenata (samo admin) |
+| `GET/PATCH /api/admin/garage-settings` | Radno vreme / slotovi (samo admin) |
 
 ## Middleware
 
-`middleware.ts` štiti `/admin/*` i `/api/admin/*`: samo `staff` i `admin`. Rute `/admin/istorija`, `/admin/video` i `/api/admin/media/*` — samo **`admin`**.
+`middleware.ts` štiti `/admin/*` i `/api/admin/*`: samo `staff` i `admin`.
+
+Samo **`admin`**: `/admin/dashboard`, `/admin/klijenti`, `/admin/analitika`, `/admin/media`, `/admin/podesavanja`, `/api/admin/media/*`, `/api/admin/stats`, `/api/admin/clients`, `/api/admin/garage-settings`.
+
+Redirecti: `/admin/video` → `/admin/media`, `/admin/istorija` → `/admin/bookings`.

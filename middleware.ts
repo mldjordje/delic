@@ -17,9 +17,26 @@ function forbidden(request: NextRequest) {
     return NextResponse.json({ ok: false, message: "Forbidden" }, { status: 403 });
   }
   const u = request.nextUrl.clone();
-  u.pathname = "/admin";
+  u.pathname = "/admin/kalendar";
   return NextResponse.redirect(u);
 }
+
+const ADMIN_ONLY_PAGE_PREFIXES = [
+  "/admin/dashboard",
+  "/admin/klijenti",
+  "/admin/analitika",
+  "/admin/media",
+  "/admin/podesavanja",
+  "/admin/istorija",
+  "/admin/video",
+];
+
+const ADMIN_ONLY_API_PREFIXES = [
+  "/api/admin/media",
+  "/api/admin/stats",
+  "/api/admin/clients",
+  "/api/admin/garage-settings",
+];
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -42,12 +59,10 @@ export async function middleware(request: NextRequest) {
     return forbidden(request);
   }
 
-  const adminOnly =
-    path.startsWith("/admin/istorija") ||
-    path.startsWith("/admin/video") ||
-    path.startsWith("/api/admin/media");
+  const isAdminOnlyPage = ADMIN_ONLY_PAGE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+  const isAdminOnlyApi = ADMIN_ONLY_API_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
 
-  if (adminOnly && role !== "admin") {
+  if (role !== "admin" && (isAdminOnlyPage || isAdminOnlyApi)) {
     return forbidden(request);
   }
 
