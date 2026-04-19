@@ -42,7 +42,6 @@ function redirectToLogin(request: NextRequest, reason: string, nextPath: string)
 }
 
 export async function GET(request: NextRequest) {
-  const db = getDb();
   const url = new URL(request.url);
 
   const nextPath = sanitizeNextPath(request.cookies.get(GOOGLE_OAUTH_NEXT_COOKIE)?.value || "/nalog");
@@ -72,6 +71,7 @@ export async function GET(request: NextRequest) {
     request.cookies.get(GOOGLE_OAUTH_REDIRECT_COOKIE)?.value || getGoogleRedirectUri(request);
 
   try {
+    const db = getDb();
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -115,9 +115,10 @@ export async function GET(request: NextRequest) {
       return redirectToLogin(request, "google-email-missing", nextPath);
     }
 
-    const fullName =
+    const fullNameRaw =
       String(userInfo?.name || "").trim() ||
       [userInfo?.given_name, userInfo?.family_name].filter(Boolean).join(" ").trim();
+    const fullName = fullNameRaw.slice(0, 255);
 
     const [existingUser] = await db
       .select()
@@ -166,20 +167,25 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const token = await signSessionToken({
-      sub: user.id,
+    const sessionPayload: Record<string, unknown> = {
+      sub: String(user.id),
       role: user.role,
       email: user.email,
-      phone: user.phone,
-    });
+    };
+    if (user.phone != null && String(user.phone).length > 0) {
+      sessionPayload.phone = user.phone;
+    }
+    const token = await signSessionToken(sessionPayload);
 
     const successRedirect = new URL(sanitizeNextPath(nextPath), getBaseUrl(request));
     const response = NextResponse.redirect(successRedirect);
     setSessionCookie(response, token);
     clearGoogleOauthCookies(response);
     return response;
-  } catch {
-    return redirectToLogin(request, "google-auth-failed", nextPath);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[google oauth] callback error:", message, err);
+    return redirectToLogin(request, "google-server-error", nextPath);
   }
 }
 

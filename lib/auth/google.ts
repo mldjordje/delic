@@ -12,7 +12,6 @@ export function getGoogleOauthCookieOptions() {
     httpOnly: true as const,
     sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
-    domain: process.env.NODE_ENV === "production" ? ".autodelic.com" : undefined,
     path: "/",
   };
 }

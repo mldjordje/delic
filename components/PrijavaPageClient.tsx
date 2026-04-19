@@ -18,9 +18,13 @@ export function PrijavaPageClient() {
       case "google-denied":
         return "Google prijava je otkazana.";
       case "google-token-failed":
+        return "Google prijava nije uspela (razmena koda za token). Proveri da su u Google Cloud Console tačno podešeni redirect URI-ji i da GOOGLE_CLIENT_SECRET na Vercelu odgovara istom OAuth klijentu.";
       case "google-userinfo-failed":
+        return "Google prijava nije uspela (čitanje profila). Pokušaj ponovo za minut.";
+      case "google-server-error":
+        return "Greška na serveru pri završetku prijave (baza ili sesija). Proveri na Vercelu POSTGRES_URL/DATABASE_URL i da su migracije primenjene na Neon; zatim redeploy.";
       case "google-auth-failed":
-        return "Google prijava nije uspela. Proveri GOOGLE_REDIRECT_URI i podešavanja u Google Cloud Console.";
+        return "Google prijava nije uspela. Pokušaj ponovo; ako se ponavlja, proveri Vercel logs za api/auth/google/callback.";
       case "google-state-invalid":
         return "Sesija prijave je istekla. Pokušaj ponovo.";
       case "google-email-missing":

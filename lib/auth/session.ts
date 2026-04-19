@@ -5,12 +5,6 @@ import { env } from "@/lib/env";
 export const SESSION_COOKIE_NAME = "autodelic_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 
-function getProdCookieDomain() {
-  // Share session between autodelic.com and www.autodelic.com
-  if (process.env.NODE_ENV !== "production") return undefined;
-  return ".autodelic.com";
-}
-
 export function hasSessionSecret() {
   return Boolean(env.AUTH_JWT_SECRET);
 }
@@ -50,7 +44,6 @@ export function setSessionCookie(response: NextResponse, token: string) {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    domain: getProdCookieDomain(),
     path: "/",
     maxAge: SESSION_TTL_SECONDS,
   });
@@ -63,7 +56,6 @@ export function clearSessionCookie(response: NextResponse) {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    domain: getProdCookieDomain(),
     path: "/",
     maxAge: 0,
   });
