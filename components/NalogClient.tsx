@@ -57,7 +57,7 @@ export function NalogClient() {
 
   return (
     <div className="space-y-10">
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+      <section id="profil" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
         <h2 className="text-xl font-semibold text-white">Profil</h2>
         <form className="mt-4 grid gap-4 md:grid-cols-2" onSubmit={saveProfile}>
           <label className="text-sm text-slate-300">
@@ -88,7 +88,7 @@ export function NalogClient() {
         {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+      <section id="vozila" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
         <h2 className="text-xl font-semibold text-white">Moja vozila</h2>
         <ul className="mt-4 space-y-2 text-slate-300">
           {vehicles.map((v) => (

@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async rewrites() {
+    return [
+      { source: "/", destination: "/index.html" },
+    ];
+  },
   async redirects() {
     return [
       { source: "/admin/video", destination: "/admin/media", permanent: false },

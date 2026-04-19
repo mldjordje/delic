@@ -9,6 +9,7 @@ import {
   setSessionCookie,
   signSessionToken,
 } from "@/lib/auth/session";
+import { mergeRoleForLogin } from "@/lib/auth/admin-emails";
 
 export const runtime = "nodejs";
 
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
   if (!user && type === "email") {
     const [created] = await db
       .insert(schema.users)
-      .values({ email: value, role: "client" })
+      .values({ email: value, role: mergeRoleForLogin(value, "client") })
       .returning();
     user = created;
   }
@@ -99,14 +100,20 @@ export async function POST(request: Request) {
     return withCors(request, fail(404, "Korisnik nije pronađen."));
   }
 
+  const resolvedRole = mergeRoleForLogin(user.email, user.role);
+
   await db
     .update(schema.users)
-    .set({ lastLoginAt: now, updatedAt: now })
+    .set({
+      lastLoginAt: now,
+      updatedAt: now,
+      role: resolvedRole,
+    })
     .where(eq(schema.users.id, user.id));
 
   const token = await signSessionToken({
     sub: user.id,
-    role: user.role,
+    role: resolvedRole,
     email: user.email,
     phone: user.phone,
   });
@@ -117,7 +124,7 @@ export async function POST(request: Request) {
       id: user.id,
       email: user.email,
       phone: user.phone,
-      role: user.role,
+      role: resolvedRole,
     },
   });
   setSessionCookie(response, token);

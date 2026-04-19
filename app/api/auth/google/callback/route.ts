@@ -1,0 +1,178 @@
+import { and, eq } from "drizzle-orm";
+import { NextRequest, NextResponse } from "next/server";
+import { getDb, schema } from "@/lib/db/client";
+import {
+  getBaseUrl,
+  getGoogleOauthCookieOptions,
+  getGoogleRedirectUri,
+  GOOGLE_OAUTH_NEXT_COOKIE,
+  GOOGLE_OAUTH_STATE_COOKIE,
+  hasGoogleConfig,
+  sanitizeNextPath,
+} from "@/lib/auth/google";
+import {
+  hasSessionSecret,
+  setSessionCookie,
+  signSessionToken,
+} from "@/lib/auth/session";
+import { mergeRoleForLogin } from "@/lib/auth/admin-emails";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+function loginRedirect(request: NextRequest, reason: string, nextPath = "/nalog") {
+  const url = new URL("/prijava", request.url);
+  url.searchParams.set("reason", reason);
+  url.searchParams.set("next", sanitizeNextPath(nextPath));
+  return url;
+}
+
+function clearGoogleOauthCookies(response: NextResponse) {
+  const cookieOptions = getGoogleOauthCookieOptions();
+  response.cookies.set({ name: GOOGLE_OAUTH_STATE_COOKIE, value: "", ...cookieOptions, maxAge: 0 });
+  response.cookies.set({ name: GOOGLE_OAUTH_NEXT_COOKIE, value: "", ...cookieOptions, maxAge: 0 });
+}
+
+function redirectToLogin(request: NextRequest, reason: string, nextPath: string) {
+  const response = NextResponse.redirect(loginRedirect(request, reason, nextPath));
+  clearGoogleOauthCookies(response);
+  return response;
+}
+
+export async function GET(request: NextRequest) {
+  const db = getDb();
+  const url = new URL(request.url);
+
+  const nextPath = sanitizeNextPath(request.cookies.get(GOOGLE_OAUTH_NEXT_COOKIE)?.value || "/nalog");
+  const expectedState = request.cookies.get(GOOGLE_OAUTH_STATE_COOKIE)?.value || "";
+
+  if (!hasGoogleConfig() || !hasSessionSecret()) {
+    return redirectToLogin(
+      request,
+      hasGoogleConfig() ? "session-config-missing" : "google-config-missing",
+      nextPath
+    );
+  }
+
+  const error = url.searchParams.get("error");
+  if (error) {
+    return redirectToLogin(request, "google-denied", nextPath);
+  }
+
+  const code = url.searchParams.get("code");
+  const returnedState = url.searchParams.get("state");
+
+  if (!code || !returnedState || !expectedState || returnedState !== expectedState) {
+    return redirectToLogin(request, "google-state-invalid", nextPath);
+  }
+
+  try {
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID || "",
+        client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
+        redirect_uri: getGoogleRedirectUri(request),
+        grant_type: "authorization_code",
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      return redirectToLogin(request, "google-token-failed", nextPath);
+    }
+
+    const tokenData = (await tokenResponse.json()) as { access_token?: string };
+    if (!tokenData?.access_token) {
+      return redirectToLogin(request, "google-token-failed", nextPath);
+    }
+
+    const userInfoResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+
+    if (!userInfoResponse.ok) {
+      return redirectToLogin(request, "google-userinfo-failed", nextPath);
+    }
+
+    const userInfo = (await userInfoResponse.json()) as {
+      email?: string;
+      name?: string;
+      given_name?: string;
+      family_name?: string;
+    };
+
+    const email = String(userInfo?.email || "").trim().toLowerCase();
+    if (!email) {
+      return redirectToLogin(request, "google-email-missing", nextPath);
+    }
+
+    const fullName =
+      String(userInfo?.name || "").trim() ||
+      [userInfo?.given_name, userInfo?.family_name].filter(Boolean).join(" ").trim();
+
+    const [existingUser] = await db
+      .select()
+      .from(schema.users)
+      .where(and(eq(schema.users.email, email)))
+      .limit(1);
+
+    let user = existingUser;
+    if (!user) {
+      [user] = await db
+        .insert(schema.users)
+        .values({
+          email,
+          role: mergeRoleForLogin(email, "client"),
+        })
+        .returning();
+    }
+
+    const now = new Date();
+    const [updatedUser] = await db
+      .update(schema.users)
+      .set({
+        lastLoginAt: now,
+        updatedAt: now,
+        role: mergeRoleForLogin(email, user.role),
+      })
+      .where(eq(schema.users.id, user.id))
+      .returning();
+    user = updatedUser || user;
+
+    if (fullName) {
+      // upsert profile.fullName (non-blocking if it already exists)
+      const [existingProfile] = await db
+        .select()
+        .from(schema.profiles)
+        .where(eq(schema.profiles.userId, user.id))
+        .limit(1);
+
+      if (!existingProfile) {
+        await db.insert(schema.profiles).values({ userId: user.id, fullName });
+      } else if (!existingProfile.fullName) {
+        await db
+          .update(schema.profiles)
+          .set({ fullName, updatedAt: now })
+          .where(eq(schema.profiles.id, existingProfile.id));
+      }
+    }
+
+    const token = await signSessionToken({
+      sub: user.id,
+      role: user.role,
+      email: user.email,
+      phone: user.phone,
+    });
+
+    const successRedirect = new URL(sanitizeNextPath(nextPath), getBaseUrl(request));
+    const response = NextResponse.redirect(successRedirect);
+    setSessionCookie(response, token);
+    clearGoogleOauthCookies(response);
+    return response;
+  } catch {
+    return redirectToLogin(request, "google-auth-failed", nextPath);
+  }
+}
+
