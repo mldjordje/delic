@@ -6,6 +6,7 @@ import {
   getGoogleOauthCookieOptions,
   getGoogleRedirectUri,
   GOOGLE_OAUTH_NEXT_COOKIE,
+  GOOGLE_OAUTH_REDIRECT_COOKIE,
   GOOGLE_OAUTH_STATE_COOKIE,
   hasGoogleConfig,
   sanitizeNextPath,
@@ -31,6 +32,7 @@ function clearGoogleOauthCookies(response: NextResponse) {
   const cookieOptions = getGoogleOauthCookieOptions();
   response.cookies.set({ name: GOOGLE_OAUTH_STATE_COOKIE, value: "", ...cookieOptions, maxAge: 0 });
   response.cookies.set({ name: GOOGLE_OAUTH_NEXT_COOKIE, value: "", ...cookieOptions, maxAge: 0 });
+  response.cookies.set({ name: GOOGLE_OAUTH_REDIRECT_COOKIE, value: "", ...cookieOptions, maxAge: 0 });
 }
 
 function redirectToLogin(request: NextRequest, reason: string, nextPath: string) {
@@ -66,6 +68,9 @@ export async function GET(request: NextRequest) {
     return redirectToLogin(request, "google-state-invalid", nextPath);
   }
 
+  const redirectUriForToken =
+    request.cookies.get(GOOGLE_OAUTH_REDIRECT_COOKIE)?.value || getGoogleRedirectUri(request);
+
   try {
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
@@ -74,12 +79,14 @@ export async function GET(request: NextRequest) {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID || "",
         client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
-        redirect_uri: getGoogleRedirectUri(request),
+        redirect_uri: redirectUriForToken,
         grant_type: "authorization_code",
       }),
     });
 
     if (!tokenResponse.ok) {
+      const errBody = await tokenResponse.text().catch(() => "");
+      console.error("[google oauth] token exchange failed", tokenResponse.status, errBody);
       return redirectToLogin(request, "google-token-failed", nextPath);
     }
 

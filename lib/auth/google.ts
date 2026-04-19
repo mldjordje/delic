@@ -2,6 +2,8 @@ import { randomBytes } from "crypto";
 
 export const GOOGLE_OAUTH_STATE_COOKIE = "autodelic_google_oauth_state";
 export const GOOGLE_OAUTH_NEXT_COOKIE = "autodelic_google_oauth_next";
+/** Mora biti identičan pri /authorize i pri /token — čuva se u cookie tokom flow-a. */
+export const GOOGLE_OAUTH_REDIRECT_COOKIE = "autodelic_google_oauth_redirect_uri";
 
 const PRODUCTION_FALLBACK_BASE_URL = "https://autodelic.com";
 
@@ -104,13 +106,15 @@ export function hasGoogleConfig() {
   return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 }
 
-export function buildGoogleAuthUrl(request: Request, state: string) {
+export function buildGoogleAuthUrl(request: Request, state: string, redirectUri?: string) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId) throw new Error("GOOGLE_CLIENT_ID is missing.");
 
+  const resolvedRedirect = redirectUri ?? getGoogleRedirectUri(request);
+
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: getGoogleRedirectUri(request),
+    redirect_uri: resolvedRedirect,
     response_type: "code",
     scope: "openid email profile",
     state,
