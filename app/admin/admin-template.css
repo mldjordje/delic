@@ -193,6 +193,68 @@
   gap: 12px;
 }
 
+.admin-metric-pill {
+  border: 1px solid rgba(217, 232, 248, 0.25);
+  background: rgba(217, 232, 248, 0.1);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-table-wrap {
+  width: 100%;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(217, 232, 248, 0.22);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(217, 232, 248, 0.12);
+}
+
+.admin-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #bcd0e8;
+}
+
+.admin-table tr:hover td {
+  background: rgba(217, 232, 248, 0.06);
+}
+
+.admin-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 800;
+  border: 1px solid rgba(217, 232, 248, 0.3);
+  background: rgba(217, 232, 248, 0.12);
+}
+
+.admin-pill.is-green {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.14);
+}
+
+.admin-pill.is-blue {
+  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(59, 130, 246, 0.14);
+}
+
 .admin-locked-list {
   margin: 0;
   padding-left: 18px;

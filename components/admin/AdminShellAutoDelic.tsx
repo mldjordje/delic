@@ -13,6 +13,7 @@ const NAV_OWNER = [
   { href: "/admin/dashboard", label: "Kontrolna tabla" },
   { href: "/admin/bookings", label: "Termini" },
   { href: "/admin/klijenti", label: "Klijenti" },
+  { href: "/admin/radnici", label: "Radnici" },
   { href: "/admin/analitika", label: "Analitika" },
   { href: "/admin/media", label: "Video (YouTube)" },
   { href: "/admin/podesavanja", label: "Podešavanja" },

@@ -43,6 +43,7 @@ function forbidden(request: NextRequest) {
 const ADMIN_ONLY_PAGE_PREFIXES = [
   "/admin/dashboard",
   "/admin/klijenti",
+  "/admin/radnici",
   "/admin/analitika",
   "/admin/media",
   "/admin/podesavanja",
@@ -55,6 +56,8 @@ const ADMIN_ONLY_API_PREFIXES = [
   "/api/admin/stats",
   "/api/admin/clients",
   "/api/admin/garage-settings",
+  "/api/admin/workers",
+  "/api/admin/analytics",
 ];
 
 export async function middleware(request: NextRequest) {
