@@ -1,0 +1,266 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+type Service = {
+  id: string;
+  name: string;
+  description: string | null;
+  durationMin: number;
+  priceRsd: number;
+  isActive: boolean;
+  sortOrder: number;
+};
+
+export default function AdminUslugePage() {
+  const [items, setItems] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [durationMin, setDurationMin] = useState(30);
+  const [priceRsd, setPriceRsd] = useState(0);
+  const [sortOrder, setSortOrder] = useState(0);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+    const r = await fetch("/api/admin/services", { credentials: "include" });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) {
+      setError(j?.message || "Greška");
+      setLoading(false);
+      return;
+    }
+    setItems((j?.services || []) as Service[]);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    const r = await fetch("/api/admin/services", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name.trim(),
+        description: description.trim() || undefined,
+        durationMin,
+        priceRsd,
+        sortOrder,
+      }),
+    });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) {
+      setError(j?.message || "Greška pri čuvanju");
+      return;
+    }
+    setName("");
+    setDescription("");
+    setDurationMin(30);
+    setPriceRsd(0);
+    setSortOrder(0);
+    await load();
+  }
+
+  async function toggleActive(s: Service) {
+    setError(null);
+    const r = await fetch(`/api/admin/services/${s.id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isActive: !s.isActive }),
+    });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) {
+      setError(j?.message || "Greška");
+      return;
+    }
+    await load();
+  }
+
+  async function remove(s: Service) {
+    if (!confirm(`Obrisati uslugu „${s.name}”?`)) return;
+    setError(null);
+    const r = await fetch(`/api/admin/services/${s.id}`, { method: "DELETE", credentials: "include" });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) {
+      setError(j?.message || "Ne može se obrisati");
+      return;
+    }
+    await load();
+  }
+
+  return (
+    <div className="admin-stack">
+      <section className="admin-card">
+        <h2 style={{ marginTop: 0 }}>Usluge za zakazivanje</h2>
+        <p style={{ color: "#94a3b8", maxWidth: 640 }}>
+          Klijenti biraju uslugu pri zakazivanju. Trajanje određuje koliko dugo zauzima termin u kalendaru;
+          cena se upisuje u zahtev (RSD).
+        </p>
+
+        <form
+          onSubmit={create}
+          style={{ display: "grid", gap: 12, marginTop: 20, maxWidth: 520 }}
+        >
+          <input
+            className="admin-input-like"
+            placeholder="Naziv (npr. Tehnički pregled)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            style={{
+              padding: "10px 12px",
+              borderRadius: 8,
+              border: "1px solid #334155",
+              background: "#0f172a",
+              color: "#f8fafc",
+            }}
+          />
+          <textarea
+            placeholder="Opis (opciono)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            style={{
+              padding: "10px 12px",
+              borderRadius: 8,
+              border: "1px solid #334155",
+              background: "#0f172a",
+              color: "#f8fafc",
+            }}
+          />
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+              Trajanje (min)
+              <input
+                type="number"
+                min={15}
+                max={480}
+                value={durationMin}
+                onChange={(e) => setDurationMin(Number(e.target.value))}
+                style={{
+                  display: "block",
+                  marginTop: 4,
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid #334155",
+                  background: "#0f172a",
+                  color: "#f8fafc",
+                  width: 120,
+                }}
+              />
+            </label>
+            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+              Cena (RSD)
+              <input
+                type="number"
+                min={0}
+                value={priceRsd}
+                onChange={(e) => setPriceRsd(Number(e.target.value))}
+                style={{
+                  display: "block",
+                  marginTop: 4,
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid #334155",
+                  background: "#0f172a",
+                  color: "#f8fafc",
+                  width: 140,
+                }}
+              />
+            </label>
+            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+              Redosled
+              <input
+                type="number"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(Number(e.target.value))}
+                style={{
+                  display: "block",
+                  marginTop: 4,
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid #334155",
+                  background: "#0f172a",
+                  color: "#f8fafc",
+                  width: 100,
+                }}
+              />
+            </label>
+          </div>
+          <button type="submit" className="admin-template-link-btn" style={{ justifySelf: "start" }}>
+            Dodaj uslugu
+          </button>
+        </form>
+
+        {error ? (
+          <p style={{ color: "#f87171", marginTop: 16 }}>{error}</p>
+        ) : null}
+      </section>
+
+      <section className="admin-card">
+        <h3 style={{ marginTop: 0 }}>Lista</h3>
+        {loading ? <p style={{ color: "#94a3b8" }}>Učitavanje…</p> : null}
+        {!loading && items.length === 0 ? (
+          <p style={{ color: "#94a3b8" }}>Nema usluga.</p>
+        ) : null}
+        <div className="admin-table-wrap" style={{ marginTop: 12 }}>
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Naziv</th>
+                <th>Min</th>
+                <th>Cena</th>
+                <th>Aktivna</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((s) => (
+                <tr key={s.id}>
+                  <td>
+                    <strong>{s.name}</strong>
+                    {s.description ? (
+                      <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{s.description}</div>
+                    ) : null}
+                  </td>
+                  <td>{s.durationMin}</td>
+                  <td>{s.priceRsd.toLocaleString("sr-RS")}</td>
+                  <td>
+                    <span className={`admin-pill ${s.isActive ? "is-green" : ""}`}>
+                      {s.isActive ? "da" : "ne"}
+                    </span>
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    <button
+                      type="button"
+                      className="admin-template-link-btn"
+                      onClick={() => void toggleActive(s)}
+                    >
+                      {s.isActive ? "Deaktiviraj" : "Aktiviraj"}
+                    </button>{" "}
+                    <button
+                      type="button"
+                      className="admin-template-link-btn"
+                      onClick={() => void remove(s)}
+                      style={{ opacity: 0.85 }}
+                    >
+                      Obriši
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}

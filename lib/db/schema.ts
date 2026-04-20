@@ -85,6 +85,40 @@ export const garageSettings = pgTable("garage_settings", {
   ...timestamps,
 });
 
+/** Usluge koje klijent bira pri zakazivanju (trajanje + cena). */
+export const services = pgTable("services", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  durationMin: integer("duration_min").notNull(),
+  priceRsd: integer("price_rsd").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  ...timestamps,
+});
+
+/** Oglasi polovnih vozila (admin postavlja). */
+export const usedCarListings = pgTable(
+  "used_car_listings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 255 }).notNull(),
+    make: varchar("make", { length: 120 }),
+    year: smallint("year"),
+    priceRsd: integer("price_rsd").notNull(),
+    mileageKm: integer("mileage_km"),
+    description: text("description"),
+    imageUrl: text("image_url"),
+    contactPhone: varchar("contact_phone", { length: 32 }),
+    isPublished: boolean("is_published").default(true).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    ...timestamps,
+  },
+  (table) => ({
+    publishedIdx: index("used_car_listings_published_idx").on(table.isPublished, table.sortOrder),
+  })
+);
+
 export const vehicles = pgTable(
   "vehicles",
   {
@@ -119,6 +153,9 @@ export const bookings = pgTable(
     vehicleId: uuid("vehicle_id")
       .notNull()
       .references(() => vehicles.id, { onDelete: "restrict" }),
+    serviceId: uuid("service_id")
+      .notNull()
+      .references(() => services.id, { onDelete: "restrict" }),
     startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
     endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
     status: bookingStatusEnum("status").default("pending").notNull(),
@@ -134,6 +171,7 @@ export const bookings = pgTable(
     employeeStartsIdx: index("bookings_employee_starts_idx").on(table.employeeId, table.startsAt),
     userIdx: index("bookings_user_idx").on(table.userId),
     vehicleIdx: index("bookings_vehicle_idx").on(table.vehicleId),
+    serviceIdx: index("bookings_service_id_idx").on(table.serviceId),
   })
 );
 

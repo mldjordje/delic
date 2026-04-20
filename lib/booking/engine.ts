@@ -164,11 +164,22 @@ export async function findConflicts({
   });
 }
 
-export async function getAvailabilityByDay(date: string) {
+export async function getAvailabilityByDay(date: string, serviceId: string) {
   const settings = await getGarageSettings();
   const employee = await getDefaultEmployee();
   const db = getDb();
-  const totalDurationMin = INSPECTION_DURATION_MIN;
+
+  const [svc] = await db
+    .select()
+    .from(schema.services)
+    .where(and(eq(schema.services.id, serviceId), eq(schema.services.isActive, true)))
+    .limit(1);
+
+  if (!svc) {
+    throw new Error("INVALID_SERVICE");
+  }
+
+  const totalDurationMin = svc.durationMin;
   const slotMinutes = settings.slotMinutes;
 
   const startOfDay = parseDateAtTime(date, "00:00");
@@ -200,6 +211,9 @@ export async function getAvailabilityByDay(date: string) {
 
   return {
     date,
+    serviceId,
+    serviceName: svc.name,
+    servicePriceRsd: svc.priceRsd,
     totalDurationMin,
     slotMinutes,
     slots,

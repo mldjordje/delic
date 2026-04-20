@@ -49,6 +49,8 @@ const ADMIN_ONLY_PAGE_PREFIXES = [
   "/admin/podesavanja",
   "/admin/istorija",
   "/admin/video",
+  "/admin/usluge",
+  "/admin/polovni",
 ];
 
 const ADMIN_ONLY_API_PREFIXES = [
@@ -58,6 +60,8 @@ const ADMIN_ONLY_API_PREFIXES = [
   "/api/admin/garage-settings",
   "/api/admin/workers",
   "/api/admin/analytics",
+  "/api/admin/services",
+  "/api/admin/used-cars",
 ];
 
 export async function middleware(request: NextRequest) {

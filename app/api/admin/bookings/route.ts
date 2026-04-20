@@ -34,12 +34,14 @@ export async function GET(request: Request) {
     .select({
       booking: schema.bookings,
       vehicle: schema.vehicles,
+      serviceName: schema.services.name,
       userEmail: schema.users.email,
       userPhone: schema.users.phone,
       profileName: schema.profiles.fullName,
     })
     .from(schema.bookings)
     .innerJoin(schema.vehicles, eq(schema.bookings.vehicleId, schema.vehicles.id))
+    .innerJoin(schema.services, eq(schema.bookings.serviceId, schema.services.id))
     .innerJoin(schema.users, eq(schema.bookings.userId, schema.users.id))
     .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.users.id))
     .where(and(gte(schema.bookings.startsAt, start), lte(schema.bookings.startsAt, end)))
@@ -50,6 +52,7 @@ export async function GET(request: Request) {
     bookings: rows.map((r) => ({
       ...r.booking,
       vehicle: r.vehicle,
+      serviceName: r.serviceName,
       client: {
         email: r.userEmail,
         phone: r.userPhone,

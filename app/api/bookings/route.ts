@@ -7,7 +7,6 @@ import { env } from "@/lib/env";
 import { notifyAdminInbox, sendBookingConfirmationEmail } from "@/lib/auth/email";
 import { getGarageSettings } from "@/lib/booking/config";
 import {
-  INSPECTION_DURATION_MIN,
   addMinutes,
   findConflicts,
   isWithinBookingWindow,
@@ -23,6 +22,7 @@ export const runtime = "nodejs";
 
 const payloadSchema = z.object({
   vehicleId: z.string().uuid(),
+  serviceId: z.string().uuid(),
   startAt: z.string().datetime(),
   clientNotes: z.string().max(1000).optional(),
 });
@@ -51,8 +51,23 @@ export async function POST(request: Request) {
   const db = getDb();
   const startAt = new Date(parsed.data.startAt);
   const settings = await getGarageSettings();
-  const endsAt = addMinutes(startAt, INSPECTION_DURATION_MIN);
   const employee = await getDefaultEmployee();
+
+  const [svc] = await db
+    .select()
+    .from(schema.services)
+    .where(
+      and(eq(schema.services.id, parsed.data.serviceId), eq(schema.services.isActive, true))
+    )
+    .limit(1);
+
+  if (!svc) {
+    return withCors(request, fail(400, "Usluga nije pronađena ili je neaktivna."));
+  }
+
+  const durationMin = svc.durationMin;
+  const priceRsd = svc.priceRsd;
+  const endsAt = addMinutes(startAt, durationMin);
 
   const [vehicle] = await db
     .select()
@@ -76,7 +91,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!(await isWithinWorkHours(startAt, INSPECTION_DURATION_MIN))) {
+  if (!(await isWithinWorkHours(startAt, durationMin))) {
     return withCors(
       request,
       fail(400, `Radno vreme: ${WORKING_HOURS_SUMMARY}`)
@@ -113,11 +128,12 @@ export async function POST(request: Request) {
           userId: auth.user.id,
           employeeId: employee.id,
           vehicleId: vehicle.id,
+          serviceId: svc.id,
           startsAt: startAt,
           endsAt,
           status: "pending",
-          totalDurationMin: INSPECTION_DURATION_MIN,
-          totalPriceRsd: 0,
+          totalDurationMin: durationMin,
+          totalPriceRsd: priceRsd,
           clientNotes: parsed.data.clientNotes || null,
         })
         .returning();

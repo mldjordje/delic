@@ -16,9 +16,11 @@ export async function GET() {
     .select({
       booking: schema.bookings,
       vehicle: schema.vehicles,
+      serviceName: schema.services.name,
     })
     .from(schema.bookings)
     .innerJoin(schema.vehicles, eq(schema.bookings.vehicleId, schema.vehicles.id))
+    .innerJoin(schema.services, eq(schema.bookings.serviceId, schema.services.id))
     .where(eq(schema.bookings.userId, auth.user.id))
     .orderBy(desc(schema.bookings.startsAt));
 
@@ -27,6 +29,7 @@ export async function GET() {
     bookings: rows.map((r) => ({
       ...r.booking,
       vehicle: r.vehicle,
+      serviceName: r.serviceName,
     })),
   });
 }
