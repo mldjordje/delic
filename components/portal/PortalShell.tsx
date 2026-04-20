@@ -49,12 +49,13 @@ export function PortalShell({
   return (
     <div className="min-h-screen">
       <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.primary/0.18),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,theme(colors.white/0.06),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.primary/0.20),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,theme(colors.white/0.07),transparent_50%)]" />
+        <div className="absolute inset-0 opacity-[0.16] [background-image:radial-gradient(hsl(var(--border))_1px,transparent_1px)] [background-size:18px_18px]" />
       </div>
 
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6 md:grid-cols-[260px_1fr] md:gap-8 md:px-6 md:py-10">
-        <aside className="glass rounded-xl p-4 md:sticky md:top-6 md:self-start">
+        <aside className="glass rounded-2xl p-4 md:sticky md:top-6 md:self-start">
           <div className="flex items-center justify-between gap-3">
             <Link href="/dashboard" className="text-sm font-semibold tracking-tight">
               Auto Delić

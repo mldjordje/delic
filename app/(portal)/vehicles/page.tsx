@@ -5,6 +5,7 @@ import { requireCompleteClientProfile } from "@/lib/auth/profile-completion";
 import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
 import { VehiclesClientExtras } from "@/components/portal/VehiclesClientExtras";
+import { PortalHero } from "@/components/portal/PortalHero";
 
 export default async function VehiclesPage() {
   const { user } = await requireCompleteClientProfile();
@@ -19,17 +20,13 @@ export default async function VehiclesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="glass rounded-xl p-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Vehicles</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Card-based view with key dates and highlights.
-            </p>
-          </div>
-          <VehiclesClientExtras />
-        </div>
-      </div>
+      <PortalHero
+        eyebrow="My vehicles"
+        title="Vehicles"
+        description="A clean dashboard view of your important dates and certificates."
+        imageSrc="/assets/images/tehnicki2.jpg"
+        right={<VehiclesClientExtras />}
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         {vehicles.map((v) => {

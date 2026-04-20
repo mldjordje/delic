@@ -3,6 +3,7 @@ import { requireCompleteClientProfile } from "@/lib/auth/profile-completion";
 import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
 import { toYouTubeEmbedUrl } from "@/lib/youtube";
+import { PortalHero } from "@/components/portal/PortalHero";
 
 export default async function VideoPortalPage() {
   await requireCompleteClientProfile();
@@ -15,10 +16,12 @@ export default async function VideoPortalPage() {
 
   return (
     <div className="space-y-6">
-      <div className="glass rounded-xl p-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Video</h1>
-        <p className="mt-2 text-sm text-muted-foreground">YouTube videos published by the admin.</p>
-      </div>
+      <PortalHero
+        eyebrow="Media"
+        title="Video"
+        description="YouTube videos published by the admin."
+        imageSrc="/assets/images/tehnickiunutra4.jpg"
+      />
 
       <div className="grid gap-4">
         {videos.map((v) => {

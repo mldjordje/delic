@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { requireCompleteClientProfile } from "@/lib/auth/profile-completion";
 import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
+import { PortalHero } from "@/components/portal/PortalHero";
 
 export default async function DashboardPage() {
   const { user } = await requireCompleteClientProfile();
@@ -33,21 +34,22 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="glass rounded-xl p-6">
-        <p className="text-sm text-muted-foreground">Client portal</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Overview</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Your vehicles, bookings, and technician notes in one place.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/bookings/new">Book inspection</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/vehicles">Manage vehicles</Link>
-          </Button>
-        </div>
-      </div>
+      <PortalHero
+        eyebrow="Client portal"
+        title="Overview"
+        description="Your vehicles, bookings, and technician notes — all in one place."
+        imageSrc="/assets/images/tehnickinocu.jpg"
+        right={
+          <>
+            <Button asChild>
+              <Link href="/bookings/new">Book inspection</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/vehicles">Vehicles</Link>
+            </Button>
+          </>
+        }
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="glass">

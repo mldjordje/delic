@@ -5,6 +5,7 @@ import { requireCompleteClientProfile } from "@/lib/auth/profile-completion";
 import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
 import { BookingsClientActions } from "@/components/portal/BookingsClientActions";
+import { PortalHero } from "@/components/portal/PortalHero";
 
 export default async function BookingsPage() {
   const { user } = await requireCompleteClientProfile();
@@ -28,17 +29,17 @@ export default async function BookingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="glass rounded-xl p-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Bookings</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Upcoming appointments and booking history.</p>
-          </div>
+      <PortalHero
+        eyebrow="Appointments"
+        title="Bookings"
+        description="Upcoming appointments, history, and technician notes."
+        imageSrc="/assets/images/tehnicki3.jpg"
+        right={
           <Button asChild>
             <Link href="/bookings/new">New booking</Link>
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="glass">

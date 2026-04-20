@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfilePanel } from "@/components/portal/ProfilePanel";
+import { PortalHero } from "@/components/portal/PortalHero";
 
 export default async function ProfilePage({
   searchParams,
@@ -11,12 +12,16 @@ export default async function ProfilePage({
 
   return (
     <div className="space-y-6">
-      <div className="glass rounded-xl p-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Clean account panel for name and phone (not a raw form).
-        </p>
-      </div>
+      <PortalHero
+        eyebrow="Account"
+        title={forceComplete ? "Complete profile" : "Profile"}
+        description={
+          forceComplete
+            ? "Name + phone are required for booking."
+            : "Clean account panel for your personal details."
+        }
+        imageSrc="/assets/images/znak3.jpg"
+      />
 
       {forceComplete ? (
         <Card className="glass">
