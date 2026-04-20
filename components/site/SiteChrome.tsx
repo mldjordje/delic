@@ -45,14 +45,14 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
 
+  /* Staticki sajt dodaje ove klase posle animsition (main.js). Bez njih: body ostaje
+     overflow:hidden, logo i hamburger su nevidljivi dok body nema .active/.in */
   useEffect(() => {
-    if (navOpen) {
-      document.body.classList.add("active");
-    } else {
-      document.body.classList.remove("active");
-    }
-    return () => document.body.classList.remove("active");
-  }, [navOpen]);
+    document.body.classList.add("active", "in");
+    return () => {
+      document.body.classList.remove("active", "in");
+    };
+  }, []);
 
   useEffect(() => {
     setNavOpen(false);
@@ -60,7 +60,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="autodelic-client-site">
-      <header className="fixed-header">
+      <header className="fixed-header midnightHeader default">
         <div className="header-flex-box">
           <Link href="/" className="logo pointer-large animsition-link">
             <div className="logo-img-box">

@@ -164,3 +164,59 @@
   border: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
+
+/* --- Next.js: nema jQuery animsition/midnight skripte kao na public/index.html --- */
+
+/* globals.css (#root body) i legacy body overflow — omogući skrol */
+html:has(.autodelic-client-site),
+body:has(.autodelic-client-site) {
+  background-color: #111517;
+}
+
+body:has(.autodelic-client-site) {
+  overflow: visible !important;
+  overflow-x: hidden !important;
+}
+
+/* Odmah prikaži header (bez 1–1.3s kašnjenja iz legacy transition-delay) */
+.autodelic-client-site .logo img {
+  transition-delay: 0s !important;
+}
+
+.autodelic-client-site .menu-open,
+.autodelic-client-site .menu-open:before {
+  transition-delay: 0s !important;
+}
+
+.autodelic-client-site .hamburger:before,
+.autodelic-client-site .hamburger:after {
+  transition-delay: 0s !important;
+}
+
+/* Legacy: img { width:100% } razvlači sve slike — reset osim poznatih blokova */
+.autodelic-client-site img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.autodelic-client-site .logo-img-box img,
+.autodelic-client-site .nav-logo img,
+.autodelic-client-site .client-polovni-card-img img {
+  width: 100%;
+}
+
+/* Tipografija: p { margin-top: 30px } u style.css pravi ogromne rupe u karticama */
+.autodelic-client-site .client-card p,
+.autodelic-client-site .dark-bg-2 p {
+  margin-top: 12px;
+}
+
+.autodelic-client-site .client-card > h2:first-child,
+.autodelic-client-site .client-card > h3:first-child {
+  margin-top: 0;
+}
+
+.autodelic-client-site .client-card > p:first-of-type {
+  margin-top: 0;
+}
