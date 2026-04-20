@@ -15,6 +15,6 @@ export async function POST(request: Request) {
     return pre;
   }
   const res = ok({ ok: true });
-  clearSessionCookie(res);
+  clearSessionCookie(res, request.headers.get("host"));
   return withCors(request, res);
 }

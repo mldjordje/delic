@@ -111,12 +111,15 @@ export async function POST(request: Request) {
     })
     .where(eq(schema.users.id, user.id));
 
-  const token = await signSessionToken({
-    sub: user.id,
+  const sessionPayload: Record<string, unknown> = {
+    sub: String(user.id),
     role: resolvedRole,
     email: user.email,
-    phone: user.phone,
-  });
+  };
+  if (user.phone != null && String(user.phone).length > 0) {
+    sessionPayload.phone = user.phone;
+  }
+  const token = await signSessionToken(sessionPayload);
 
   const response = ok({
     ok: true,
@@ -127,6 +130,6 @@ export async function POST(request: Request) {
       role: resolvedRole,
     },
   });
-  setSessionCookie(response, token);
+  setSessionCookie(response, token, request.headers.get("host"));
   return withCors(request, response);
 }

@@ -28,8 +28,8 @@ function loginRedirect(request: NextRequest, reason: string, nextPath = "/nalog"
   return url;
 }
 
-function clearGoogleOauthCookies(response: NextResponse) {
-  const cookieOptions = getGoogleOauthCookieOptions();
+function clearGoogleOauthCookies(response: NextResponse, host: string | null) {
+  const cookieOptions = getGoogleOauthCookieOptions(host);
   response.cookies.set({ name: GOOGLE_OAUTH_STATE_COOKIE, value: "", ...cookieOptions, maxAge: 0 });
   response.cookies.set({ name: GOOGLE_OAUTH_NEXT_COOKIE, value: "", ...cookieOptions, maxAge: 0 });
   response.cookies.set({ name: GOOGLE_OAUTH_REDIRECT_COOKIE, value: "", ...cookieOptions, maxAge: 0 });
@@ -37,7 +37,7 @@ function clearGoogleOauthCookies(response: NextResponse) {
 
 function redirectToLogin(request: NextRequest, reason: string, nextPath: string) {
   const response = NextResponse.redirect(loginRedirect(request, reason, nextPath));
-  clearGoogleOauthCookies(response);
+  clearGoogleOauthCookies(response, request.headers.get("host"));
   return response;
 }
 
@@ -128,13 +128,18 @@ export async function GET(request: NextRequest) {
 
     let user = existingUser;
     if (!user) {
-      [user] = await db
+      const [created] = await db
         .insert(schema.users)
         .values({
           email,
           role: mergeRoleForLogin(email, "client"),
         })
         .returning();
+      user = created;
+    }
+    if (!user) {
+      console.error("[google oauth] user insert/select missing row for", email);
+      return redirectToLogin(request, "google-server-error", nextPath);
     }
 
     const now = new Date();
@@ -179,12 +184,15 @@ export async function GET(request: NextRequest) {
 
     const successRedirect = new URL(sanitizeNextPath(nextPath), getBaseUrl(request));
     const response = NextResponse.redirect(successRedirect);
-    setSessionCookie(response, token);
-    clearGoogleOauthCookies(response);
+    const host = request.headers.get("host");
+    setSessionCookie(response, token, host);
+    clearGoogleOauthCookies(response, host);
     return response;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[google oauth] callback error:", message, err);
+    const code =
+      err && typeof err === "object" && "code" in err ? String((err as { code: unknown }).code) : "";
+    console.error("[google oauth] callback error:", message, code || "", err);
     return redirectToLogin(request, "google-server-error", nextPath);
   }
 }

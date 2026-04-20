@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   const state = createGoogleOauthState();
   const redirectUri = getGoogleRedirectUri(request);
   const authUrl = buildGoogleAuthUrl(request, state, redirectUri);
-  const cookieOptions = getGoogleOauthCookieOptions();
+  const cookieOptions = getGoogleOauthCookieOptions(request.headers.get("host"));
 
   const response = NextResponse.redirect(authUrl);
   response.cookies.set({

@@ -5,10 +5,17 @@ import { env } from "@/lib/env";
 export const SESSION_COOKIE_NAME = "autodelic_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 
-/** Deljenje sesije između autodelic.com i www (bez host redirect petlje u next.config). */
-function prodCookieDomain() {
+/**
+ * Deljenje sesije između apex i www na autodelic.com.
+ * Ne postavljaj Domain na *.vercel.app — pregledač/Next odbijaju ili bacaju grešku.
+ */
+export function sessionCookieDomain(hostHeader: string | null | undefined) {
   if (process.env.NODE_ENV !== "production") return undefined;
-  return ".autodelic.com";
+  if (!hostHeader) return undefined;
+  const h = hostHeader.split(":")[0].toLowerCase();
+  if (h.endsWith(".vercel.app")) return undefined;
+  if (h === "autodelic.com" || h.endsWith(".autodelic.com")) return ".autodelic.com";
+  return undefined;
 }
 
 export function hasSessionSecret() {
@@ -43,27 +50,27 @@ export async function verifySessionToken(token: string | undefined) {
   }
 }
 
-export function setSessionCookie(response: NextResponse, token: string) {
+export function setSessionCookie(response: NextResponse, token: string, hostHeader?: string | null) {
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: token,
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    domain: prodCookieDomain(),
+    domain: sessionCookieDomain(hostHeader),
     path: "/",
     maxAge: SESSION_TTL_SECONDS,
   });
 }
 
-export function clearSessionCookie(response: NextResponse) {
+export function clearSessionCookie(response: NextResponse, hostHeader?: string | null) {
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: "",
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    domain: prodCookieDomain(),
+    domain: sessionCookieDomain(hostHeader),
     path: "/",
     maxAge: 0,
   });

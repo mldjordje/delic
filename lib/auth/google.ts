@@ -1,4 +1,5 @@
 import { randomBytes } from "crypto";
+import { sessionCookieDomain } from "@/lib/auth/session";
 
 export const GOOGLE_OAUTH_STATE_COOKIE = "autodelic_google_oauth_state";
 export const GOOGLE_OAUTH_NEXT_COOKIE = "autodelic_google_oauth_next";
@@ -7,12 +8,12 @@ export const GOOGLE_OAUTH_REDIRECT_COOKIE = "autodelic_google_oauth_redirect_uri
 
 const PRODUCTION_FALLBACK_BASE_URL = "https://autodelic.com";
 
-export function getGoogleOauthCookieOptions() {
+export function getGoogleOauthCookieOptions(hostHeader?: string | null) {
   return {
     httpOnly: true as const,
     sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
-    domain: process.env.NODE_ENV === "production" ? ".autodelic.com" : undefined,
+    domain: sessionCookieDomain(hostHeader),
     path: "/",
   };
 }
