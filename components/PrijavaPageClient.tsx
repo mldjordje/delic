@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { PrijavaForm } from "@/components/PrijavaForm";
 
 export function PrijavaPageClient() {
   const sp = useSearchParams();
@@ -40,7 +39,7 @@ export function PrijavaPageClient() {
     <div className="dark-bg-2 client-card">
       <h2 className="medium-title text-color-4">Prijava</h2>
       <p className="p-style-bold-up text-height-20 top-margin-20 text-color-4">
-        Prijavite se Google nalogom, pa dopunite profil i unesite vozila.
+        Prijavite se Google nalogom, pa dopunite profil (ime i telefon) i unesite vozila.
       </p>
 
       {message ? (
@@ -64,14 +63,6 @@ export function PrijavaPageClient() {
           />
           Sign in with Google
         </a>
-      </div>
-
-      <hr className="client-divider" />
-
-      <p className="small-title-oswald text-color-4">Ako želiš, može i OTP prijava (privremeno).</p>
-
-      <div className="top-margin-20">
-        <PrijavaForm />
       </div>
     </div>
   );

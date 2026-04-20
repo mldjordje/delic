@@ -2,13 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --radius: 14px;
+
+    /* shadcn/ui tokens (dark premium) */
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 7%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 346 77% 49%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 222 23% 13%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 23% 12%;
+    --muted-foreground: 215 20% 70%;
+    --accent: 222 23% 14%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 222 23% 16%;
+    --input: 222 23% 18%;
+    --ring: 346 77% 49%;
+  }
+
+  .dark {
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 7%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 346 77% 49%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 222 23% 13%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 23% 12%;
+    --muted-foreground: 215 20% 70%;
+    --accent: 222 23% 14%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 222 23% 16%;
+    --input: 222 23% 18%;
+    --ring: 346 77% 49%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
 html,
 body {
   height: 100%;
 }
 
-body {
-  color: rgb(15 23 42);
-  background: white;
+@layer utilities {
+  .glass {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--card) / 0.75),
+      hsl(var(--card) / 0.5)
+    );
+    border: 1px solid hsl(var(--border) / 0.8);
+    backdrop-filter: blur(12px);
+  }
 }
 

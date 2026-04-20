@@ -26,7 +26,7 @@ const NAV: NavItem[] = [
   { href: "/services.html", label: "Usluge" },
   { href: "/zakazivanje", label: "Online zakazivanje" },
   { href: "/polovni-automobili", label: "Polovni automobili" },
-  { href: "/video", label: "Video" },
+  { href: "/video-public", label: "Video" },
   { href: "/prijava", label: "Prijava" },
   { href: "/nalog", label: "Moj nalog" },
   { href: "/nalog#vozila", label: "Moja vozila" },

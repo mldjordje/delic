@@ -1,6 +1,6 @@
 import { VideoPublicClient } from "@/components/VideoPublicClient";
 
-export default function VideoPage() {
+export default function VideoPublicPage() {
   return (
     <main className="dark-bg-1">
       <div className="container top-bottom-padding-120">
@@ -17,3 +17,4 @@ export default function VideoPage() {
     </main>
   );
 }
+

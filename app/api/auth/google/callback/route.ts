@@ -21,7 +21,7 @@ import { mergeRoleForLogin } from "@/lib/auth/admin-emails";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function loginRedirect(request: NextRequest, reason: string, nextPath = "/nalog") {
+function loginRedirect(request: NextRequest, reason: string, nextPath = "/dashboard") {
   const url = new URL("/prijava", request.url);
   url.searchParams.set("reason", reason);
   url.searchParams.set("next", sanitizeNextPath(nextPath));
@@ -44,7 +44,7 @@ function redirectToLogin(request: NextRequest, reason: string, nextPath: string)
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
 
-  const nextPath = sanitizeNextPath(request.cookies.get(GOOGLE_OAUTH_NEXT_COOKIE)?.value || "/nalog");
+  const nextPath = sanitizeNextPath(request.cookies.get(GOOGLE_OAUTH_NEXT_COOKIE)?.value || "/dashboard");
   const expectedState = request.cookies.get(GOOGLE_OAUTH_STATE_COOKIE)?.value || "";
 
   if (!hasGoogleConfig() || !hasSessionSecret()) {
@@ -182,7 +182,18 @@ export async function GET(request: NextRequest) {
     }
     const token = await signSessionToken(sessionPayload);
 
-    const successRedirect = new URL(sanitizeNextPath(nextPath), getBaseUrl(request));
+    const [profileRow] = await db
+      .select({ fullName: schema.profiles.fullName })
+      .from(schema.profiles)
+      .where(eq(schema.profiles.userId, user.id))
+      .limit(1);
+
+    const mustCompleteProfile =
+      !String(profileRow?.fullName || "").trim() || !String(user.phone || "").trim();
+
+    const finalNextPath = mustCompleteProfile ? "/profile?complete=1" : sanitizeNextPath(nextPath);
+
+    const successRedirect = new URL(finalNextPath, getBaseUrl(request));
     const response = NextResponse.redirect(successRedirect);
     const host = request.headers.get("host");
     setSessionCookie(response, token, host);

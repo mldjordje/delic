@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const nextPath = sanitizeNextPath(searchParams.get("next") || "/nalog");
+  const nextPath = sanitizeNextPath(searchParams.get("next") || "/dashboard");
 
   if (!hasGoogleConfig() || !hasSessionSecret()) {
     const redirectUrl = new URL("/prijava", request.url);

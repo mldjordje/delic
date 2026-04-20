@@ -18,7 +18,7 @@ type Service = {
 
 type Slot = { startAt: string; endAt: string; available: boolean };
 
-const googleHref = `/api/auth/google?next=${encodeURIComponent("/zakazivanje")}`;
+const googleHref = `/api/auth/google?next=${encodeURIComponent("/dashboard")}`;
 
 export function ZakazivanjeClient() {
   const [authChecked, setAuthChecked] = useState(false);
@@ -185,13 +185,6 @@ export function ZakazivanjeClient() {
             <a href={googleHref} className="client-google-btn pointer-large">
               Sign in with Google
             </a>
-            <div className="border-btn-box pointer-large">
-              <div className="border-btn-inner">
-                <a href="/prijava?next=%2Fzakazivanje" className="border-btn" data-text="Prijava (OTP)">
-                  Prijava (OTP)
-                </a>
-              </div>
-            </div>
           </div>
         </section>
       ) : null}
