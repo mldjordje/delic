@@ -165,48 +165,47 @@ export function ZakazivanjeClient() {
 
   if (!authChecked) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-10 text-center text-slate-400">
-        Učitavanje…
+      <div className="dark-bg-2 client-card client-card-wide top-margin-20">
+        <p className="p-style-bold-up text-color-4">Učitavanje…</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-10">
+    <div className="flex-container response-999" style={{ flexDirection: "column", gap: 36 }}>
       {!loggedIn ? (
-        <section className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 p-8 md:p-10">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
-          <h2 className="text-2xl font-semibold text-white">Prijavite se da zakažete</h2>
-          <p className="mt-3 max-w-xl text-slate-300">
+        <section className="dark-bg-2 client-card client-card-wide" style={{ margin: 0 }}>
+          <h3 className="medium-title text-color-4">Prijavite se da zakažete</h3>
+          <p className="p-style-bold-up text-height-20 top-margin-20 text-color-4" style={{ maxWidth: 640 }}>
             Zakazivanje je vezano za vaš nalog i vozila. Prijava je brza —{" "}
-            <strong className="text-white">Sign in with Google</strong>, zatim dopunite profil i vozila u
-            odeljku „Moj nalog”.
+            <strong className="red-color">Sign in with Google</strong>, zatim dopunite profil i vozila u odeljku
+            „Moj nalog”.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href={googleHref}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-semibold text-slate-900 shadow-lg shadow-black/20 hover:bg-slate-100"
-            >
+          <div className="top-margin-30 flex-container response-999" style={{ gap: 16, flexWrap: "wrap" }}>
+            <a href={googleHref} className="client-google-btn pointer-large">
               Sign in with Google
             </a>
-            <a
-              href="/prijava?next=%2Fzakazivanje"
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-600 px-6 py-3.5 text-sm font-medium text-slate-200 hover:border-slate-400"
-            >
-              Prijava (OTP)
-            </a>
+            <div className="border-btn-box pointer-large">
+              <div className="border-btn-inner">
+                <a href="/prijava?next=%2Fzakazivanje" className="border-btn" data-text="Prijava (OTP)">
+                  Prijava (OTP)
+                </a>
+              </div>
+            </div>
           </div>
         </section>
       ) : null}
 
-      <section className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6 md:p-8">
-        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+      <section className="dark-bg-2 client-card client-card-wide" style={{ margin: 0 }}>
+        <div className="flex-container response-999" style={{ justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
           <div>
-            <h2 className="text-xl font-semibold text-white">1. Izaberite uslugu</h2>
-            <p className="mt-1 text-sm text-slate-400">Trajanje i cena važe za izabrani termin.</p>
+            <h3 className="medium-title text-color-4">1. Izaberite uslugu</h3>
+            <p className="p-style-bold-up text-color-4 top-margin-10" style={{ opacity: 0.85 }}>
+              Trajanje i cena važe za izabrani termin.
+            </p>
           </div>
           {selectedService ? (
-            <p className="text-sm text-emerald-400/90">
+            <p className="small-title-oswald red-color">
               {selectedService.durationMin} min ·{" "}
               {selectedService.priceRsd > 0
                 ? `${selectedService.priceRsd.toLocaleString("sr-RS")} RSD`
@@ -215,51 +214,51 @@ export function ZakazivanjeClient() {
           ) : null}
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="client-service-grid">
           {services.map((s) => {
             const active = serviceId === s.id;
             return (
               <button
                 key={s.id}
                 type="button"
+                className={`client-service-pick${active ? " is-active" : ""}`}
                 onClick={() => {
                   setServiceId(s.id);
                   setSelectedStart(null);
                 }}
-                className={`rounded-2xl border p-5 text-left transition ${
-                  active
-                    ? "border-emerald-500/60 bg-emerald-950/30 ring-2 ring-emerald-500/40"
-                    : "border-slate-700 bg-slate-950/50 hover:border-slate-500"
-                }`}
               >
-                <p className="font-semibold text-white">{s.name}</p>
-                {s.description ? <p className="mt-2 text-sm text-slate-400">{s.description}</p> : null}
-                <p className="mt-3 text-xs text-slate-500">
+                <span className="small-title-oswald text-color-4" style={{ display: "block" }}>
+                  {s.name}
+                </span>
+                {s.description ? (
+                  <span className="p-style-bold-up text-color-4 top-margin-10" style={{ display: "block", opacity: 0.85 }}>
+                    {s.description}
+                  </span>
+                ) : null}
+                <span className="xsmall-title-oswald text-color-4 top-margin-15" style={{ display: "block", opacity: 0.7 }}>
                   {s.durationMin} min
                   {s.priceRsd > 0 ? ` · ${s.priceRsd.toLocaleString("sr-RS")} RSD` : ""}
-                </p>
+                </span>
               </button>
             );
           })}
         </div>
         {services.length === 0 ? (
-          <p className="mt-4 text-sm text-amber-200/90">Nema aktivnih usluga. Kontaktirajte salun.</p>
+          <p className="top-margin-20 p-style-bold-up red-color">Nema aktivnih usluga. Kontaktirajte salun.</p>
         ) : null}
       </section>
 
       {loggedIn ? (
         <>
-          <section className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6 md:p-8">
-            <h2 className="text-xl font-semibold text-white">2. Vozilo</h2>
-            <p className="mt-1 text-sm text-slate-400">Izaberite registrovano vozilo ili dodajte novo.</p>
+          <section className="dark-bg-2 client-card client-card-wide" style={{ margin: 0 }}>
+            <h3 className="medium-title text-color-4">2. Vozilo</h3>
+            <p className="p-style-bold-up text-color-4 top-margin-10" style={{ opacity: 0.85 }}>
+              Izaberite registrovano vozilo ili dodajte novo.
+            </p>
 
-            <label className="mt-6 block text-sm text-slate-300">
+            <label className="p-style-bold-up text-color-4 top-margin-30" style={{ display: "block" }}>
               Vaše vozilo
-              <select
-                className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white"
-                value={vehicleId}
-                onChange={(e) => setVehicleId(e.target.value)}
-              >
+              <select value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} style={{ marginTop: 8, width: "100%", maxWidth: 480 }}>
                 <option value="">— izaberite —</option>
                 {vehicles.map((v) => (
                   <option key={v.id} value={v.id}>
@@ -269,61 +268,48 @@ export function ZakazivanjeClient() {
               </select>
             </label>
 
-            <details className="mt-6 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-              <summary className="cursor-pointer text-sm font-medium text-slate-300">Dodaj vozilo</summary>
-              <form className="mt-4 grid gap-3 md:grid-cols-3" onSubmit={addVehicle}>
-                <input
-                  className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
-                  placeholder="Marka"
-                  value={newMake}
-                  onChange={(e) => setNewMake(e.target.value)}
-                />
+            <details className="top-margin-30" style={{ border: "1px solid rgba(255,255,255,0.1)", padding: 16 }}>
+              <summary className="pointer-large small-title-oswald text-color-4" style={{ cursor: "pointer" }}>
+                Dodaj vozilo
+              </summary>
+              <form className="top-margin-20 flex-container response-999" style={{ gap: 12, flexWrap: "wrap" }} onSubmit={addVehicle}>
+                <input placeholder="Marka" value={newMake} onChange={(e) => setNewMake(e.target.value)} style={{ flex: "1 1 160px" }} />
                 <input
                   type="number"
-                  className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
                   value={newYear}
                   onChange={(e) => setNewYear(Number(e.target.value))}
+                  style={{ flex: "0 0 100px" }}
                 />
-                <input
-                  type="date"
-                  className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
-                  value={newReg}
-                  onChange={(e) => setNewReg(e.target.value)}
-                />
-                <div className="md:col-span-3">
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-slate-700 px-4 py-2 text-sm text-white hover:bg-slate-600"
-                  >
-                    Sačuvaj vozilo
-                  </button>
+                <input type="date" value={newReg} onChange={(e) => setNewReg(e.target.value)} style={{ flex: "1 1 160px" }} />
+                <div style={{ flex: "1 1 100%" }}>
+                  <div className="border-btn-box border-btn-red pointer-large">
+                    <div className="border-btn-inner">
+                      <button type="submit" className="border-btn" data-text="Sačuvaj vozilo">
+                        Sačuvaj vozilo
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </form>
             </details>
           </section>
 
-          <section className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6 md:p-8">
-            <h2 className="text-xl font-semibold text-white">3. Datum i termin</h2>
-            <p className="mt-1 text-sm text-slate-400">
-              Prikazani su slobodni slotovi za izabranu uslugu (trajanje {selectedService?.durationMin ?? "—"}{" "}
-              min).
+          <section className="dark-bg-2 client-card client-card-wide" style={{ margin: 0 }}>
+            <h3 className="medium-title text-color-4">3. Datum i termin</h3>
+            <p className="p-style-bold-up text-color-4 top-margin-10" style={{ opacity: 0.85 }}>
+              Prikazani su slobodni slotovi za izabranu uslugu (trajanje {selectedService?.durationMin ?? "—"} min).
             </p>
 
-            <label className="mt-6 block text-sm text-slate-300">
+            <label className="p-style-bold-up text-color-4 top-margin-30" style={{ display: "block" }}>
               Datum
-              <input
-                type="date"
-                className="mt-2 w-full max-w-xs rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ marginTop: 8, maxWidth: 280 }} />
             </label>
 
-            <div className="mt-4 text-sm text-slate-500">
+            <p className="top-margin-15 xsmall-title-oswald text-color-4" style={{ opacity: 0.65 }}>
               {slotsLoading ? "Učitavam slobodne termine…" : null}
-            </div>
+            </p>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="client-slot-row">
               {slots
                 .filter((s) => s.available)
                 .map((s) => {
@@ -337,12 +323,8 @@ export function ZakazivanjeClient() {
                     <button
                       key={s.startAt}
                       type="button"
+                      className={`client-slot-btn${active ? " is-active" : ""}`}
                       onClick={() => setSelectedStart(s.startAt)}
-                      className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                        active
-                          ? "border-emerald-400 bg-emerald-600 text-white shadow-lg shadow-emerald-900/40"
-                          : "border-slate-600 text-slate-200 hover:border-slate-400"
-                      }`}
                     >
                       {t}
                     </button>
@@ -350,28 +332,29 @@ export function ZakazivanjeClient() {
                 })}
             </div>
 
-            <form className="mt-8" onSubmit={submitBooking}>
-              <button
-                type="submit"
-                disabled={loading || !selectedStart || !vehicleId || !serviceId}
-                className="w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-emerald-900/30 hover:from-emerald-500 hover:to-teal-500 disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
-              >
-                {loading ? "Šaljem…" : "Pošalji zahtev za termin"}
-              </button>
+            <form className="top-margin-30" onSubmit={submitBooking}>
+              <div className="border-btn-box border-btn-red pointer-large">
+                <div className="border-btn-inner">
+                  <button
+                    type="submit"
+                    className="border-btn"
+                    data-text={loading ? "Šaljem…" : "Pošalji zahtev za termin"}
+                    disabled={loading || !selectedStart || !vehicleId || !serviceId}
+                  >
+                    {loading ? "Šaljem…" : "Pošalji zahtev za termin"}
+                  </button>
+                </div>
+              </div>
             </form>
           </section>
         </>
       ) : null}
 
       {msg ? (
-        <div
-          className={`rounded-2xl border px-4 py-3 text-sm ${
-            msg.includes("poslat")
-              ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-100"
-              : "border-amber-500/30 bg-amber-950/30 text-amber-100"
-          }`}
-        >
-          {msg}
+        <div className={msg.includes("poslat") ? "client-msg-ok" : "client-msg-warn"}>
+          <p className="p-style-bold-up text-color-4" style={{ margin: 0 }}>
+            {msg}
+          </p>
         </div>
       ) : null}
     </div>

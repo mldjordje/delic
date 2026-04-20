@@ -1,0 +1,166 @@
+/* Isti redosled kao public/index.html — fontovi + legacy stack za korisničke App rute */
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7COswald:300,400,500,600,700");
+@import url("/assets/css/plugins.css");
+@import url("/assets/css/style.css");
+
+.autodelic-client-site .client-site-content {
+  min-height: 100vh;
+  padding-top: 90px;
+}
+
+@media only screen and (max-width: 999px) {
+  .autodelic-client-site .client-site-content {
+    padding-top: 70px;
+  }
+}
+
+/* Kartice / forme u skladu sa tamnim sekcijama sajta */
+.autodelic-client-site .client-card {
+  background: rgba(15, 15, 15, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 28px 24px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.autodelic-client-site .client-card-wide {
+  max-width: 960px;
+}
+
+.autodelic-client-site .client-alert {
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  background: rgba(120, 53, 15, 0.25);
+  padding: 14px 16px;
+  margin-top: 20px;
+}
+
+.autodelic-client-site .client-google-btn {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: background 0.25s ease;
+}
+
+.autodelic-client-site .client-google-btn:hover {
+  background: #e8e8e8;
+}
+
+.autodelic-client-site .client-service-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  margin-top: 24px;
+}
+
+.autodelic-client-site .client-service-pick {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 20px;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.autodelic-client-site .client-service-pick.is-active {
+  border-color: rgba(220, 53, 69, 0.75);
+  box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.35);
+}
+
+.autodelic-client-site .client-slot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.autodelic-client-site .client-slot-btn {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+  color: #f8fafc;
+  padding: 10px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.autodelic-client-site .client-slot-btn.is-active {
+  border-color: rgba(220, 53, 69, 0.85);
+  background: rgba(220, 53, 69, 0.35);
+  color: #fff;
+}
+
+.autodelic-client-site .client-msg-ok {
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  background: rgba(6, 78, 59, 0.35);
+  padding: 14px 16px;
+  margin-top: 20px;
+}
+
+.autodelic-client-site .client-msg-warn {
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  background: rgba(120, 53, 15, 0.25);
+  padding: 14px 16px;
+  margin-top: 20px;
+}
+
+.autodelic-client-site .client-polovni-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.autodelic-client-site .client-polovni-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.autodelic-client-site .client-polovni-card-img {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #0a0a0a;
+}
+
+.autodelic-client-site .client-polovni-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.autodelic-client-site .client-video-embed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #000;
+  margin-top: 16px;
+}
+
+.autodelic-client-site .client-video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.autodelic-client-site .client-divider {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}

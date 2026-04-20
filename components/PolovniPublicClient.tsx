@@ -35,71 +35,101 @@ export function PolovniPublicClient() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-12 text-center text-slate-400">
-        Učitavanje ponude…
+      <div className="dark-bg-2 client-card client-card-wide top-margin-20">
+        <p className="p-style-bold-up text-color-4">Učitavanje ponude…</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-900/50 bg-red-950/30 p-6 text-red-200">{error}</div>
+      <div className="client-msg-warn">
+        <p className="p-style-bold-up text-color-4" style={{ margin: 0 }}>
+          {error}
+        </p>
+      </div>
     );
   }
 
   if (listings.length === 0) {
     return (
-      <p className="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400">
+      <p className="p-style-bold-up text-color-4 dark-bg-2 top-bottom-padding-40 content-padding-l-r-20" style={{ opacity: 0.85 }}>
         Trenutno nema aktivnih oglasa. Proverite uskoro ponovo.
       </p>
     );
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="client-polovni-grid">
       {listings.map((l) => (
-        <article
-          key={l.id}
-          className="group flex flex-col overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 shadow-lg shadow-black/20 transition hover:border-emerald-500/30"
-        >
-          <div className="relative aspect-[16/10] bg-slate-950">
+        <article key={l.id} className="client-polovni-card pointer-large">
+          <div className="client-polovni-card-img">
             {l.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={l.imageUrl}
-                alt=""
-                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-              />
+              <img src={l.imageUrl} alt="" />
             ) : (
-              <div className="flex h-full items-center justify-center text-sm text-slate-600">Bez slike</div>
+              <div
+                className="p-style-bold-up text-color-4"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "100%",
+                  opacity: 0.45,
+                }}
+              >
+                Bez slike
+              </div>
             )}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 to-transparent px-4 pb-3 pt-10">
-              <p className="text-lg font-semibold text-white">{l.title}</p>
-              <p className="text-sm text-slate-300">
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                padding: "12px 16px",
+                background: "linear-gradient(to top, rgba(0,0,0,0.9), transparent)",
+              }}
+            >
+              <span className="small-title-oswald text-color-4" style={{ display: "block" }}>
+                {l.title}
+              </span>
+              <span className="xsmall-title-oswald text-color-4" style={{ opacity: 0.85 }}>
                 {[l.make, l.year].filter(Boolean).join(" · ") || "—"}
-              </p>
+              </span>
             </div>
           </div>
-          <div className="flex flex-1 flex-col gap-3 p-5">
-            <p className="text-2xl font-bold text-emerald-400">
+          <div className="top-bottom-padding-30 content-padding-l-r-20" style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
+            <p className="large-title-bold red-color" style={{ fontSize: "1.75rem", margin: 0 }}>
               {l.priceRsd.toLocaleString("sr-RS")}{" "}
-              <span className="text-base font-medium text-slate-400">RSD</span>
+              <span className="xsmall-title-oswald text-color-4" style={{ fontWeight: 400 }}>
+                RSD
+              </span>
             </p>
             {l.mileageKm != null ? (
-              <p className="text-sm text-slate-400">Kilometraža: {l.mileageKm.toLocaleString("sr-RS")} km</p>
+              <p className="p-style-bold-up text-color-4" style={{ opacity: 0.85 }}>
+                Kilometraža: {l.mileageKm.toLocaleString("sr-RS")} km
+              </p>
             ) : null}
             {l.description ? (
-              <p className="line-clamp-4 text-sm leading-relaxed text-slate-300">{l.description}</p>
+              <p className="p-style-bold-up text-color-4" style={{ opacity: 0.9, lineHeight: 1.5 }}>
+                {l.description.length > 280 ? `${l.description.slice(0, 280)}…` : l.description}
+              </p>
             ) : null}
             {l.contactPhone ? (
-              <a
-                href={`tel:${l.contactPhone.replace(/\s/g, "")}`}
-                className="mt-auto inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-500"
-              >
-                Pozovi: {l.contactPhone}
-              </a>
+              <div className="top-margin-20">
+                <div className="border-btn-box border-btn-red pointer-large">
+                  <div className="border-btn-inner">
+                    <a href={`tel:${l.contactPhone.replace(/\s/g, "")}`} className="border-btn" data-text={`Pozovi: ${l.contactPhone}`}>
+                      Pozovi: {l.contactPhone}
+                    </a>
+                  </div>
+                </div>
+              </div>
             ) : (
-              <p className="mt-auto text-xs text-slate-500">Kontakt preko salona — pozovite nas.</p>
+              <p className="xsmall-title-oswald text-color-4 top-margin-auto" style={{ opacity: 0.65, marginTop: "auto" }}>
+                Kontakt preko salona — pozovite nas.
+              </p>
             )}
           </div>
         </article>

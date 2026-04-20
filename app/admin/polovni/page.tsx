@@ -28,6 +28,7 @@ export default function AdminPolovniPage() {
   const [mileageKm, setMileageKm] = useState<number | "">("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [uploadBusy, setUploadBusy] = useState(false);
   const [contactPhone, setContactPhone] = useState("");
   const [sortOrder, setSortOrder] = useState(0);
 
@@ -48,6 +49,24 @@ export default function AdminPolovniPage() {
   useEffect(() => {
     void load();
   }, []);
+
+  async function uploadImage(file: File | null) {
+    if (!file) return;
+    setError(null);
+    setUploadBusy(true);
+    const fd = new FormData();
+    fd.set("file", file);
+    const r = await fetch("/api/admin/upload", { method: "POST", credentials: "include", body: fd });
+    const j = await r.json().catch(() => null);
+    setUploadBusy(false);
+    if (!r.ok) {
+      setError(j?.message || "Greška pri otpremanju slike");
+      return;
+    }
+    if (j?.url && typeof j.url === "string") {
+      setImageUrl(j.url);
+    }
+  }
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -127,8 +146,8 @@ export default function AdminPolovniPage() {
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Polovni automobili</h2>
         <p style={{ color: "#94a3b8", maxWidth: 640 }}>
-          Oglasi se prikazuju na javnoj stranici <strong>/polovni-automobili</strong>. Sliku unesite kao pun
-          URL (npr. sa hostinga ili CDN-a).
+          Oglasi se prikazuju na javnoj stranici <strong>/polovni-automobili</strong>. Otpremite sliku (JPEG, PNG,
+          WebP do 8 MB) ili unesite pun URL slike.
         </p>
 
         <form onSubmit={create} style={{ display: "grid", gap: 12, marginTop: 20, maxWidth: 640 }}>
@@ -174,8 +193,21 @@ export default function AdminPolovniPage() {
               style={inputStyle}
             />
           </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: uploadBusy ? "wait" : "pointer" }}>
+              <span style={{ color: "#94a3b8", fontSize: 14 }}>Otpremi sliku</span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={uploadBusy}
+                onChange={(e) => void uploadImage(e.target.files?.[0] ?? null)}
+                style={{ maxWidth: "100%" }}
+              />
+            </label>
+            {uploadBusy ? <span style={{ color: "#94a3b8", fontSize: 14 }}>Otpremanje…</span> : null}
+          </div>
           <input
-            placeholder="URL slike (https://...)"
+            placeholder="URL slike (https://...) — opciono ako ste otpremili fajl"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             style={inputStyle}

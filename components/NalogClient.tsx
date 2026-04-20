@@ -56,49 +56,66 @@ export function NalogClient() {
   }
 
   return (
-    <div className="space-y-10">
-      <section id="profil" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-        <h2 className="text-xl font-semibold text-white">Profil</h2>
-        <form className="mt-4 grid gap-4 md:grid-cols-2" onSubmit={saveProfile}>
-          <label className="text-sm text-slate-300">
-            Ime i prezime
-            <input
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-            />
-          </label>
-          <label className="text-sm text-slate-300">
-            Telefon
-            <input
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </label>
-          <div className="md:col-span-2">
-            <button
-              type="submit"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
-            >
-              Sačuvaj
-            </button>
+    <div className="flex-container response-999" style={{ flexDirection: "column", gap: 40 }}>
+      <section id="profil" className="dark-bg-2 client-card client-card-wide" style={{ margin: 0 }}>
+        <h3 className="medium-title text-color-4">Profil</h3>
+        <form className="top-margin-30" onSubmit={saveProfile}>
+          <div className="flex-container response-999" style={{ gap: 24, flexWrap: "wrap" }}>
+            <label className="p-style-bold-up text-color-4" style={{ flex: "1 1 220px", display: "block" }}>
+              Ime i prezime
+              <input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                style={{ marginTop: 8 }}
+              />
+            </label>
+            <label className="p-style-bold-up text-color-4" style={{ flex: "1 1 220px", display: "block" }}>
+              Telefon
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                type="tel"
+                style={{ marginTop: 8 }}
+              />
+            </label>
+          </div>
+          <div className="top-margin-30">
+            <div className="border-btn-box border-btn-red pointer-large">
+              <div className="border-btn-inner">
+                <button type="submit" className="border-btn" data-text="Sačuvaj profil">
+                  Sačuvaj profil
+                </button>
+              </div>
+            </div>
           </div>
         </form>
-        {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
+        {error ? (
+          <p className="top-margin-20 p-style-bold-up" style={{ color: "#fca5a5", marginBottom: 0 }}>
+            {error}
+          </p>
+        ) : null}
       </section>
 
-      <section id="vozila" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-        <h2 className="text-xl font-semibold text-white">Moja vozila</h2>
-        <ul className="mt-4 space-y-2 text-slate-300">
+      <section id="vozila" className="dark-bg-2 client-card client-card-wide" style={{ margin: 0 }}>
+        <h3 className="medium-title text-color-4">Moja vozila</h3>
+        <ul className="top-margin-20" style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {vehicles.map((v) => (
-            <li key={v.id} className="flex justify-between rounded-lg border border-slate-800 px-3 py-2">
-              <span>
-                {v.make} ({v.year}) — reg. do {v.registrationExpiresOn}
-              </span>
+            <li
+              key={v.id}
+              className="p-style-bold-up text-color-4 top-margin-15"
+              style={{
+                border: "1px solid rgba(255,255,255,0.1)",
+                padding: "12px 16px",
+              }}
+            >
+              {v.make} ({v.year}) — reg. do {v.registrationExpiresOn}
             </li>
           ))}
-          {vehicles.length === 0 ? <li className="text-slate-500">Nema vozila — dodajte na stranici zakazivanja.</li> : null}
+          {vehicles.length === 0 ? (
+            <li className="p-style-bold-up text-color-4" style={{ opacity: 0.75 }}>
+              Nema vozila — dodajte na stranici zakazivanja.
+            </li>
+          ) : null}
         </ul>
       </section>
     </div>

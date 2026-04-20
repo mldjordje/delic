@@ -48,55 +48,59 @@ export function PrijavaForm() {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-slate-800 bg-slate-900/60 p-8 shadow-xl">
-      <h1 className="text-2xl font-semibold text-white">Prijava</h1>
-      <p className="mt-2 text-sm text-slate-400">
+    <div>
+      <p className="p-style-bold-up text-height-20 text-color-4">
         Unesite email — dobijate OTP kod (bez lozinke). Telefon može posle povezivanja u nalogu.
       </p>
 
       {step === "id" ? (
-        <form className="mt-6 space-y-4" onSubmit={requestOtp}>
-          <label className="block text-sm text-slate-300">
+        <form className="top-margin-30" onSubmit={requestOtp}>
+          <label className="p-style-bold-up text-color-4" style={{ display: "block" }}>
             Email
             <input
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
               type="email"
               required
               autoComplete="email"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              style={{ marginTop: 8 }}
             />
           </label>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
-          >
-            {loading ? "Šaljem…" : "Pošalji kod"}
-          </button>
+          <div className="top-margin-30">
+            <div className="border-btn-box border-btn-red pointer-large">
+              <div className="border-btn-inner">
+                <button type="submit" className="border-btn" data-text={loading ? "Šaljem…" : "Pošalji kod"} disabled={loading}>
+                  {loading ? "Šaljem…" : "Pošalji kod"}
+                </button>
+              </div>
+            </div>
+          </div>
         </form>
       ) : (
-        <form className="mt-6 space-y-4" onSubmit={verifyOtp}>
-          <label className="block text-sm text-slate-300">
+        <form className="top-margin-30" onSubmit={verifyOtp}>
+          <label className="p-style-bold-up text-color-4" style={{ display: "block" }}>
             Kod iz emaila
             <input
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white tracking-widest"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               inputMode="numeric"
               required
+              style={{ marginTop: 8, letterSpacing: "0.2em" }}
             />
           </label>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
-          >
-            {loading ? "Proveravam…" : "Prijavi me"}
-          </button>
+          <div className="top-margin-30">
+            <div className="border-btn-box border-btn-red pointer-large">
+              <div className="border-btn-inner">
+                <button type="submit" className="border-btn" data-text={loading ? "Proveravam…" : "Prijavi me"} disabled={loading}>
+                  {loading ? "Proveravam…" : "Prijavi me"}
+                </button>
+              </div>
+            </div>
+          </div>
           <button
             type="button"
-            className="w-full text-sm text-slate-400 underline"
+            className="pointer-large xsmall-title-oswald text-color-4 top-margin-20"
+            style={{ background: "none", border: 0, cursor: "pointer", textDecoration: "underline" }}
             onClick={() => {
               setStep("id");
               setCode("");
@@ -108,7 +112,11 @@ export function PrijavaForm() {
         </form>
       )}
 
-      {msg ? <p className="mt-4 text-sm text-slate-300">{msg}</p> : null}
+      {msg ? (
+        <p className="top-margin-20 p-style-bold-up text-color-4" style={{ marginBottom: 0 }}>
+          {msg}
+        </p>
+      ) : null}
     </div>
   );
 }
