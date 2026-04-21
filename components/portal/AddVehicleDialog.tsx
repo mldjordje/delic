@@ -26,17 +26,29 @@ export function AddVehicleDialog({
   const [msg, setMsg] = useState<{ tone: "ok" | "warn"; text: string } | null>(null);
 
   const [make, setMake] = useState("");
+  const [plateNumber, setPlateNumber] = useState("");
+  const [model, setModel] = useState("");
+  const [fuelType, setFuelType] = useState("");
+  const [color, setColor] = useState("");
+  const [vin, setVin] = useState("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [engineCc, setEngineCc] = useState<number | "">("");
+  const [powerKw, setPowerKw] = useState<number | "">("");
   const [registrationExpiresOn, setRegistrationExpiresOn] = useState("");
   const [hasLpgOrMethane, setHasLpgOrMethane] = useState(false);
   const [lpgMethaneCertificateExpiresOn, setLpgMethaneCertificateExpiresOn] = useState<string>("");
 
   const canSave = useMemo(() => {
     if (!make.trim()) return false;
+    if (!plateNumber.trim()) return false;
+    if (!fuelType) return false;
+    if (!color.trim()) return false;
+    if (engineCc === "" || engineCc <= 0) return false;
+    if (powerKw === "" || powerKw <= 0) return false;
     if (!registrationExpiresOn) return false;
     if (hasLpgOrMethane && !lpgMethaneCertificateExpiresOn) return false;
     return true;
-  }, [make, registrationExpiresOn, hasLpgOrMethane, lpgMethaneCertificateExpiresOn]);
+  }, [make, plateNumber, fuelType, color, engineCc, powerKw, registrationExpiresOn, hasLpgOrMethane, lpgMethaneCertificateExpiresOn]);
 
   async function save() {
     setSaving(true);
@@ -47,6 +59,13 @@ export function AddVehicleDialog({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         make: make.trim(),
+        plateNumber: plateNumber.trim().toUpperCase(),
+        model: model.trim() || null,
+        fuelType: fuelType,
+        color: color.trim(),
+        vin: vin.trim() || null,
+        engineCc: engineCc === "" ? null : engineCc,
+        powerKw: powerKw === "" ? null : String(powerKw),
         year,
         registrationExpiresOn,
         hasLpgOrMethane,
@@ -64,6 +83,13 @@ export function AddVehicleDialog({
     setOpen(false);
     setMake("");
     setRegistrationExpiresOn("");
+    setEngineCc("");
+    setPowerKw("");
+    setPlateNumber("");
+    setModel("");
+    setFuelType("");
+    setColor("");
+    setVin("");
     setHasLpgOrMethane(false);
     setLpgMethaneCertificateExpiresOn("");
   }
@@ -77,14 +103,48 @@ export function AddVehicleDialog({
       </DialogTrigger>
       <DialogContent className="glass">
         <DialogHeader>
-          <DialogTitle>Add vehicle</DialogTitle>
-          <DialogDescription>Basic details + important expiry dates.</DialogDescription>
+        <DialogTitle>Add vehicle</DialogTitle>
+        <DialogDescription>Unesite osnovne podatke (za tehnički/registraciju) i datume isteka.</DialogDescription>
         </DialogHeader>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="make">Brand / make</Label>
             <Input id="make" value={make} onChange={(e) => setMake(e.target.value)} placeholder="e.g. Volkswagen Golf" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="plate">Plate number</Label>
+            <Input id="plate" value={plateNumber} onChange={(e) => setPlateNumber(e.target.value)} placeholder="NI-123-AB" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="model">Model (optional)</Label>
+            <Input id="model" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Golf / Passat..." />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="fuel">Fuel type</Label>
+            <select
+              id="fuel"
+              value={fuelType}
+              onChange={(e) => setFuelType(e.target.value)}
+              className="h-10 w-full rounded-md border border-input bg-background/40 px-3 text-sm"
+            >
+              <option value="">— select —</option>
+              <option value="petrol">Benzin</option>
+              <option value="diesel">Dizel</option>
+              <option value="hybrid">Hibrid</option>
+              <option value="ev">Električno</option>
+              <option value="lpg">LPG</option>
+              <option value="cng">CNG</option>
+              <option value="other">Drugo</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="color">Color</Label>
+            <Input id="color" value={color} onChange={(e) => setColor(e.target.value)} placeholder="npr. crna" />
           </div>
 
           <div className="space-y-2">
@@ -95,6 +155,35 @@ export function AddVehicleDialog({
           <div className="space-y-2">
             <Label htmlFor="reg">Registration expiry</Label>
             <Input id="reg" type="date" value={registrationExpiresOn} onChange={(e) => setRegistrationExpiresOn(e.target.value)} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="engineCc">Engine (cc)</Label>
+            <Input
+              id="engineCc"
+              type="number"
+              min={50}
+              value={engineCc}
+              onChange={(e) => setEngineCc(e.target.value ? Number(e.target.value) : "")}
+              placeholder="e.g. 1968"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="powerKw">Power (kW)</Label>
+            <Input
+              id="powerKw"
+              type="number"
+              min={1}
+              value={powerKw}
+              onChange={(e) => setPowerKw(e.target.value ? Number(e.target.value) : "")}
+              placeholder="e.g. 110"
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="vin">VIN (optional)</Label>
+            <Input id="vin" value={vin} onChange={(e) => setVin(e.target.value)} placeholder="e.g. WVWZZZ..." />
           </div>
 
           <div className="md:col-span-2 flex items-center gap-2 rounded-md border bg-background/30 p-3">

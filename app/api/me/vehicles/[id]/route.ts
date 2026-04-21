@@ -8,6 +8,11 @@ export const runtime = "nodejs";
 
 const patchSchema = z.object({
   make: z.string().min(1).max(120).optional(),
+  plateNumber: z.string().min(3).max(16).optional().nullable(),
+  vin: z.string().min(8).max(32).optional().nullable(),
+  fuelType: z.string().min(2).max(32).optional().nullable(),
+  color: z.string().min(2).max(32).optional().nullable(),
+  model: z.string().min(1).max(120).optional().nullable(),
   engineCc: z.number().int().positive().optional().nullable(),
   powerKw: z.string().optional().nullable(),
   year: z.number().int().min(1950).max(new Date().getFullYear() + 1).optional(),
@@ -51,6 +56,11 @@ export async function PATCH(
     .update(schema.vehicles)
     .set({
       ...(patch.make !== undefined ? { make: patch.make } : {}),
+      ...(patch.plateNumber !== undefined ? { plateNumber: patch.plateNumber } : {}),
+      ...(patch.vin !== undefined ? { vin: patch.vin } : {}),
+      ...(patch.fuelType !== undefined ? { fuelType: patch.fuelType } : {}),
+      ...(patch.color !== undefined ? { color: patch.color } : {}),
+      ...(patch.model !== undefined ? { model: patch.model } : {}),
       ...(patch.engineCc !== undefined ? { engineCc: patch.engineCc } : {}),
       ...(patch.powerKw !== undefined ? { powerKw: patch.powerKw } : {}),
       ...(patch.year !== undefined ? { year: patch.year } : {}),

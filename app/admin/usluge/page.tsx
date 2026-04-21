@@ -21,6 +21,14 @@ export default function AdminUslugePage() {
   const [durationMin, setDurationMin] = useState(30);
   const [priceRsd, setPriceRsd] = useState(0);
   const [sortOrder, setSortOrder] = useState(0);
+  const [editing, setEditing] = useState<Service | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editDurationMin, setEditDurationMin] = useState(30);
+  const [editPriceRsd, setEditPriceRsd] = useState(0);
+  const [editSortOrder, setEditSortOrder] = useState(0);
+  const [editIsActive, setEditIsActive] = useState(true);
+  const [editSaving, setEditSaving] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -81,6 +89,43 @@ export default function AdminUslugePage() {
       setError(j?.message || "Greška");
       return;
     }
+    await load();
+  }
+
+  function openEdit(s: Service) {
+    setEditing(s);
+    setEditName(s.name);
+    setEditDescription(s.description || "");
+    setEditDurationMin(s.durationMin);
+    setEditPriceRsd(s.priceRsd);
+    setEditSortOrder(s.sortOrder);
+    setEditIsActive(s.isActive);
+  }
+
+  async function saveEdit() {
+    if (!editing) return;
+    setError(null);
+    setEditSaving(true);
+    const r = await fetch(`/api/admin/services/${editing.id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: editName.trim(),
+        description: editDescription.trim() || null,
+        durationMin: editDurationMin,
+        priceRsd: editPriceRsd,
+        sortOrder: editSortOrder,
+        isActive: editIsActive,
+      }),
+    });
+    const j = await r.json().catch(() => null);
+    setEditSaving(false);
+    if (!r.ok) {
+      setError(j?.message || "Greška pri izmeni");
+      return;
+    }
+    setEditing(null);
     await load();
   }
 
@@ -242,6 +287,14 @@ export default function AdminUslugePage() {
                     <button
                       type="button"
                       className="admin-template-link-btn"
+                      onClick={() => openEdit(s)}
+                      style={{ opacity: 0.95 }}
+                    >
+                      Izmeni
+                    </button>{" "}
+                    <button
+                      type="button"
+                      className="admin-template-link-btn"
                       onClick={() => void toggleActive(s)}
                     >
                       {s.isActive ? "Deaktiviraj" : "Aktiviraj"}
@@ -261,6 +314,143 @@ export default function AdminUslugePage() {
           </table>
         </div>
       </section>
+
+      {editing ? (
+        <div
+          className="admin-card"
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            left: 24,
+            maxWidth: 860,
+            marginLeft: "auto",
+            zIndex: 60,
+            boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
+          }}
+        >
+          <div className="flex-container response-999" style={{ justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <h3 style={{ marginTop: 0, marginBottom: 6 }}>Izmena usluge</h3>
+              <p style={{ marginTop: 0, color: "#94a3b8", fontSize: 14 }}>
+                ID: <span style={{ color: "#e2e8f0" }}>{editing.id}</span>
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button type="button" className="admin-template-link-btn" onClick={() => void saveEdit()} disabled={editSaving}>
+                {editSaving ? "Čuvam…" : "Sačuvaj"}
+              </button>
+              <button type="button" className="admin-template-link-btn" onClick={() => setEditing(null)}>
+                Zatvori
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+              Naziv
+              <input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                required
+                style={{
+                  display: "block",
+                  marginTop: 4,
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #334155",
+                  background: "#0f172a",
+                  color: "#f8fafc",
+                  width: "100%",
+                }}
+              />
+            </label>
+
+            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+              Opis (opciono)
+              <textarea
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={2}
+                style={{
+                  display: "block",
+                  marginTop: 4,
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #334155",
+                  background: "#0f172a",
+                  color: "#f8fafc",
+                  width: "100%",
+                }}
+              />
+            </label>
+
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <label style={{ color: "#94a3b8", fontSize: 14 }}>
+                Trajanje (min)
+                <input
+                  type="number"
+                  min={15}
+                  max={480}
+                  value={editDurationMin}
+                  onChange={(e) => setEditDurationMin(Number(e.target.value))}
+                  style={{
+                    display: "block",
+                    marginTop: 4,
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #334155",
+                    background: "#0f172a",
+                    color: "#f8fafc",
+                    width: 140,
+                  }}
+                />
+              </label>
+              <label style={{ color: "#94a3b8", fontSize: 14 }}>
+                Cena (RSD)
+                <input
+                  type="number"
+                  min={0}
+                  value={editPriceRsd}
+                  onChange={(e) => setEditPriceRsd(Number(e.target.value))}
+                  style={{
+                    display: "block",
+                    marginTop: 4,
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #334155",
+                    background: "#0f172a",
+                    color: "#f8fafc",
+                    width: 160,
+                  }}
+                />
+              </label>
+              <label style={{ color: "#94a3b8", fontSize: 14 }}>
+                Redosled
+                <input
+                  type="number"
+                  value={editSortOrder}
+                  onChange={(e) => setEditSortOrder(Number(e.target.value))}
+                  style={{
+                    display: "block",
+                    marginTop: 4,
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #334155",
+                    background: "#0f172a",
+                    color: "#f8fafc",
+                    width: 120,
+                  }}
+                />
+              </label>
+              <label style={{ color: "#94a3b8", fontSize: 14, display: "flex", alignItems: "center", gap: 10, marginTop: 22 }}>
+                <input type="checkbox" checked={editIsActive} onChange={(e) => setEditIsActive(e.target.checked)} />
+                Aktivna
+              </label>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

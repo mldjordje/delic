@@ -1,10 +1,22 @@
+import { z } from "zod";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
-import { fail, ok } from "@/lib/api/http";
+import { created, fail, ok, readJson } from "@/lib/api/http";
 import { requireStaffOrAdmin } from "@/lib/auth/guards";
 import { getDb, schema } from "@/lib/db/client";
 import { parseDateAtTime, toBelgradeDateKey } from "@/lib/booking/schedule";
+import { addMinutes, findConflicts, isWithinWorkHours, lockEmployeeSchedule } from "@/lib/booking/engine";
+import { getDefaultEmployee } from "@/lib/booking/config";
 
 export const runtime = "nodejs";
+
+const createSchema = z.object({
+  userId: z.string().uuid(),
+  vehicleId: z.string().uuid(),
+  serviceId: z.string().uuid(),
+  startsAt: z.string().datetime(),
+  status: z.enum(["pending", "confirmed", "completed", "cancelled", "no_show"]).optional(),
+  workerNotes: z.string().max(8000).optional().nullable(),
+});
 
 export async function GET(request: Request) {
   const auth = await requireStaffOrAdmin();
@@ -60,4 +72,108 @@ export async function GET(request: Request) {
       },
     })),
   });
+}
+
+export async function POST(request: Request) {
+  const auth = await requireStaffOrAdmin();
+  if (auth.error) {
+    return auth.error;
+  }
+
+  const body = await readJson(request);
+  const parsed = createSchema.safeParse(body);
+  if (!parsed.success) {
+    return fail(400, "Neispravan zahtev", parsed.error.flatten());
+  }
+
+  const db = getDb();
+  const employee = await getDefaultEmployee();
+
+  const startAt = new Date(parsed.data.startsAt);
+  if (Number.isNaN(startAt.getTime())) {
+    return fail(400, "Neispravan datum startsAt.");
+  }
+
+  const [svc] = await db
+    .select()
+    .from(schema.services)
+    .where(eq(schema.services.id, parsed.data.serviceId))
+    .limit(1);
+  if (!svc) {
+    return fail(400, "Usluga nije pronađena.");
+  }
+
+  const [vehicle] = await db
+    .select()
+    .from(schema.vehicles)
+    .where(eq(schema.vehicles.id, parsed.data.vehicleId))
+    .limit(1);
+  if (!vehicle || vehicle.userId !== parsed.data.userId) {
+    return fail(400, "Vozilo nije pronađeno (ili ne pripada klijentu).");
+  }
+
+  const durationMin = svc.durationMin;
+  const priceRsd = svc.priceRsd;
+  const endsAt = addMinutes(startAt, durationMin);
+
+  if (!(await isWithinWorkHours(startAt, durationMin))) {
+    return fail(400, "Termin je van radnog vremena.");
+  }
+
+  const status = parsed.data.status || "confirmed";
+
+  let createdBooking: typeof schema.bookings.$inferSelect | undefined;
+
+  try {
+    await db.transaction(async (tx) => {
+      await lockEmployeeSchedule(tx, employee.id);
+
+      const conflicts = await findConflicts({
+        employeeId: employee.id,
+        startsAt: startAt,
+        endsAt,
+        tx,
+      });
+
+      if (conflicts.length) {
+        throw new Error("SLOT_TAKEN");
+      }
+
+      const [row] = await tx
+        .insert(schema.bookings)
+        .values({
+          userId: parsed.data.userId,
+          employeeId: employee.id,
+          vehicleId: parsed.data.vehicleId,
+          serviceId: svc.id,
+          startsAt: startAt,
+          endsAt,
+          status,
+          totalDurationMin: durationMin,
+          totalPriceRsd: priceRsd,
+          workerNotes: parsed.data.workerNotes || null,
+          clientNotes: null,
+        })
+        .returning();
+
+      createdBooking = row;
+
+      await tx.insert(schema.bookingStatusLog).values({
+        bookingId: row.id,
+        previousStatus: null,
+        nextStatus: status,
+        changedByUserId: auth.user.id,
+        note: "Kreirano ručno (kalendar)",
+      });
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg === "SLOT_TAKEN") {
+      return fail(409, "Termin je zauzet.");
+    }
+    console.error(e);
+    return fail(500, "Greška pri kreiranju termina.");
+  }
+
+  return created({ ok: true, booking: createdBooking });
 }

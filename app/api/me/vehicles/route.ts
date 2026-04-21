@@ -23,6 +23,11 @@ export async function GET() {
 
 const vehicleSchema = z.object({
   make: z.string().min(1).max(120),
+  plateNumber: z.string().min(3).max(16).optional().nullable(),
+  vin: z.string().min(8).max(32).optional().nullable(),
+  fuelType: z.string().min(2).max(32).optional().nullable(),
+  color: z.string().min(2).max(32).optional().nullable(),
+  model: z.string().min(1).max(120).optional().nullable(),
   engineCc: z.number().int().positive().optional().nullable(),
   powerKw: z.string().optional().nullable(),
   year: z.number().int().min(1950).max(new Date().getFullYear() + 1),
@@ -52,6 +57,11 @@ export async function POST(request: Request) {
     .values({
       userId: auth.user.id,
       make: parsed.data.make,
+      plateNumber: parsed.data.plateNumber ?? null,
+      vin: parsed.data.vin ?? null,
+      fuelType: parsed.data.fuelType ?? null,
+      color: parsed.data.color ?? null,
+      model: parsed.data.model ?? null,
       engineCc: parsed.data.engineCc ?? null,
       powerKw: parsed.data.powerKw ?? null,
       year: parsed.data.year,

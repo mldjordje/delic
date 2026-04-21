@@ -328,11 +328,11 @@
         </a>
       </section>
 
-      <section class="dark-bg-1" style="padding: 56px 0 48px">
+      <section class="dark-bg-1" style="padding: 56px 0 48px" id="zakazi">
         <div class="container">
           <div
             class="flex-container response-999"
-            style="align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 28px"
+            style="align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 28px"
           >
             <div class="six-columns six-offset">
               <h3 class="medium-title text-color-4" style="margin-bottom: 14px">Online zakazivanje</h3>
@@ -353,12 +353,45 @@
             <div class="six-columns" style="text-align: right">
               <div class="border-btn-box border-btn-red pointer-large" style="display: inline-block">
                 <div class="border-btn-inner">
-                  <a href="/zakazivanje" class="border-btn" data-text="Zakaži termin">Zakaži termin</a>
+                  <a href="/zakazivanje" class="border-btn" data-text="Otvori punu stranicu">Otvori punu stranicu</a>
                 </div>
               </div>
+              <p class="top-margin-15 xsmall-title-oswald text-color-4" style="opacity: 0.75">Isti widget je i na stranici /zakazivanje.</p>
             </div>
           </div>
+
+          <div class="top-margin-30">
+            <iframe
+              id="booking-embed"
+              title="Online zakazivanje — Auto Delić"
+              src="/zakazivanje/embed"
+              style="
+                width: 100%;
+                height: 980px;
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.04);
+              "
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
         </div>
+
+        <script>
+          (function () {
+            var iframe = document.getElementById("booking-embed");
+            if (!iframe) return;
+            window.addEventListener("message", function (event) {
+              try {
+                if (!event || !event.data || event.data.type !== "autodelic-booking-height") return;
+                var h = Number(event.data.height);
+                if (!h || !isFinite(h)) return;
+                iframe.style.height = Math.max(720, Math.min(h + 24, 1400)) + "px";
+              } catch (e) {}
+            });
+          })();
+        </script>
       </section>
 
       <!-- NOTE: ostatak sadržaja je preuzet iz legacy `index.php` -->

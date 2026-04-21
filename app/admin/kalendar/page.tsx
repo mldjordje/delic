@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -14,8 +14,13 @@ type BookingRow = {
   status: string;
   workerNotes: string | null;
   vehicle: { make: string; year: number };
+  serviceName?: string;
   client: { email: string | null; phone: string | null; fullName: string | null };
 };
+
+type Service = { id: string; name: string; durationMin: number; priceRsd: number; description: string | null };
+type ClientPick = { id: string; email: string | null; phone: string | null; fullName: string | null };
+type VehiclePick = { id: string; make: string; year: number; registrationExpiresOn: string };
 
 const STATUS_COLOR: Record<string, string> = {
   pending: "#ca8a04",
@@ -35,6 +40,23 @@ export default function AdminKalendarPage() {
   const [status, setStatus] = useState("confirmed");
   const [msg, setMsg] = useState("");
 
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createStartIso, setCreateStartIso] = useState<string>("");
+  const [createEndIso, setCreateEndIso] = useState<string>("");
+  const [createServices, setCreateServices] = useState<Service[]>([]);
+  const [createServiceId, setCreateServiceId] = useState<string>("");
+  const [clientQuery, setClientQuery] = useState("");
+  const [clientBusy, setClientBusy] = useState(false);
+  const [clientResults, setClientResults] = useState<ClientPick[]>([]);
+  const [selectedClient, setSelectedClient] = useState<ClientPick | null>(null);
+  const [vehiclesBusy, setVehiclesBusy] = useState(false);
+  const [vehicles, setVehicles] = useState<VehiclePick[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
+  const [createNotes, setCreateNotes] = useState("");
+  const [createSaving, setCreateSaving] = useState(false);
+  const [createError, setCreateError] = useState("");
+  const [createOk, setCreateOk] = useState("");
+
   const loadRange = useCallback(async (from: string, to: string) => {
     setLoading(true);
     setError("");
@@ -53,13 +75,24 @@ export default function AdminKalendarPage() {
     setEvents(
       rows.map((b) => ({
         id: b.id,
-        title: `${b.vehicle.make} · ${b.status}`,
+        title: `${b.vehicle.make}${b.serviceName ? ` · ${b.serviceName}` : ""} · ${b.status}`,
         start: typeof b.startsAt === "string" ? b.startsAt : new Date(b.startsAt).toISOString(),
         end: typeof b.endsAt === "string" ? b.endsAt : new Date(b.endsAt).toISOString(),
         backgroundColor: STATUS_COLOR[b.status] || "#64748b",
         extendedProps: { row: b },
       }))
     );
+  }, []);
+
+  useEffect(() => {
+    void (async () => {
+      const r = await fetch("/api/services").catch(() => null);
+      const j = await r?.json().catch(() => null);
+      if (r?.ok && j?.services) {
+        setCreateServices(j.services as Service[]);
+        setCreateServiceId((prev) => prev || (j.services?.[0]?.id as string) || "");
+      }
+    })();
   }, []);
 
   function handleEventClick(arg: EventClickArg) {
@@ -101,6 +134,113 @@ export default function AdminKalendarPage() {
     setActive(null);
   }
 
+  function openCreateFromSelection(startStr: string, endStr: string) {
+    setCreateError("");
+    setCreateOk("");
+    setCreateNotes("");
+    setSelectedClient(null);
+    setClientQuery("");
+    setClientResults([]);
+    setVehicles([]);
+    setSelectedVehicleId("");
+    setCreateStartIso(startStr);
+    setCreateEndIso(endStr);
+    setCreateOpen(true);
+  }
+
+  async function searchClients(q: string) {
+    const s = q.trim();
+    if (s.length < 2) {
+      setClientResults([]);
+      return;
+    }
+    setClientBusy(true);
+    const r = await fetch(`/api/admin/lookup/clients?q=${encodeURIComponent(s)}`, { credentials: "include" });
+    const j = await r.json().catch(() => null);
+    setClientBusy(false);
+    if (!r.ok) {
+      setCreateError(j?.message || "Greška pri pretrazi klijenata.");
+      setClientResults([]);
+      return;
+    }
+    setClientResults((j?.clients || []) as ClientPick[]);
+  }
+
+  async function loadVehiclesForClient(userId: string) {
+    setVehiclesBusy(true);
+    const r = await fetch(`/api/admin/lookup/vehicles?userId=${encodeURIComponent(userId)}`, { credentials: "include" });
+    const j = await r.json().catch(() => null);
+    setVehiclesBusy(false);
+    if (!r.ok) {
+      setCreateError(j?.message || "Greška pri učitavanju vozila klijenta.");
+      setVehicles([]);
+      return;
+    }
+    const list = (j?.vehicles || []) as VehiclePick[];
+    setVehicles(list);
+    setSelectedVehicleId(list[0]?.id || "");
+  }
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      void searchClients(clientQuery);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [clientQuery]);
+
+  async function createBooking() {
+    setCreateError("");
+    setCreateOk("");
+    if (!createServiceId) {
+      setCreateError("Izaberite uslugu.");
+      return;
+    }
+    if (!selectedClient?.id) {
+      setCreateError("Izaberite klijenta.");
+      return;
+    }
+    if (!selectedVehicleId) {
+      setCreateError("Izaberite vozilo.");
+      return;
+    }
+    if (!createStartIso) {
+      setCreateError("Nije izabran start.");
+      return;
+    }
+
+    setCreateSaving(true);
+    const r = await fetch("/api/admin/bookings", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: selectedClient.id,
+        vehicleId: selectedVehicleId,
+        serviceId: createServiceId,
+        startsAt: new Date(createStartIso).toISOString(),
+        status: "confirmed",
+        workerNotes: createNotes.trim() || null,
+      }),
+    });
+    const j = await r.json().catch(() => null);
+    setCreateSaving(false);
+    if (!r.ok) {
+      setCreateError(j?.message || "Greška pri kreiranju termina.");
+      return;
+    }
+    setCreateOk("Termin je kreiran.");
+
+    const api = calendarRef.current?.getApi();
+    const start = api?.view.activeStart;
+    const endEx = api?.view.activeEnd;
+    if (start && endEx) {
+      const from = start.toISOString().slice(0, 10);
+      const to = new Date(endEx.getTime() - 86400000).toISOString().slice(0, 10);
+      await loadRange(from, to);
+    }
+    setCreateOpen(false);
+  }
+
   return (
     <div className="admin-stack">
       <section className="admin-card">
@@ -125,6 +265,11 @@ export default function AdminKalendarPage() {
             height="auto"
             events={events}
             eventClick={handleEventClick}
+            selectable={true}
+            selectMirror={true}
+            select={(arg) => {
+              openCreateFromSelection(arg.startStr, arg.endStr);
+            }}
             datesSet={(arg) => {
               const from = arg.start.toISOString().slice(0, 10);
               const to = new Date(arg.end.getTime() - 86400000).toISOString().slice(0, 10);
@@ -166,6 +311,110 @@ export default function AdminKalendarPage() {
             </button>
           </div>
           {msg ? <p style={{ marginTop: 8, fontSize: 14 }}>{msg}</p> : null}
+        </div>
+      ) : null}
+
+      {createOpen ? (
+        <div
+          className="admin-card"
+          style={{ position: "fixed", bottom: 24, left: 24, right: 24, maxWidth: 860, marginLeft: "auto", zIndex: 55, boxShadow: "0 12px 40px rgba(0,0,0,0.45)" }}
+        >
+          <div className="flex-container response-999" style={{ justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <h3 style={{ marginTop: 0 }}>Novi termin</h3>
+              <p style={{ marginTop: 6, color: "#94a3b8", fontSize: 14 }}>
+                Start: <span style={{ color: "#e2e8f0" }}>{new Date(createStartIso).toLocaleString("sr-RS")}</span>
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button type="button" className="admin-template-link-btn" onClick={() => void createBooking()} disabled={createSaving}>
+                {createSaving ? "Kreiram…" : "Kreiraj"}
+              </button>
+              <button type="button" className="admin-template-link-btn" onClick={() => setCreateOpen(false)}>
+                Zatvori
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+            <label className="admin-field">
+              <span>Usluga</span>
+              <select value={createServiceId} onChange={(e) => setCreateServiceId(e.target.value)} className="admin-input">
+                {createServices.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} ({s.durationMin} min)
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="admin-field">
+              <span>Klijent (email / telefon / ime)</span>
+              <input
+                className="admin-input"
+                value={clientQuery}
+                onChange={(e) => {
+                  setClientQuery(e.target.value);
+                  setCreateError("");
+                }}
+                placeholder="npr. ivan@gmail.com ili 064..."
+              />
+              <div style={{ marginTop: 8 }}>
+                {clientBusy ? <p style={{ margin: 0, color: "#94a3b8", fontSize: 14 }}>Tražim…</p> : null}
+                {!clientBusy && clientResults.length ? (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {clientResults.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        className="admin-template-link-btn"
+                        onClick={() => {
+                          setSelectedClient(c);
+                          setClientResults([]);
+                          void loadVehiclesForClient(c.id);
+                        }}
+                        style={{ justifyContent: "space-between", display: "flex" }}
+                      >
+                        <span>
+                          {(c.fullName || c.email || c.phone || "Klijent")}{" "}
+                          <span style={{ color: "#94a3b8" }}>
+                            {c.email ? `· ${c.email}` : ""} {c.phone ? `· ${c.phone}` : ""}
+                          </span>
+                        </span>
+                        <span style={{ opacity: 0.8 }}>Izaberi</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                {selectedClient ? (
+                  <p style={{ margin: "8px 0 0", color: "#94a3b8", fontSize: 14 }}>
+                    Izabran: <span style={{ color: "#e2e8f0" }}>{selectedClient.fullName || selectedClient.email || selectedClient.id}</span>
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <label className="admin-field">
+              <span>Vozilo</span>
+              <select value={selectedVehicleId} onChange={(e) => setSelectedVehicleId(e.target.value)} className="admin-input" disabled={!selectedClient || vehiclesBusy}>
+                {!selectedClient ? <option value="">— prvo izaberite klijenta —</option> : null}
+                {vehicles.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.make} ({v.year})
+                  </option>
+                ))}
+              </select>
+              {vehiclesBusy ? <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: 14 }}>Učitavam vozila…</p> : null}
+            </label>
+
+            <label className="admin-field">
+              <span>Napomena radnika (opciono)</span>
+              <textarea value={createNotes} onChange={(e) => setCreateNotes(e.target.value)} className="admin-input" rows={3} />
+            </label>
+          </div>
+
+          {createError ? <p style={{ color: "#f87171", marginTop: 12 }}>{createError}</p> : null}
+          {createOk ? <p style={{ color: "#86efac", marginTop: 12 }}>{createOk}</p> : null}
         </div>
       ) : null}
     </div>

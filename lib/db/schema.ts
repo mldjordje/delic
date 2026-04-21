@@ -127,6 +127,11 @@ export const vehicles = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     make: varchar("make", { length: 120 }).notNull(),
+    plateNumber: varchar("plate_number", { length: 16 }),
+    vin: varchar("vin", { length: 32 }),
+    fuelType: varchar("fuel_type", { length: 32 }),
+    color: varchar("color", { length: 32 }),
+    model: varchar("model", { length: 120 }),
     engineCc: integer("engine_cc"),
     powerKw: numeric("power_kw", { precision: 6, scale: 2 }),
     year: smallint("year").notNull(),
