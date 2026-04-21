@@ -12,13 +12,15 @@ export function EmbedHeightReporter({
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const el = rootRef.current;
-    if (!el) return;
-
     function post() {
+      const el = rootRef.current;
+      if (!el) return;
       const h = Math.ceil(el.getBoundingClientRect().height);
       window.parent?.postMessage({ type: channel, height: h }, "*");
     }
+
+    const el = rootRef.current;
+    if (!el) return;
 
     post();
     const ro = new ResizeObserver(() => post());
