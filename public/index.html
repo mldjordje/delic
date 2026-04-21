@@ -20,6 +20,13 @@
     <!-- styles -->
     <link href="/assets/css/plugins.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/style.css" rel="stylesheet" type="text/css" />
+    <style>
+      /* Fallback: if legacy jQuery plugins fail to boot, keep content visible. */
+      .animsition,
+      .animsition-overlay {
+        opacity: 1 !important;
+      }
+    </style>
   </head>
 
   <body class="loader">
@@ -387,7 +394,9 @@
                 if (!event || !event.data || event.data.type !== "autodelic-booking-height") return;
                 var h = Number(event.data.height);
                 if (!h || !isFinite(h)) return;
-                iframe.style.height = Math.max(720, Math.min(h + 24, 1400)) + "px";
+                // On mobile (especially iOS), scrolling inside iframes can be unreliable.
+                // Prefer growing the iframe so the page scroll stays on the parent document.
+                iframe.style.height = Math.max(720, Math.min(h + 24, 5000)) + "px";
               } catch (e) {}
             });
           })();

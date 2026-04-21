@@ -32,6 +32,7 @@ const STATUS_COLOR: Record<string, string> = {
 
 export default function AdminKalendarPage() {
   const calendarRef = useRef<FullCalendar>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [events, setEvents] = useState<{ id: string; title: string; start: string; end: string; backgroundColor?: string; extendedProps: { row: BookingRow } }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -56,6 +57,15 @@ export default function AdminKalendarPage() {
   const [createSaving, setCreateSaving] = useState(false);
   const [createError, setCreateError] = useState("");
   const [createOk, setCreateOk] = useState("");
+
+  useEffect(() => {
+    function calc() {
+      setIsMobile(window.innerWidth <= 640);
+    }
+    calc();
+    window.addEventListener("resize", calc);
+    return () => window.removeEventListener("resize", calc);
+  }, []);
 
   const loadRange = useCallback(async (from: string, to: string) => {
     setLoading(true);
@@ -146,6 +156,15 @@ export default function AdminKalendarPage() {
     setCreateStartIso(startStr);
     setCreateEndIso(endStr);
     setCreateOpen(true);
+  }
+
+  function openCreateFromStart(startIso: string) {
+    // use selected service duration if available, otherwise 30min
+    const svc = createServices.find((s) => s.id === createServiceId) || null;
+    const durationMin = svc?.durationMin || 30;
+    const start = new Date(startIso);
+    const end = new Date(start.getTime() + durationMin * 60 * 1000);
+    openCreateFromSelection(start.toISOString(), end.toISOString());
   }
 
   async function searchClients(q: string) {
@@ -248,15 +267,15 @@ export default function AdminKalendarPage() {
           {loading ? "Učitavam termine za prikazani period…" : "Klik na termin za izmenu statusa i napomene radnika."}
         </p>
         {error ? <p style={{ color: "#f87171" }}>{error}</p> : null}
-        <div style={{ minHeight: 640 }}>
+        <div className={`clinic-fc-wrap${isMobile ? " is-mobile-stage" : ""}`} style={{ marginTop: 10 }}>
           <FullCalendar
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="timeGridWeek"
+            initialView={isMobile ? "timeGridDay" : "timeGridWeek"}
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay",
+              right: isMobile ? "timeGridDay,timeGridWeek,dayGridMonth" : "dayGridMonth,timeGridWeek,timeGridDay",
             }}
             locale="sr"
             firstDay={1}
@@ -265,24 +284,58 @@ export default function AdminKalendarPage() {
             height="auto"
             events={events}
             eventClick={handleEventClick}
+            dateClick={(arg) => {
+              // Make every slot clickable (not just drag-select)
+              if (arg.dateStr) {
+                openCreateFromStart(arg.date.toISOString());
+              }
+            }}
             selectable={true}
             selectMirror={true}
             select={(arg) => {
               openCreateFromSelection(arg.startStr, arg.endStr);
             }}
+            unselectAuto={false}
             datesSet={(arg) => {
               const from = arg.start.toISOString().slice(0, 10);
               const to = new Date(arg.end.getTime() - 86400000).toISOString().slice(0, 10);
               void loadRange(from, to);
+            }}
+            eventClassNames={(arg) => {
+              const row = (arg.event.extendedProps as any)?.row as BookingRow | undefined;
+              const s = String(row?.status || "");
+              return ["clinic-fc-event", s ? `is-${s.replace("_", "-")}` : ""].filter(Boolean);
             }}
           />
         </div>
       </section>
 
       {active ? (
+        <>
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.55)",
+              zIndex: 49,
+            }}
+            onClick={() => setActive(null)}
+          />
         <div
           className="admin-card"
-          style={{ position: "fixed", bottom: 24, right: 24, maxWidth: 420, zIndex: 50, boxShadow: "0 12px 40px rgba(0,0,0,0.45)" }}
+          style={{
+            position: "fixed",
+            bottom: 16,
+            right: 16,
+            left: isMobile ? 16 : "auto",
+            maxWidth: isMobile ? 860 : 460,
+            zIndex: 50,
+            boxShadow: "0 12px 40px rgba(0,0,0,0.55)",
+            background: "rgba(12, 18, 29, 0.98)",
+            border: "1px solid rgba(217, 232, 248, 0.22)",
+            backdropFilter: "none",
+            WebkitBackdropFilter: "none",
+          }}
         >
           <h3 style={{ marginTop: 0 }}>Termin</h3>
           <p style={{ fontSize: 14, color: "#94a3b8" }}>
@@ -312,12 +365,39 @@ export default function AdminKalendarPage() {
           </div>
           {msg ? <p style={{ marginTop: 8, fontSize: 14 }}>{msg}</p> : null}
         </div>
+        </>
       ) : null}
 
       {createOpen ? (
+        <>
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.55)",
+              zIndex: 54,
+            }}
+            onClick={() => setCreateOpen(false)}
+          />
         <div
           className="admin-card"
-          style={{ position: "fixed", bottom: 24, left: 24, right: 24, maxWidth: 860, marginLeft: "auto", zIndex: 55, boxShadow: "0 12px 40px rgba(0,0,0,0.45)" }}
+          style={{
+            position: "fixed",
+            bottom: 16,
+            left: 16,
+            right: 16,
+            maxWidth: 980,
+            marginLeft: "auto",
+            zIndex: 55,
+            boxShadow: "0 12px 40px rgba(0,0,0,0.55)",
+            background: "rgba(12, 18, 29, 0.98)",
+            border: "1px solid rgba(217, 232, 248, 0.22)",
+            backdropFilter: "none",
+            WebkitBackdropFilter: "none",
+            maxHeight: "calc(100vh - 32px)",
+            overflow: "auto",
+          }}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="flex-container response-999" style={{ justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
             <div>
@@ -416,6 +496,7 @@ export default function AdminKalendarPage() {
           {createError ? <p style={{ color: "#f87171", marginTop: 12 }}>{createError}</p> : null}
           {createOk ? <p style={{ color: "#86efac", marginTop: 12 }}>{createOk}</p> : null}
         </div>
+        </>
       ) : null}
     </div>
   );

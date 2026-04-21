@@ -56,7 +56,7 @@ export async function isWithinWorkHours(startAt: Date, durationMin: number) {
   return isWithinWorkingIntervals(startAt, durationMin, workingIntervals);
 }
 
-function buildDaySlots({
+export function buildDaySlots({
   date,
   totalDurationMin,
   slotMinutes,

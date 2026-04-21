@@ -740,6 +740,28 @@
   padding: 0;
 }
 
+.clinic-fc-wrap.is-mobile-stage .fc .fc-toolbar {
+  gap: 8px;
+}
+
+.clinic-fc-wrap.is-mobile-stage .fc .fc-toolbar-title {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.clinic-fc-wrap.is-mobile-stage .fc .fc-button {
+  padding: 0.35rem 0.55rem;
+  font-size: 12px;
+}
+
+.clinic-fc-wrap.is-mobile-stage .fc .fc-toolbar-chunk {
+  min-width: 0;
+}
+
+.clinic-fc-wrap.is-mobile-stage .fc .fc-toolbar-title {
+  white-space: normal;
+}
+
 .clinic-fc-wrap .fc {
   --fc-border-color: rgba(217, 232, 248, 0.34);
   --fc-page-bg-color: transparent;
