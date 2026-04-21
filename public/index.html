@@ -27,6 +27,22 @@
         opacity: 1 !important;
       }
     </style>
+    <script>
+      // Fallback: if animsition fails, body stays without `.in` and page can't scroll (overflow: hidden in CSS).
+      // Ensure landing remains usable even when legacy JS doesn't fully boot.
+      (function () {
+        window.addEventListener("load", function () {
+          setTimeout(function () {
+            try {
+              var body = document.body;
+              if (!body) return;
+              if (!body.classList.contains("in")) body.classList.add("in");
+              if (!body.classList.contains("active")) body.classList.add("active");
+            } catch (e) {}
+          }, 1200);
+        });
+      })();
+    </script>
   </head>
 
   <body class="loader">
