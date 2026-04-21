@@ -148,10 +148,28 @@ export async function findConflicts({
     )
     .limit(50);
 
+  const blockedRows = await db
+    .select({
+      id: schema.blockedSlots.id,
+      startsAt: schema.blockedSlots.startsAt,
+      endsAt: schema.blockedSlots.endsAt,
+    })
+    .from(schema.blockedSlots)
+    .where(
+      and(
+        eq(schema.blockedSlots.employeeId, employeeId),
+        lte(schema.blockedSlots.startsAt, endsAtDate),
+        gte(schema.blockedSlots.endsAt, startsAtDate)
+      )
+    )
+    .limit(50);
+
   const requestedStart = startsAtDate;
   const requestedEnd = endsAtDate;
 
-  return bookingRows.filter((booking) => {
+  const allRows = [...bookingRows, ...blockedRows];
+
+  return allRows.filter((booking) => {
     if (excludeBookingId && booking.id === excludeBookingId) {
       return false;
     }
@@ -201,11 +219,25 @@ export async function getAvailabilityByDay(date: string, serviceId: string) {
       )
     );
 
+  const blocked = await db
+    .select({
+      startsAt: schema.blockedSlots.startsAt,
+      endsAt: schema.blockedSlots.endsAt,
+    })
+    .from(schema.blockedSlots)
+    .where(
+      and(
+        eq(schema.blockedSlots.employeeId, employee.id),
+        gte(schema.blockedSlots.startsAt, startOfDay),
+        lte(schema.blockedSlots.startsAt, endOfDay)
+      )
+    );
+
   const slots = buildDaySlots({
     date,
     totalDurationMin,
     slotMinutes,
-    existingBookings,
+    existingBookings: [...existingBookings, ...blocked],
     workingIntervals,
   });
 

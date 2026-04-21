@@ -59,9 +59,17 @@ export async function GET(request: Request) {
     .where(and(gte(schema.bookings.startsAt, start), lte(schema.bookings.startsAt, end)))
     .orderBy(desc(schema.bookings.startsAt));
 
+  const employee = await getDefaultEmployee();
+  const blocked = await db
+    .select()
+    .from(schema.blockedSlots)
+    .where(and(eq(schema.blockedSlots.employeeId, employee.id), gte(schema.blockedSlots.startsAt, start), lte(schema.blockedSlots.startsAt, end)))
+    .orderBy(desc(schema.blockedSlots.startsAt));
+
   return ok({
     ok: true,
-    bookings: rows.map((r) => ({
+    bookings: [
+      ...rows.map((r) => ({
       ...r.booking,
       vehicle: r.vehicle,
       serviceName: r.serviceName,
@@ -70,7 +78,29 @@ export async function GET(request: Request) {
         phone: r.userPhone,
         fullName: r.profileName,
       },
-    })),
+      })),
+      ...blocked.map((b) => ({
+        id: b.id,
+        userId: "00000000-0000-0000-0000-000000000000",
+        employeeId: b.employeeId,
+        vehicleId: "00000000-0000-0000-0000-000000000000",
+        serviceId: "00000000-0000-0000-0000-000000000000",
+        startsAt: b.startsAt,
+        endsAt: b.endsAt,
+        status: "blocked",
+        workerNotes: b.reason,
+        clientNotes: null,
+        cancellationReason: null,
+        cancelledAt: null,
+        totalDurationMin: 0,
+        totalPriceRsd: 0,
+        createdAt: b.createdAt,
+        updatedAt: b.updatedAt,
+        vehicle: { id: b.id, userId: "00000000-0000-0000-0000-000000000000", make: "BLOKADA", year: new Date(b.startsAt).getFullYear() } as any,
+        serviceName: "Blokada",
+        client: { email: null, phone: null, fullName: "Blokirano" },
+      })) as any,
+    ],
   });
 }
 

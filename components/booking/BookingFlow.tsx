@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { BookingDateGrid } from "@/components/booking/BookingDateGrid";
 
 type Vehicle = {
   id: string;
@@ -346,7 +347,7 @@ export function BookingFlow() {
             <div className="grid gap-4 md:grid-cols-[280px_1fr]">
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">Date</p>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                <BookingDateGrid serviceId={serviceId} value={date} onChange={(d) => setDate(d)} />
                 {date ? (
                   <p className="text-xs text-muted-foreground">{dayLabel(date)}</p>
                 ) : (

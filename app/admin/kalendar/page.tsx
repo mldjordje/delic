@@ -28,6 +28,7 @@ const STATUS_COLOR: Record<string, string> = {
   completed: "#16a34a",
   cancelled: "#6b7280",
   no_show: "#dc2626",
+  blocked: "#b45309",
 };
 
 export default function AdminKalendarPage() {
@@ -57,6 +58,8 @@ export default function AdminKalendarPage() {
   const [createSaving, setCreateSaving] = useState(false);
   const [createError, setCreateError] = useState("");
   const [createOk, setCreateOk] = useState("");
+  const [createMode, setCreateMode] = useState<"booking" | "block">("booking");
+  const [blockReason, setBlockReason] = useState("");
 
   useEffect(() => {
     function calc() {
@@ -153,6 +156,8 @@ export default function AdminKalendarPage() {
     setClientResults([]);
     setVehicles([]);
     setSelectedVehicleId("");
+    setCreateMode("booking");
+    setBlockReason("");
     setCreateStartIso(startStr);
     setCreateEndIso(endStr);
     setCreateOpen(true);
@@ -210,6 +215,40 @@ export default function AdminKalendarPage() {
   async function createBooking() {
     setCreateError("");
     setCreateOk("");
+    if (createMode === "block") {
+      if (!createStartIso || !createEndIso) {
+        setCreateError("Nije izabran opseg vremena.");
+        return;
+      }
+      setCreateSaving(true);
+      const r = await fetch("/api/admin/blocked-slots", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          startsAt: new Date(createStartIso).toISOString(),
+          endsAt: new Date(createEndIso).toISOString(),
+          reason: blockReason.trim() || null,
+        }),
+      });
+      const j = await r.json().catch(() => null);
+      setCreateSaving(false);
+      if (!r.ok) {
+        setCreateError(j?.message || "Greška pri blokadi termina.");
+        return;
+      }
+      setCreateOk("Termin je blokiran.");
+      const api = calendarRef.current?.getApi();
+      const start = api?.view.activeStart;
+      const endEx = api?.view.activeEnd;
+      if (start && endEx) {
+        const from = start.toISOString().slice(0, 10);
+        const to = new Date(endEx.getTime() - 86400000).toISOString().slice(0, 10);
+        await loadRange(from, to);
+      }
+      setCreateOpen(false);
+      return;
+    }
     if (!createServiceId) {
       setCreateError("Izaberite uslugu.");
       return;
@@ -418,6 +457,14 @@ export default function AdminKalendarPage() {
 
           <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
             <label className="admin-field">
+              <span>Tip</span>
+              <select value={createMode} onChange={(e) => setCreateMode(e.target.value as any)} className="admin-input">
+                <option value="booking">Zakazivanje</option>
+                <option value="block">Blokada</option>
+              </select>
+            </label>
+
+            <label className="admin-field">
               <span>Usluga</span>
               <select value={createServiceId} onChange={(e) => setCreateServiceId(e.target.value)} className="admin-input">
                 {createServices.map((s) => (
@@ -428,69 +475,80 @@ export default function AdminKalendarPage() {
               </select>
             </label>
 
-            <div className="admin-field">
-              <span>Klijent (email / telefon / ime)</span>
-              <input
-                className="admin-input"
-                value={clientQuery}
-                onChange={(e) => {
-                  setClientQuery(e.target.value);
-                  setCreateError("");
-                }}
-                placeholder="npr. ivan@gmail.com ili 064..."
-              />
-              <div style={{ marginTop: 8 }}>
-                {clientBusy ? <p style={{ margin: 0, color: "#94a3b8", fontSize: 14 }}>Tražim…</p> : null}
-                {!clientBusy && clientResults.length ? (
-                  <div style={{ display: "grid", gap: 8 }}>
-                    {clientResults.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        className="admin-template-link-btn"
-                        onClick={() => {
-                          setSelectedClient(c);
-                          setClientResults([]);
-                          void loadVehiclesForClient(c.id);
-                        }}
-                        style={{ justifyContent: "space-between", display: "flex" }}
-                      >
-                        <span>
-                          {(c.fullName || c.email || c.phone || "Klijent")}{" "}
-                          <span style={{ color: "#94a3b8" }}>
-                            {c.email ? `· ${c.email}` : ""} {c.phone ? `· ${c.phone}` : ""}
+            {createMode === "booking" ? (
+              <div className="admin-field">
+                <span>Klijent (email / telefon / ime)</span>
+                <input
+                  className="admin-input"
+                  value={clientQuery}
+                  onChange={(e) => {
+                    setClientQuery(e.target.value);
+                    setCreateError("");
+                  }}
+                  placeholder="npr. ivan@gmail.com ili 064..."
+                />
+                <div style={{ marginTop: 8 }}>
+                  {clientBusy ? <p style={{ margin: 0, color: "#94a3b8", fontSize: 14 }}>Tražim…</p> : null}
+                  {!clientBusy && clientResults.length ? (
+                    <div style={{ display: "grid", gap: 8 }}>
+                      {clientResults.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          className="admin-template-link-btn"
+                          onClick={() => {
+                            setSelectedClient(c);
+                            setClientResults([]);
+                            void loadVehiclesForClient(c.id);
+                          }}
+                          style={{ justifyContent: "space-between", display: "flex" }}
+                        >
+                          <span>
+                            {(c.fullName || c.email || c.phone || "Klijent")}{" "}
+                            <span style={{ color: "#94a3b8" }}>
+                              {c.email ? `· ${c.email}` : ""} {c.phone ? `· ${c.phone}` : ""}
+                            </span>
                           </span>
-                        </span>
-                        <span style={{ opacity: 0.8 }}>Izaberi</span>
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-                {selectedClient ? (
-                  <p style={{ margin: "8px 0 0", color: "#94a3b8", fontSize: 14 }}>
-                    Izabran: <span style={{ color: "#e2e8f0" }}>{selectedClient.fullName || selectedClient.email || selectedClient.id}</span>
-                  </p>
-                ) : null}
+                          <span style={{ opacity: 0.8 }}>Izaberi</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                  {selectedClient ? (
+                    <p style={{ margin: "8px 0 0", color: "#94a3b8", fontSize: 14 }}>
+                      Izabran: <span style={{ color: "#e2e8f0" }}>{selectedClient.fullName || selectedClient.email || selectedClient.id}</span>
+                    </p>
+                  ) : null}
+                </div>
               </div>
-            </div>
+            ) : (
+              <label className="admin-field">
+                <span>Razlog (opciono)</span>
+                <textarea value={blockReason} onChange={(e) => setBlockReason(e.target.value)} className="admin-input" rows={3} />
+              </label>
+            )}
 
-            <label className="admin-field">
-              <span>Vozilo</span>
-              <select value={selectedVehicleId} onChange={(e) => setSelectedVehicleId(e.target.value)} className="admin-input" disabled={!selectedClient || vehiclesBusy}>
-                {!selectedClient ? <option value="">— prvo izaberite klijenta —</option> : null}
-                {vehicles.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.make} ({v.year})
-                  </option>
-                ))}
-              </select>
-              {vehiclesBusy ? <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: 14 }}>Učitavam vozila…</p> : null}
-            </label>
+            {createMode === "booking" ? (
+              <label className="admin-field">
+                <span>Vozilo</span>
+                <select value={selectedVehicleId} onChange={(e) => setSelectedVehicleId(e.target.value)} className="admin-input" disabled={!selectedClient || vehiclesBusy}>
+                  {!selectedClient ? <option value="">— prvo izaberite klijenta —</option> : null}
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.make} ({v.year})
+                    </option>
+                  ))}
+                </select>
+                {vehiclesBusy ? <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: 14 }}>Učitavam vozila…</p> : null}
+              </label>
+            ) : null}
 
-            <label className="admin-field">
-              <span>Napomena radnika (opciono)</span>
-              <textarea value={createNotes} onChange={(e) => setCreateNotes(e.target.value)} className="admin-input" rows={3} />
-            </label>
+            {createMode === "booking" ? (
+              <label className="admin-field">
+                <span>Napomena radnika (opciono)</span>
+                <textarea value={createNotes} onChange={(e) => setCreateNotes(e.target.value)} className="admin-input" rows={3} />
+              </label>
+            ) : null}
           </div>
 
           {createError ? <p style={{ color: "#f87171", marginTop: 12 }}>{createError}</p> : null}

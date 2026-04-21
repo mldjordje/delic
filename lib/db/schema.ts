@@ -180,6 +180,24 @@ export const bookings = pgTable(
   })
 );
 
+export const blockedSlots = pgTable(
+  "blocked_slots",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    employeeId: uuid("employee_id")
+      .notNull()
+      .references(() => employees.id, { onDelete: "restrict" }),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+    reason: text("reason"),
+    createdByUserId: uuid("created_by_user_id").references(() => users.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (table) => ({
+    employeeStartsIdx: index("blocked_slots_employee_starts_idx").on(table.employeeId, table.startsAt),
+  })
+);
+
 export const bookingStatusLog = pgTable("booking_status_log", {
   id: uuid("id").defaultRandom().primaryKey(),
   bookingId: uuid("booking_id")

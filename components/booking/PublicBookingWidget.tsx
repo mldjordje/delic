@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { BookingDateGrid } from "@/components/booking/BookingDateGrid";
 
 type Vehicle = {
   id: string;
@@ -499,12 +500,12 @@ export function PublicBookingWidget({ className }: { className?: string }) {
             <div className="mt-4 grid gap-4 md:grid-cols-[280px_1fr]">
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">Datum</p>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                {date ? (
-                  <p className="text-xs text-muted-foreground">{dayLabel(date)}</p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Izaberite datum da biste videli slotove.</p>
-                )}
+                <BookingDateGrid
+                  serviceId={serviceId}
+                  value={date}
+                  onChange={(d) => setDate(d)}
+                />
+                {date ? <p className="text-xs text-muted-foreground">{dayLabel(date)}</p> : null}
               </div>
 
               <div className="space-y-2">

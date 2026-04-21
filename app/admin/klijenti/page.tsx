@@ -14,6 +14,7 @@ type ClientRow = {
 export default function AdminKlijentiPage() {
   const [rows, setRows] = useState<ClientRow[]>([]);
   const [err, setErr] = useState("");
+  const [q, setQ] = useState("");
 
   useEffect(() => {
     void (async () => {
@@ -31,7 +32,21 @@ export default function AdminKlijentiPage() {
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Klijenti</h2>
+        <p style={{ color: "#94a3b8", fontSize: 14, marginTop: 8 }}>
+          Pretraga po imenu, email-u ili telefonu.
+        </p>
         {err ? <p style={{ color: "#f87171" }}>{err}</p> : null}
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 12 }}>
+          <label className="admin-field" style={{ marginBottom: 0, flex: "1 1 320px" }}>
+            <span>Pretraga</span>
+            <input
+              className="admin-input"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="npr. Marko, 064..., mail@..."
+            />
+          </label>
+        </div>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
@@ -43,7 +58,17 @@ export default function AdminKlijentiPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((c) => (
+              {rows
+                .filter((c) => {
+                  const s = q.trim().toLowerCase();
+                  if (!s) return true;
+                  return (
+                    (c.fullName || "").toLowerCase().includes(s) ||
+                    (c.email || "").toLowerCase().includes(s) ||
+                    (c.phone || "").toLowerCase().includes(s)
+                  );
+                })
+                .map((c) => (
                 <tr key={c.id} style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
                   <td style={{ padding: 8 }}>{c.fullName || "—"}</td>
                   <td style={{ padding: 8 }}>{c.email || "—"}</td>

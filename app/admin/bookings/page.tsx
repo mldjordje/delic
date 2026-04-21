@@ -17,6 +17,7 @@ export default function AdminBookingsPage() {
   const [rows, setRows] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [q, setQ] = useState("");
 
   useEffect(() => {
     const d = new Date();
@@ -81,6 +82,15 @@ export default function AdminBookingsPage() {
             <span>Do</span>
             <input type="date" className="admin-input" value={to} onChange={(e) => setTo(e.target.value)} />
           </label>
+          <label className="admin-field" style={{ marginBottom: 0, flex: "1 1 280px" }}>
+            <span>Pretraga</span>
+            <input
+              className="admin-input"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="klijent, vozilo, status…"
+            />
+          </label>
           <button type="button" className="admin-template-link-btn" onClick={() => void load()} disabled={loading}>
             Osveži
           </button>
@@ -100,7 +110,16 @@ export default function AdminBookingsPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((b) => (
+              {rows
+                .filter((b) => {
+                  const s = q.trim().toLowerCase();
+                  if (!s) return true;
+                  const client = (b.client.fullName || b.client.email || "").toLowerCase();
+                  const vehicle = `${b.vehicle.make} ${b.vehicle.year}`.toLowerCase();
+                  const status = (b.status || "").toLowerCase();
+                  return client.includes(s) || vehicle.includes(s) || status.includes(s);
+                })
+                .map((b) => (
                 <BookingEditorRow key={b.id} b={b} onSave={patchRow} />
               ))}
             </tbody>

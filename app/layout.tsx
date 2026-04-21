@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Inter } from "next/font/google";
+import { ToastProviderState } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Auto Delić — tehnički pregled",
@@ -15,7 +17,12 @@ const inter = Inter({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="sr" className="dark">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ToastProviderState>
+          {children}
+          <Toaster />
+        </ToastProviderState>
+      </body>
     </html>
   );
 }
