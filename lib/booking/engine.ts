@@ -29,6 +29,15 @@ function normalizeDate(value: Date | string) {
   return value instanceof Date ? value : new Date(value);
 }
 
+function isMissingRelationError(e: unknown) {
+  // Postgres: 42P01 = undefined_table (relation does not exist)
+  // Some drivers expose it as { code }, some only in message.
+  const anyErr = e as any;
+  const code = typeof anyErr?.code === "string" ? anyErr.code : "";
+  const msg = typeof anyErr?.message === "string" ? anyErr.message : "";
+  return code === "42P01" || msg.toLowerCase().includes("relation") && msg.toLowerCase().includes("does not exist");
+}
+
 function isWithinWorkingIntervals(
   startAt: Date,
   durationMin: number,
@@ -148,21 +157,29 @@ export async function findConflicts({
     )
     .limit(50);
 
-  const blockedRows = await db
-    .select({
-      id: schema.blockedSlots.id,
-      startsAt: schema.blockedSlots.startsAt,
-      endsAt: schema.blockedSlots.endsAt,
-    })
-    .from(schema.blockedSlots)
-    .where(
-      and(
-        eq(schema.blockedSlots.employeeId, employeeId),
-        lte(schema.blockedSlots.startsAt, endsAtDate),
-        gte(schema.blockedSlots.endsAt, startsAtDate)
+  let blockedRows: { id: string; startsAt: Date; endsAt: Date }[] = [];
+  try {
+    blockedRows = await db
+      .select({
+        id: schema.blockedSlots.id,
+        startsAt: schema.blockedSlots.startsAt,
+        endsAt: schema.blockedSlots.endsAt,
+      })
+      .from(schema.blockedSlots)
+      .where(
+        and(
+          eq(schema.blockedSlots.employeeId, employeeId),
+          lte(schema.blockedSlots.startsAt, endsAtDate),
+          gte(schema.blockedSlots.endsAt, startsAtDate)
+        )
       )
-    )
-    .limit(50);
+      .limit(50);
+  } catch (e) {
+    // Backwards-compatible: if migration for blocked_slots isn't applied yet, treat as no blocks.
+    if (!isMissingRelationError(e)) {
+      throw e;
+    }
+  }
 
   const requestedStart = startsAtDate;
   const requestedEnd = endsAtDate;
@@ -219,19 +236,27 @@ export async function getAvailabilityByDay(date: string, serviceId: string) {
       )
     );
 
-  const blocked = await db
-    .select({
-      startsAt: schema.blockedSlots.startsAt,
-      endsAt: schema.blockedSlots.endsAt,
-    })
-    .from(schema.blockedSlots)
-    .where(
-      and(
-        eq(schema.blockedSlots.employeeId, employee.id),
-        gte(schema.blockedSlots.startsAt, startOfDay),
-        lte(schema.blockedSlots.startsAt, endOfDay)
-      )
-    );
+  let blocked: { startsAt: Date; endsAt: Date }[] = [];
+  try {
+    blocked = await db
+      .select({
+        startsAt: schema.blockedSlots.startsAt,
+        endsAt: schema.blockedSlots.endsAt,
+      })
+      .from(schema.blockedSlots)
+      .where(
+        and(
+          eq(schema.blockedSlots.employeeId, employee.id),
+          gte(schema.blockedSlots.startsAt, startOfDay),
+          lte(schema.blockedSlots.startsAt, endOfDay)
+        )
+      );
+  } catch (e) {
+    // Backwards-compatible: if migration for blocked_slots isn't applied yet, treat as no blocks.
+    if (!isMissingRelationError(e)) {
+      throw e;
+    }
+  }
 
   const slots = buildDaySlots({
     date,
