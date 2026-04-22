@@ -65,6 +65,16 @@ const ADMIN_ONLY_API_PREFIXES = [
 ];
 
 export async function middleware(request: NextRequest) {
+  // Canonicalize www → apex to avoid broken login redirects.
+  // Note: this only helps if www is already routed to this deployment.
+  const host = request.headers.get("host") || "";
+  if (host.toLowerCase() === "www.autodelic.com") {
+    const url = request.nextUrl.clone();
+    url.hostname = "autodelic.com";
+    url.protocol = "https:";
+    return NextResponse.redirect(url, 308);
+  }
+
   const path = request.nextUrl.pathname;
   if (request.method === "OPTIONS") {
     return NextResponse.next();
