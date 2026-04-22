@@ -188,8 +188,9 @@ export async function GET(request: NextRequest) {
       .where(eq(schema.profiles.userId, user.id))
       .limit(1);
 
+    const isClient = user.role === "client";
     const mustCompleteProfile =
-      !String(profileRow?.fullName || "").trim() || !String(user.phone || "").trim();
+      isClient && (!String(profileRow?.fullName || "").trim() || !String(user.phone || "").trim());
 
     const finalNextPath = mustCompleteProfile ? "/profile?complete=1" : sanitizeNextPath(nextPath);
 
