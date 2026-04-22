@@ -63,7 +63,16 @@ function getConfiguredBaseUrl() {
 
 function getRequestBaseUrl(request: Request) {
   try {
-    return new URL(request.url).origin.replace(/\/+$/, "");
+    const origin = new URL(request.url).origin.replace(/\/+$/, "");
+    // Normalize www → apex for our domain to avoid broken OAuth callbacks
+    // when www DNS isn't configured.
+    try {
+      const u = new URL(origin);
+      if (u.hostname === "www.autodelic.com") {
+        return `${u.protocol}//autodelic.com`;
+      }
+    } catch {}
+    return origin;
   } catch {
     // Fall through to forwarded headers when request.url is unavailable.
   }
@@ -76,7 +85,9 @@ function getRequestBaseUrl(request: Request) {
     request.headers.get("host");
 
   if (!host) return `${proto}://localhost:3000`;
-  return `${proto}://${host}`;
+  // Normalize www → apex for our domain to avoid broken OAuth callbacks.
+  const normalizedHost = host === "www.autodelic.com" ? "autodelic.com" : host;
+  return `${proto}://${normalizedHost}`;
 }
 
 export function getBaseUrl(request: Request) {
