@@ -111,12 +111,16 @@ export async function sendBookingConfirmationEmail({
   });
   const subject = "Auto Delić — zahtev za termin je primljen";
   const text = `Zdravo,\n\nVaš zahtev za termin tehničkog pregleda (${when}) je primljen. Uskoro ćete dobiti potvrdu.\n\nAuto Delić`;
+  const html = `<p>Zdravo,</p><p>Vaš <strong>zahtev za termin tehničkog pregleda</strong> za <strong>${escapeHtml(
+    when
+  )}</strong> je primljen. Uskoro možete očekivati potvrdu.</p><p>— Auto Delić</p>`;
 
   if (smtpConfigured()) {
     return await sendMailViaSmtp({
       to,
       subject,
       text,
+      html,
       replyTo: env.RESEND_REPLY_TO || undefined,
     });
   }
@@ -125,13 +129,17 @@ export async function sendBookingConfirmationEmail({
   if (!resend) {
     return { sent: false as const, reason: "SMTP/RESEND not configured" };
   }
-  await resend.emails.send({
+  const r = await resend.emails.send({
     from: resolveFrom(),
     to,
     replyTo: env.RESEND_REPLY_TO || undefined,
     subject,
     text,
+    html,
   });
+  if (r?.error) {
+    return { sent: false as const, reason: r.error.message };
+  }
   return { sent: true as const };
 }
 
@@ -140,32 +148,47 @@ export async function sendBookingUpdateEmail({
   startsAtIso,
   status,
   workerNotes,
+  inspectionResult,
+  inspectionNote,
 }: {
   to: string;
   startsAtIso: string;
   status: string;
   workerNotes?: string | null;
+  inspectionResult?: "passed" | "failed" | null;
+  inspectionNote?: string | null;
 }) {
   const when = new Date(startsAtIso).toLocaleString("sr-RS", {
     timeZone: "Europe/Belgrade",
   });
+  const resultSr =
+    inspectionResult === "passed" ? "Položio" : inspectionResult === "failed" ? "Nije položio" : null;
   const subject = `Auto Delić — ažuriranje termina (${when})`;
   const lines = [
     "Zdravo,",
     "",
     `Termin: ${when}`,
     `Status: ${status}`,
+    resultSr ? `Rezultat pregleda: ${resultSr}` : null,
+    inspectionNote ? `Napomena: ${inspectionNote}` : null,
     workerNotes ? `Napomena servisera: ${workerNotes}` : null,
     "",
     "Auto Delić",
   ].filter(Boolean);
   const text = lines.join("\n");
+  const html = `<p>Zdravo,</p>
+<p>Termin: <strong>${escapeHtml(when)}</strong><br/>Status: <strong>${escapeHtml(status)}</strong></p>
+${resultSr ? `<p>Rezultat tehničkog: <strong>${escapeHtml(resultSr)}</strong></p>` : ""}
+${inspectionNote ? `<p>Napomena: ${escapeHtml(String(inspectionNote))}</p>` : ""}
+${workerNotes ? `<p>Napomena servisera: ${escapeHtml(String(workerNotes))}</p>` : ""}
+<p>— Auto Delić</p>`;
 
   if (smtpConfigured()) {
     return await sendMailViaSmtp({
       to,
       subject,
       text,
+      html,
       replyTo: env.RESEND_REPLY_TO || undefined,
     });
   }
@@ -174,12 +197,16 @@ export async function sendBookingUpdateEmail({
   if (!resend) {
     return { sent: false as const, reason: "SMTP/RESEND not configured" };
   }
-  await resend.emails.send({
+  const r = await resend.emails.send({
     from: resolveFrom(),
     to,
     replyTo: env.RESEND_REPLY_TO || undefined,
     subject,
     text,
+    html,
   });
+  if (r?.error) {
+    return { sent: false as const, reason: r.error.message };
+  }
   return { sent: true as const };
 }

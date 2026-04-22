@@ -3,6 +3,7 @@ import {
   date,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -13,6 +14,7 @@ import {
   numeric,
   smallint,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -27,6 +29,8 @@ export const bookingStatusEnum = pgEnum("booking_status", [
   "cancelled",
   "no_show",
 ]);
+
+export const inspectionResultEnum = pgEnum("inspection_result", ["passed", "failed"]);
 
 export const users = pgTable(
   "users",
@@ -85,17 +89,28 @@ export const garageSettings = pgTable("garage_settings", {
   ...timestamps,
 });
 
-/** Usluge koje klijent bira pri zakazivanju (trajanje + cena). */
-export const services = pgTable("services", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  durationMin: integer("duration_min").notNull(),
-  priceRsd: integer("price_rsd").default(0).notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  sortOrder: integer("sort_order").default(0).notNull(),
-  ...timestamps,
-});
+/**
+ * Usluge. `calendarEnabled` = ulazi u kalendar; ostale su informativne (bez termina u kalendaru).
+ * `priceRsd` se ne koristi u UI (uvek 0 u novim zapisima).
+ */
+export const services = pgTable(
+  "services",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    slug: varchar("slug", { length: 255 }),
+    durationMin: integer("duration_min").notNull(),
+    priceRsd: integer("price_rsd").default(0).notNull(),
+    calendarEnabled: boolean("calendar_enabled").default(true).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    ...timestamps,
+  },
+  (table) => ({
+    slugUnique: uniqueIndex("services_slug_unique").on(table.slug),
+  })
+);
 
 /** Oglasi polovnih vozila (admin postavlja). */
 export const usedCarListings = pgTable(
@@ -170,6 +185,8 @@ export const bookings = pgTable(
     clientNotes: text("client_notes"),
     cancellationReason: text("cancellation_reason"),
     cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    inspectionResult: inspectionResultEnum("inspection_result"),
+    inspectionNote: text("inspection_note"),
     ...timestamps,
   },
   (table) => ({
@@ -219,6 +236,27 @@ export const videoLinks = pgTable("video_links", {
   isPublished: boolean("is_published").default(true).notNull(),
   ...timestamps,
 });
+
+export const blogPosts = pgTable(
+  "blog_posts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
+    excerpt: text("excerpt").notNull(),
+    content: text("content").notNull(),
+    imageUrls: jsonb("image_urls")
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    isPublished: boolean("is_published").default(false).notNull(),
+    ...timestamps,
+  },
+  (table) => ({
+    slugUnique: uniqueIndex("blog_posts_slug_unique").on(table.slug),
+    publishedIdx: index("blog_posts_published_idx").on(table.isPublished, table.createdAt),
+  })
+);
 
 export const otpCodes = pgTable("otp_codes", {
   id: uuid("id").defaultRandom().primaryKey(),

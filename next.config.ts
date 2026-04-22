@@ -1,7 +1,17 @@
 import type { NextConfig } from "next";
 
+const oneYear = 60 * 60 * 24 * 365;
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async headers() {
+    return [
+      {
+        source: "/assets/:path*",
+        headers: [{ key: "Cache-Control", value: `public, max-age=${oneYear}, immutable` }],
+      },
+    ];
+  },
   async rewrites() {
     return [
       { source: "/", destination: "/index.html" },

@@ -1,0 +1,22 @@
+# Auto Delić — Tehnički pregled vozila, Niš
+
+## About
+- Servis: tehnički pregled, prodaja polovnih vozila.
+- Sajt: lokalizovan na srpski (sr).
+- Javno zakazivanje: isključivo usluga „Tehnički pregled” (online nalog, izbor vozila i slobodnog termina).
+
+## Sitemap
+- See /sitemap.xml
+
+## Public pages
+- / — početna
+- /blog — obaveštenja i saveti
+- /zakazivanje — online zakazivanje tehničkog pregleda
+- /polovni-automobili — ponuda polovnih
+- /contact.html, /about.html, /services.html — statički sadržaj (legacy)
+
+## No automated pricing
+Cene usluga na sajtu nisu navedene; cene oglasa polovnih mogu biti u delu oglasa.
+
+## Contact
+Kontakt: preko /contact.html ili telefonski (na sajtu).

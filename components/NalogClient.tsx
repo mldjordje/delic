@@ -10,10 +10,7 @@ type Vehicle = {
   plateNumber: string | null;
   model: string | null;
   fuelType: string | null;
-  color: string | null;
   vin: string | null;
-  engineCc: number | null;
-  powerKw: string | null;
   hasLpgOrMethane: boolean;
   lpgMethaneCertificateExpiresOn: string | null;
 };
@@ -24,7 +21,7 @@ type Booking = {
   endsAt: string;
   status: string;
   workerNotes: string | null;
-  service: { id: string; name: string; durationMin: number; priceRsd: number };
+  service: { id: string; name: string; durationMin: number };
   vehicle: Vehicle;
 };
 
@@ -60,10 +57,7 @@ export function NalogClient() {
   const [newPlateNumber, setNewPlateNumber] = useState("");
   const [newModel, setNewModel] = useState("");
   const [newFuelType, setNewFuelType] = useState("");
-  const [newColor, setNewColor] = useState("");
   const [newVin, setNewVin] = useState("");
-  const [newEngineCc, setNewEngineCc] = useState<number | "">("");
-  const [newPowerKw, setNewPowerKw] = useState<number | "">("");
   const [newReg, setNewReg] = useState("");
   const [newHasLpgOrMethane, setNewHasLpgOrMethane] = useState(false);
   const [newLpgMethaneCertificateExpiresOn, setNewLpgMethaneCertificateExpiresOn] = useState("");
@@ -152,18 +146,6 @@ export function NalogClient() {
       setMsg({ tone: "warn", text: "Izaberite vrstu goriva." });
       return;
     }
-    if (!newColor.trim()) {
-      setMsg({ tone: "warn", text: "Unesite boju vozila." });
-      return;
-    }
-    if (newEngineCc === "" || newEngineCc <= 0) {
-      setMsg({ tone: "warn", text: "Unesite zapreminu motora (cc)." });
-      return;
-    }
-    if (newPowerKw === "" || newPowerKw <= 0) {
-      setMsg({ tone: "warn", text: "Unesite snagu motora (kW)." });
-      return;
-    }
     if (newHasLpgOrMethane && !newLpgMethaneCertificateExpiresOn) {
       setMsg({ tone: "warn", text: "Unesite datum isteka atesta za gas." });
       return;
@@ -179,10 +161,7 @@ export function NalogClient() {
         plateNumber: newPlateNumber.trim().toUpperCase(),
         model: newModel.trim() || null,
         fuelType: newFuelType,
-        color: newColor.trim(),
         vin: newVin.trim() || null,
-        engineCc: newEngineCc,
-        powerKw: String(newPowerKw),
         year: newYear,
         registrationExpiresOn: newReg,
         hasLpgOrMethane: newHasLpgOrMethane,
@@ -200,10 +179,7 @@ export function NalogClient() {
     setNewPlateNumber("");
     setNewModel("");
     setNewFuelType("");
-    setNewColor("");
     setNewVin("");
-    setNewEngineCc("");
-    setNewPowerKw("");
     setNewReg("");
     setNewHasLpgOrMethane(false);
     setNewLpgMethaneCertificateExpiresOn("");
@@ -329,32 +305,6 @@ export function NalogClient() {
                   <option value="other">Drugo</option>
                 </select>
               </label>
-              <label className="client-field">
-                <span className="client-label">Boja</span>
-                <input className="client-input" value={newColor} onChange={(e) => setNewColor(e.target.value)} placeholder="npr. crna" />
-              </label>
-              <label className="client-field">
-                <span className="client-label">Zapremina (cc)</span>
-                <input
-                  className="client-input"
-                  type="number"
-                  min={50}
-                  value={newEngineCc}
-                  onChange={(e) => setNewEngineCc(e.target.value ? Number(e.target.value) : "")}
-                  placeholder="npr. 1968"
-                />
-              </label>
-              <label className="client-field">
-                <span className="client-label">Snaga (kW)</span>
-                <input
-                  className="client-input"
-                  type="number"
-                  min={1}
-                  value={newPowerKw}
-                  onChange={(e) => setNewPowerKw(e.target.value ? Number(e.target.value) : "")}
-                  placeholder="npr. 110"
-                />
-              </label>
               <label className="client-field" style={{ flexBasis: "100%" }}>
                 <span className="client-label">VIN (opciono)</span>
                 <input className="client-input" value={newVin} onChange={(e) => setNewVin(e.target.value)} placeholder="npr. WVWZZZ..." />
@@ -395,9 +345,7 @@ export function NalogClient() {
                   </button>
                 </div>
               </div>
-              <p className="p-style-bold-up text-color-4" style={{ opacity: 0.7, margin: 0 }}>
-                Ako niste sigurni za cc/kW, pogledajte saobraćajnu dozvolu ili specifikaciju vozila.
-              </p>
+              <p className="p-style-bold-up text-color-4" style={{ opacity: 0.7, margin: 0 }}>Ostale detalje možete uneti u izmeni vozila (portal).</p>
             </div>
           </form>
         ) : null}
@@ -442,9 +390,6 @@ export function NalogClient() {
                         </span>
                       ) : null}
                       {v.fuelType ? <span className="client-pill">Gorivo: {v.fuelType}</span> : null}
-                      {v.color ? <span className="client-pill">Boja: {v.color}</span> : null}
-                      {v.engineCc ? <span className="client-pill">Motor: {v.engineCc} cc</span> : null}
-                      {v.powerKw ? <span className="client-pill">Snaga: {v.powerKw} kW</span> : null}
                       {v.hasLpgOrMethane ? (
                         <span className={`client-pill ${v.lpgMethaneCertificateExpiresOn ? "" : "is-warn"}`}>
                           Gas (atest): {v.lpgMethaneCertificateExpiresOn ? fmtDate(v.lpgMethaneCertificateExpiresOn) : "nije unet"}
@@ -486,9 +431,7 @@ export function NalogClient() {
                   </p>
                   <div className="client-kpi">
                     <span className="client-pill">Status: {b.status}</span>
-                    <span className="client-pill">
-                      Trajanje: {b.service?.durationMin} min · Cena: {b.service?.priceRsd?.toLocaleString("sr-RS")} RSD
-                    </span>
+                    <span className="client-pill">Trajanje: {b.service?.durationMin} min (tehnički pregled)</span>
                   </div>
                   {b.workerNotes ? (
                     <p className="p-style-bold-up text-color-4 top-margin-15" style={{ opacity: 0.9 }}>

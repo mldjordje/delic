@@ -4,15 +4,28 @@ import { Open_Sans } from "next/font/google";
 import { ToastProviderState } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { PwaRegistrar } from "@/components/pwa/PwaRegistrar";
+import { getPublicAppUrl } from "@/lib/env";
 
 export const metadata: Metadata = {
-  title: "Auto Delić — tehnički pregled",
-  description: "Online zakazivanje tehničkog pregleda vozila — Niš",
+  metadataBase: new URL(getPublicAppUrl()),
+  title: {
+    default: "Auto Delić — tehnički pregled vozila",
+    template: "%s | Auto Delić",
+  },
+  description: "Tehnički pregled vozila, servis, polovni automobili — Niš. Online nalog, zakazivanje tehničkog pregleda.",
+  openGraph: {
+    siteName: "Auto Delić",
+    type: "website",
+    locale: "sr_RS",
+  },
+  robots: { index: true, follow: true },
+  alternates: { canonical: "/" },
 };
 
 const openSans = Open_Sans({
   subsets: ["latin", "latin-ext"],
   display: "swap",
+  preload: true,
   variable: "--font-open-sans",
 });
 

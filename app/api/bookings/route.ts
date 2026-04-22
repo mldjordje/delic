@@ -15,6 +15,7 @@ import {
   userHasOverlappingBooking,
 } from "@/lib/booking/engine";
 import { getDefaultEmployee } from "@/lib/booking/config";
+import { getTehnickiPregledService } from "@/lib/booking/technical-service";
 import { WORKING_HOURS_SUMMARY } from "@/lib/booking/schedule";
 import { and, eq } from "drizzle-orm";
 
@@ -22,7 +23,6 @@ export const runtime = "nodejs";
 
 const payloadSchema = z.object({
   vehicleId: z.string().uuid(),
-  serviceId: z.string().uuid(),
   startAt: z.string().datetime(),
   clientNotes: z.string().max(1000).optional(),
 });
@@ -53,20 +53,15 @@ export async function POST(request: Request) {
   const settings = await getGarageSettings();
   const employee = await getDefaultEmployee();
 
-  const [svc] = await db
-    .select()
-    .from(schema.services)
-    .where(
-      and(eq(schema.services.id, parsed.data.serviceId), eq(schema.services.isActive, true))
-    )
-    .limit(1);
-
+  const svc = await getTehnickiPregledService();
   if (!svc) {
-    return withCors(request, fail(400, "Usluga nije pronađena ili je neaktivna."));
+    return withCors(
+      request,
+      fail(500, "Usluga „Tehnički pregled” nije konfigurisana. Kontaktirajte admina.")
+    );
   }
 
   const durationMin = svc.durationMin;
-  const priceRsd = svc.priceRsd;
   const endsAt = addMinutes(startAt, durationMin);
 
   const [vehicle] = await db
@@ -133,7 +128,7 @@ export async function POST(request: Request) {
           endsAt,
           status: "pending",
           totalDurationMin: durationMin,
-          totalPriceRsd: priceRsd,
+          totalPriceRsd: 0,
           clientNotes: parsed.data.clientNotes || null,
         })
         .returning();
@@ -159,26 +154,41 @@ export async function POST(request: Request) {
 
   if (auth.user.email) {
     try {
-      await sendBookingConfirmationEmail({
+      const c = await sendBookingConfirmationEmail({
         to: auth.user.email,
         startsAtIso: createdBooking!.startsAt.toISOString(),
       });
+      if (!c?.sent) {
+        console.error(
+          "[bookings] confirmation email not sent",
+          (c as { reason?: string })?.reason
+        );
+      }
     } catch (e) {
       console.error(e);
     }
+  } else {
+    console.warn("[bookings] user has no email on file — no confirmation message sent.");
   }
 
-  const notify = String(env.ADMIN_BOOKING_NOTIFY_EMAIL || "").trim();
+  const notify = String(
+    env.MAIL_ADMIN_TO || env.ADMIN_BOOKING_NOTIFY_EMAIL || ""
+  ).trim();
   if (notify) {
     try {
-      await notifyAdminInbox({
+      const r = await notifyAdminInbox({
         to: notify,
         subject: "Novi zahtev za termin — Auto Delić",
-        text: `Korisnik ${auth.user.email || auth.user.id} zakazao termin ${createdBooking!.startsAt.toISOString()}`,
+        text: `Korisnik ${auth.user.email || auth.user.id} — Tehnički pregled — ${createdBooking!.startsAt.toISOString()}`,
       });
+      if (!r?.sent) {
+        console.error("[bookings] admin notify not sent", (r as { reason?: string })?.reason);
+      }
     } catch (e) {
       console.error(e);
     }
+  } else {
+    console.warn("[bookings] Set MAIL_ADMIN_TO or ADMIN_BOOKING_NOTIFY_EMAIL to receive new booking emails.");
   }
 
   return withCors(

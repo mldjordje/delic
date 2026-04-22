@@ -10,7 +10,9 @@ const createSchema = z.object({
   name: z.string().min(1).max(255),
   description: z.string().max(5000).optional().nullable(),
   durationMin: z.number().int().min(15).max(480),
-  priceRsd: z.number().int().min(0).max(50_000_000),
+  slug: z.string().min(1).max(255).optional().nullable(),
+  /** true = traka u kalendaru; false = samo informativno (bez termina u kalendaru) */
+  calendarEnabled: z.boolean().optional(),
   isActive: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
 });
@@ -50,7 +52,9 @@ export async function POST(request: Request) {
       name: parsed.data.name.trim(),
       description: parsed.data.description?.trim() || null,
       durationMin: parsed.data.durationMin,
-      priceRsd: parsed.data.priceRsd,
+      priceRsd: 0,
+      slug: parsed.data.slug?.trim() || null,
+      calendarEnabled: parsed.data.calendarEnabled ?? true,
       isActive: parsed.data.isActive ?? true,
       sortOrder: parsed.data.sortOrder ?? 0,
       createdAt: now,

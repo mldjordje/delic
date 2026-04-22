@@ -147,8 +147,10 @@ export async function findConflicts({
       endsAt: schema.bookings.endsAt,
     })
     .from(schema.bookings)
+    .innerJoin(schema.services, eq(schema.bookings.serviceId, schema.services.id))
     .where(
       and(
+        eq(schema.services.calendarEnabled, true),
         eq(schema.bookings.employeeId, employeeId),
         inArray(schema.bookings.status, ["pending", "confirmed"]),
         lte(schema.bookings.startsAt, endsAtDate),
@@ -227,8 +229,10 @@ export async function getAvailabilityByDay(date: string, serviceId: string) {
       endsAt: schema.bookings.endsAt,
     })
     .from(schema.bookings)
+    .innerJoin(schema.services, eq(schema.bookings.serviceId, schema.services.id))
     .where(
       and(
+        eq(schema.services.calendarEnabled, true),
         eq(schema.bookings.employeeId, employee.id),
         inArray(schema.bookings.status, ["pending", "confirmed"]),
         gte(schema.bookings.startsAt, startOfDay),
@@ -270,7 +274,6 @@ export async function getAvailabilityByDay(date: string, serviceId: string) {
     date,
     serviceId,
     serviceName: svc.name,
-    servicePriceRsd: svc.priceRsd,
     totalDurationMin,
     slotMinutes,
     slots,
@@ -282,8 +285,10 @@ export async function userHasOverlappingBooking(userId: string, startsAt: Date, 
   const rows = await db
     .select({ id: schema.bookings.id })
     .from(schema.bookings)
+    .innerJoin(schema.services, eq(schema.bookings.serviceId, schema.services.id))
     .where(
       and(
+        eq(schema.services.calendarEnabled, true),
         eq(schema.bookings.userId, userId),
         inArray(schema.bookings.status, ["pending", "confirmed"]),
         lte(schema.bookings.startsAt, endsAt),

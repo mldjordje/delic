@@ -20,8 +20,9 @@ export async function GET() {
       name: s.name,
       description: s.description,
       durationMin: s.durationMin,
-      priceRsd: s.priceRsd,
       sortOrder: s.sortOrder,
+      slug: s.slug,
+      calendarEnabled: s.calendarEnabled,
     })),
   });
 }

@@ -7,7 +7,8 @@ type Service = {
   name: string;
   description: string | null;
   durationMin: number;
-  priceRsd: number;
+  slug: string | null;
+  calendarEnabled: boolean;
   isActive: boolean;
   sortOrder: number;
 };
@@ -19,13 +20,15 @@ export default function AdminUslugePage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [durationMin, setDurationMin] = useState(30);
-  const [priceRsd, setPriceRsd] = useState(0);
+  const [slug, setSlug] = useState("");
+  const [calendarEnabled, setCalendarEnabled] = useState(true);
   const [sortOrder, setSortOrder] = useState(0);
   const [editing, setEditing] = useState<Service | null>(null);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editDurationMin, setEditDurationMin] = useState(30);
-  const [editPriceRsd, setEditPriceRsd] = useState(0);
+  const [editSlug, setEditSlug] = useState("");
+  const [editCalendarEnabled, setEditCalendarEnabled] = useState(true);
   const [editSortOrder, setEditSortOrder] = useState(0);
   const [editIsActive, setEditIsActive] = useState(true);
   const [editSaving, setEditSaving] = useState(false);
@@ -59,7 +62,8 @@ export default function AdminUslugePage() {
         name: name.trim(),
         description: description.trim() || undefined,
         durationMin,
-        priceRsd,
+        slug: slug.trim() || undefined,
+        calendarEnabled,
         sortOrder,
       }),
     });
@@ -71,7 +75,8 @@ export default function AdminUslugePage() {
     setName("");
     setDescription("");
     setDurationMin(30);
-    setPriceRsd(0);
+    setSlug("");
+    setCalendarEnabled(true);
     setSortOrder(0);
     await load();
   }
@@ -97,7 +102,8 @@ export default function AdminUslugePage() {
     setEditName(s.name);
     setEditDescription(s.description || "");
     setEditDurationMin(s.durationMin);
-    setEditPriceRsd(s.priceRsd);
+    setEditSlug(s.slug || "");
+    setEditCalendarEnabled(s.calendarEnabled);
     setEditSortOrder(s.sortOrder);
     setEditIsActive(s.isActive);
   }
@@ -114,7 +120,8 @@ export default function AdminUslugePage() {
         name: editName.trim(),
         description: editDescription.trim() || null,
         durationMin: editDurationMin,
-        priceRsd: editPriceRsd,
+        slug: editSlug.trim() || null,
+        calendarEnabled: editCalendarEnabled,
         sortOrder: editSortOrder,
         isActive: editIsActive,
       }),
@@ -146,8 +153,8 @@ export default function AdminUslugePage() {
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Usluge za zakazivanje</h2>
         <p style={{ color: "#94a3b8", maxWidth: 640 }}>
-          Klijenti biraju uslugu pri zakazivanju. Trajanje određuje koliko dugo zauzima termin u kalendaru;
-          cena se upisuje u zahtev (RSD).
+          Javno je zakazivanje uvek <strong>Tehnički pregled</strong>. Ostale stavke mogu biti informativne: isključite „U
+          kalendaru” da ne uđu u admin kalendar (ne zauzimaju traku).
         </p>
 
         <form
@@ -202,13 +209,12 @@ export default function AdminUslugePage() {
                 }}
               />
             </label>
-            <label style={{ color: "#94a3b8", fontSize: 14 }}>
-              Cena (RSD)
+            <label style={{ color: "#94a3b8", fontSize: 14, minWidth: 180 }}>
+              Slug
               <input
-                type="number"
-                min={0}
-                value={priceRsd}
-                onChange={(e) => setPriceRsd(Number(e.target.value))}
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="npr. tehnicki-pregled"
                 style={{
                   display: "block",
                   marginTop: 4,
@@ -217,9 +223,13 @@ export default function AdminUslugePage() {
                   border: "1px solid #334155",
                   background: "#0f172a",
                   color: "#f8fafc",
-                  width: 140,
+                  width: "100%",
                 }}
               />
+            </label>
+            <label style={{ color: "#94a3b8", fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
+              <input type="checkbox" checked={calendarEnabled} onChange={(e) => setCalendarEnabled(e.target.checked)} />
+              U kalendaru
             </label>
             <label style={{ color: "#94a3b8", fontSize: 14 }}>
               Redosled
@@ -262,7 +272,7 @@ export default function AdminUslugePage() {
               <tr>
                 <th>Naziv</th>
                 <th>Min</th>
-                <th>Cena</th>
+                <th>Kal.</th>
                 <th>Aktivna</th>
                 <th />
               </tr>
@@ -277,7 +287,7 @@ export default function AdminUslugePage() {
                     ) : null}
                   </td>
                   <td>{s.durationMin}</td>
-                  <td>{s.priceRsd.toLocaleString("sr-RS")}</td>
+                  <td>{s.calendarEnabled ? "da" : "ne"}</td>
                   <td>
                     <span className={`admin-pill ${s.isActive ? "is-green" : ""}`}>
                       {s.isActive ? "da" : "ne"}
@@ -406,13 +416,11 @@ export default function AdminUslugePage() {
                   }}
                 />
               </label>
-              <label style={{ color: "#94a3b8", fontSize: 14 }}>
-                Cena (RSD)
+              <label style={{ color: "#94a3b8", fontSize: 14, minWidth: 180 }}>
+                Slug
                 <input
-                  type="number"
-                  min={0}
-                  value={editPriceRsd}
-                  onChange={(e) => setEditPriceRsd(Number(e.target.value))}
+                  value={editSlug}
+                  onChange={(e) => setEditSlug(e.target.value)}
                   style={{
                     display: "block",
                     marginTop: 4,
@@ -421,9 +429,17 @@ export default function AdminUslugePage() {
                     border: "1px solid #334155",
                     background: "#0f172a",
                     color: "#f8fafc",
-                    width: 160,
+                    width: "100%",
                   }}
                 />
+              </label>
+              <label style={{ color: "#94a3b8", fontSize: 14, display: "flex", alignItems: "center", gap: 8, marginTop: 22 }}>
+                <input
+                  type="checkbox"
+                  checked={editCalendarEnabled}
+                  onChange={(e) => setEditCalendarEnabled(e.target.checked)}
+                />
+                U kalendaru
               </label>
               <label style={{ color: "#94a3b8", fontSize: 14 }}>
                 Redosled

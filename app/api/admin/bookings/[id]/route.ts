@@ -12,7 +12,20 @@ const patchSchema = z.object({
     .enum(["pending", "confirmed", "completed", "cancelled", "no_show"])
     .optional(),
   workerNotes: z.string().max(8000).optional(),
+  inspectionResult: z.enum(["passed", "failed"]).optional().nullable(),
+  inspectionNote: z.string().max(8000).optional().nullable(),
 });
+
+function statusLabelSr(s: string) {
+  const m: Record<string, string> = {
+    pending: "Na čekanju",
+    confirmed: "Potvrđeno",
+    completed: "Završeno",
+    cancelled: "Otkazano",
+    no_show: "Nije se pojavio",
+  };
+  return m[s] || s;
+}
 
 export async function PATCH(
   request: Request,
@@ -36,6 +49,16 @@ export async function PATCH(
     }
   }
 
+  const d = parsed.data;
+  if (d.status === "completed") {
+    if (!d.inspectionResult || !d.inspectionNote || !String(d.inspectionNote).trim()) {
+      return fail(
+        400,
+        "Za završen termin unesite rezultat (položio / nije položio) i napomenu."
+      );
+    }
+  }
+
   const db = getDb();
   const [existing] = await db.select().from(schema.bookings).where(eq(schema.bookings.id, id)).limit(1);
 
@@ -50,39 +73,72 @@ export async function PATCH(
     .limit(1);
 
   const now = new Date();
+  const nextStatus = d.status !== undefined ? d.status : existing.status;
+  const nextInspectionResult =
+    d.inspectionResult !== undefined ? d.inspectionResult : existing.inspectionResult;
+  const nextInspectionNote = d.inspectionNote !== undefined ? d.inspectionNote : existing.inspectionNote;
+
   const [row] = await db
     .update(schema.bookings)
     .set({
-      ...(parsed.data.status !== undefined ? { status: parsed.data.status } : {}),
-      ...(parsed.data.workerNotes !== undefined ? { workerNotes: parsed.data.workerNotes } : {}),
+      ...(d.status !== undefined ? { status: d.status } : {}),
+      ...(d.workerNotes !== undefined ? { workerNotes: d.workerNotes } : {}),
+      ...(nextStatus !== "completed"
+        ? { inspectionResult: null, inspectionNote: null }
+        : {
+            inspectionResult: nextInspectionResult ?? null,
+            inspectionNote: (nextInspectionNote != null
+              ? String(nextInspectionNote).trim()
+              : (existing.inspectionNote ?? null)) as string | null,
+          }),
       updatedAt: now,
     })
     .where(eq(schema.bookings.id, id))
     .returning();
 
-  const shouldNotifyClient =
-    Boolean(userRow?.email) &&
-    ((parsed.data.status && parsed.data.status !== existing.status) ||
-      (parsed.data.workerNotes !== undefined && parsed.data.workerNotes !== existing.workerNotes));
+  if (!row) {
+    return fail(500, "Ažuriranje nije uspelo.");
+  }
 
-  if (parsed.data.status && parsed.data.status !== existing.status) {
+  if (d.status && d.status !== existing.status) {
     await db.insert(schema.bookingStatusLog).values({
       bookingId: id,
       previousStatus: existing.status,
-      nextStatus: parsed.data.status,
+      nextStatus: d.status,
       changedByUserId: auth.user.id,
       note: "Ažurirano iz admin panela",
     });
   }
 
+  const statusForEmail = row.status;
+  const shouldNotifyClient = Boolean(
+    userRow?.email &&
+      (Boolean(d.status !== undefined && d.status !== existing.status) ||
+        Boolean(d.workerNotes !== undefined && d.workerNotes !== existing.workerNotes) ||
+        Boolean(
+          d.inspectionNote !== undefined && d.inspectionNote !== existing.inspectionNote
+        ) ||
+        Boolean(
+          d.inspectionResult !== undefined && d.inspectionResult !== existing.inspectionResult
+        ))
+  );
+
   if (shouldNotifyClient && userRow?.email) {
     try {
-      await sendBookingUpdateEmail({
+      const emailResult = await sendBookingUpdateEmail({
         to: userRow.email,
         startsAtIso: existing.startsAt.toISOString(),
-        status: row.status,
+        status: statusLabelSr(String(statusForEmail)),
         workerNotes: row.workerNotes,
+        inspectionResult: row.inspectionResult,
+        inspectionNote: row.inspectionNote,
       });
+      if (!emailResult?.sent) {
+        console.error(
+          "[admin.bookings.patch] client email not sent",
+          (emailResult as { reason?: string })?.reason
+        );
+      }
     } catch (e) {
       console.error(e);
     }

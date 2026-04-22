@@ -2,12 +2,14 @@ import { z } from "zod";
 import { fail, ok } from "@/lib/api/http";
 import { withCors, corsPreflightResponse } from "@/lib/api/cors";
 import { getAvailabilityByDay } from "@/lib/booking/engine";
+import { getTehnickiPregledService } from "@/lib/booking/technical-service";
 
 export const runtime = "nodejs";
 
 const qSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  serviceId: z.string().uuid(),
+  /** Opciono; podrazumevano tehnički pregled. */
+  serviceId: z.string().uuid().optional(),
 });
 
 export async function OPTIONS(request: Request) {
@@ -21,19 +23,29 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
+  const serviceParam = url.searchParams.get("serviceId") || "";
   const parsed = qSchema.safeParse({
     date: url.searchParams.get("date") || "",
-    serviceId: url.searchParams.get("serviceId") || "",
+    serviceId: serviceParam || undefined,
   });
   if (!parsed.success) {
     return withCors(
       request,
-      fail(400, "Parametri date (YYYY-MM-DD) i serviceId (UUID) su obavezni.")
+      fail(400, "Parametar date (YYYY-MM-DD) je obavezan.")
     );
   }
 
+  let serviceId = parsed.data.serviceId;
+  if (!serviceId) {
+    const t = await getTehnickiPregledService();
+    if (!t) {
+      return withCors(request, fail(500, "Usluga tehničkog pregleda nije podešena."));
+    }
+    serviceId = t.id;
+  }
+
   try {
-    const data = await getAvailabilityByDay(parsed.data.date, parsed.data.serviceId);
+    const data = await getAvailabilityByDay(parsed.data.date, serviceId);
     return withCors(request, ok({ ok: true, ...data }));
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";

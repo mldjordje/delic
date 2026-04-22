@@ -50,6 +50,25 @@ async function main() {
     console.log("garage_settings already present.");
   }
 
+  const tehnickiName = "Tehnički pregled";
+  const [st] = await db
+    .select()
+    .from(schema.services)
+    .where(eq(schema.services.name, tehnickiName))
+    .limit(1);
+  if (st) {
+    await db
+      .update(schema.services)
+      .set({
+        slug: "tehnicki-pregled",
+        calendarEnabled: true,
+        priceRsd: 0,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.services.id, st.id));
+    console.log("Service Tehnički pregled: slug + calendar + price 0.");
+  }
+
   await pool.end();
 }
 

@@ -5,13 +5,14 @@ import { getDb, schema } from "@/lib/db/client";
 import { and, eq, gte, inArray, lte } from "drizzle-orm";
 import { getDefaultEmployee, getGarageSettings } from "@/lib/booking/config";
 import { buildDaySlots } from "@/lib/booking/engine";
+import { getTehnickiPregledService } from "@/lib/booking/technical-service";
 import { getWorkingIntervalsForDate, parseDateAtTime } from "@/lib/booking/schedule";
 
 export const runtime = "nodejs";
 
 const qSchema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}$/), // YYYY-MM
-  serviceId: z.string().uuid(),
+  serviceId: z.string().uuid().optional(),
 });
 
 export async function OPTIONS(request: Request) {
@@ -29,12 +30,22 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
+  const sp = url.searchParams.get("serviceId") || "";
   const parsed = qSchema.safeParse({
     month: url.searchParams.get("month") || "",
-    serviceId: url.searchParams.get("serviceId") || "",
+    serviceId: sp || undefined,
   });
   if (!parsed.success) {
-    return withCors(request, fail(400, "Parametri month (YYYY-MM) i serviceId (UUID) su obavezni."));
+    return withCors(request, fail(400, "Parametar month (YYYY-MM) je obavezan."));
+  }
+
+  let serviceId = parsed.data.serviceId;
+  if (!serviceId) {
+    const t = await getTehnickiPregledService();
+    if (!t) {
+      return withCors(request, fail(500, "Usluga tehničkog pregleda nije podešena."));
+    }
+    serviceId = t.id;
   }
 
   const [yyyy, mm] = parsed.data.month.split("-").map((x) => Number(x));
@@ -50,7 +61,7 @@ export async function GET(request: Request) {
   const [svc] = await db
     .select()
     .from(schema.services)
-    .where(and(eq(schema.services.id, parsed.data.serviceId), eq(schema.services.isActive, true)))
+    .where(and(eq(schema.services.id, serviceId), eq(schema.services.isActive, true)))
     .limit(1);
 
   if (!svc) {
@@ -73,8 +84,10 @@ export async function GET(request: Request) {
       endsAt: schema.bookings.endsAt,
     })
     .from(schema.bookings)
+    .innerJoin(schema.services, eq(schema.bookings.serviceId, schema.services.id))
     .where(
       and(
+        eq(schema.services.calendarEnabled, true),
         eq(schema.bookings.employeeId, employee.id),
         inArray(schema.bookings.status, ["pending", "confirmed"]),
         gte(schema.bookings.startsAt, start),
@@ -114,7 +127,7 @@ export async function GET(request: Request) {
     ok({
       ok: true,
       month: parsed.data.month,
-      serviceId: parsed.data.serviceId,
+      serviceId,
       totalDurationMin,
       slotMinutes,
       days,

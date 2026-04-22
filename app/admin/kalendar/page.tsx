@@ -14,12 +14,20 @@ type BookingRow = {
   endsAt: string;
   status: string;
   workerNotes: string | null;
+  inspectionResult: "passed" | "failed" | null;
+  inspectionNote: string | null;
   vehicle: { make: string; year: number; plateNumber?: string | null; registrationExpiresOn?: string };
   serviceName?: string;
   client: { email: string | null; phone: string | null; fullName: string | null };
 };
 
-type Service = { id: string; name: string; durationMin: number; priceRsd: number; description: string | null };
+type Service = {
+  id: string;
+  name: string;
+  durationMin: number;
+  description: string | null;
+  calendarEnabled: boolean;
+};
 type ClientPick = { id: string; email: string | null; phone: string | null; fullName: string | null };
 type VehiclePick = { id: string; make: string; year: number; registrationExpiresOn: string };
 
@@ -41,6 +49,8 @@ export default function AdminKalendarPage() {
   const [active, setActive] = useState<BookingRow | null>(null);
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("confirmed");
+  const [inspectionResult, setInspectionResult] = useState<"" | "passed" | "failed">("");
+  const [inspectionNote, setInspectionNote] = useState("");
   const [msg, setMsg] = useState("");
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -75,7 +85,7 @@ export default function AdminKalendarPage() {
     setLoading(true);
     setError("");
     const r = await fetch(
-      `/api/admin/bookings?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+      `/api/admin/bookings?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&calendar=1`,
       { credentials: "include" }
     );
     const j = await r.json();
@@ -103,8 +113,12 @@ export default function AdminKalendarPage() {
       const r = await fetch("/api/services").catch(() => null);
       const j = await r?.json().catch(() => null);
       if (r?.ok && j?.services) {
-        setCreateServices(j.services as Service[]);
-        setCreateServiceId((prev) => prev || (j.services?.[0]?.id as string) || "");
+        const cal = (j.services as Service[]).filter((s) => s.calendarEnabled);
+        setCreateServices(cal);
+        setCreateServiceId((prev) => {
+          if (prev && cal.some((x) => x.id === prev)) return prev;
+          return (cal[0]?.id as string) || "";
+        });
       }
     })();
   }, []);
@@ -117,6 +131,10 @@ export default function AdminKalendarPage() {
     setActive(row);
     setNotes(row.workerNotes || "");
     setStatus(row.status);
+    setInspectionResult(
+      row.inspectionResult === "passed" || row.inspectionResult === "failed" ? row.inspectionResult : ""
+    );
+    setInspectionNote(row.inspectionNote || "");
     setMsg("");
   }
 
@@ -125,11 +143,23 @@ export default function AdminKalendarPage() {
       return;
     }
     setMsg("");
+    if (status === "completed") {
+      if (!inspectionResult || !inspectionNote.trim()) {
+        setMsg("Za završen termin unesite rezultat pregleda i napomenu.");
+        return;
+      }
+    }
     const r = await fetch(`/api/admin/bookings/${active.id}`, {
       method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ workerNotes: notes, status }),
+      body: JSON.stringify({
+        workerNotes: notes,
+        status,
+        ...(status === "completed"
+          ? { inspectionResult, inspectionNote: inspectionNote.trim() }
+          : { inspectionResult: null, inspectionNote: null }),
+      }),
     });
     const j = await r.json();
     if (!r.ok) {
@@ -426,9 +456,19 @@ export default function AdminKalendarPage() {
               Blokada: {active.workerNotes || "—"}
             </p>
           )}
-          <label className="admin-field">
+            <label className="admin-field">
             <span>Status</span>
-            <select value={status} onChange={(e) => setStatus(e.target.value)} className="admin-input">
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                if (e.target.value !== "completed") {
+                  setInspectionResult("");
+                  setInspectionNote("");
+                }
+              }}
+              className="admin-input"
+            >
               <option value="pending">Na čekanju</option>
               <option value="confirmed">Potvrđeno</option>
               <option value="completed">Završeno</option>
@@ -436,6 +476,32 @@ export default function AdminKalendarPage() {
               <option value="no_show">Nije se pojavio</option>
             </select>
           </label>
+            {status === "completed" ? (
+              <>
+                <label className="admin-field">
+                  <span>Rezultat tehničkog</span>
+                  <select
+                    value={inspectionResult}
+                    onChange={(e) => setInspectionResult(e.target.value as "passed" | "failed" | "")}
+                    className="admin-input"
+                  >
+                    <option value="">— izaberite —</option>
+                    <option value="passed">Položio</option>
+                    <option value="failed">Nije položio</option>
+                  </select>
+                </label>
+                <label className="admin-field">
+                  <span>Napomena (obavezno)</span>
+                  <textarea
+                    value={inspectionNote}
+                    onChange={(e) => setInspectionNote(e.target.value)}
+                    className="admin-input"
+                    rows={3}
+                    placeholder="Razlog, dodatne informacije…"
+                  />
+                </label>
+              </>
+            ) : null}
           <label className="admin-field">
             <span>Napomena radnika</span>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="admin-input" rows={5} />

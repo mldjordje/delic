@@ -14,9 +14,6 @@ export type VehicleEdit = {
   plateNumber: string | null;
   vin: string | null;
   fuelType: string | null;
-  color: string | null;
-  engineCc: number | null;
-  powerKw: string | null;
   year: number;
   registrationExpiresOn: string;
   hasLpgOrMethane: boolean;
@@ -38,11 +35,8 @@ export function EditVehicleDialog({
   const [model, setModel] = useState(vehicle.model || "");
   const [plateNumber, setPlateNumber] = useState(vehicle.plateNumber || "");
   const [fuelType, setFuelType] = useState(vehicle.fuelType || "");
-  const [color, setColor] = useState(vehicle.color || "");
   const [vin, setVin] = useState(vehicle.vin || "");
   const [year, setYear] = useState<number>(vehicle.year);
-  const [engineCc, setEngineCc] = useState<number | "">(vehicle.engineCc ?? "");
-  const [powerKw, setPowerKw] = useState<number | "">(vehicle.powerKw ? Number(vehicle.powerKw) : "");
   const [registrationExpiresOn, setRegistrationExpiresOn] = useState(vehicle.registrationExpiresOn);
   const [hasLpgOrMethane, setHasLpgOrMethane] = useState(vehicle.hasLpgOrMethane);
   const [lpgExpiresOn, setLpgExpiresOn] = useState(vehicle.lpgMethaneCertificateExpiresOn || "");
@@ -51,13 +45,10 @@ export function EditVehicleDialog({
     if (!make.trim()) return false;
     if (!plateNumber.trim()) return false;
     if (!fuelType) return false;
-    if (!color.trim()) return false;
-    if (engineCc === "" || engineCc <= 0) return false;
-    if (powerKw === "" || powerKw <= 0) return false;
     if (!registrationExpiresOn) return false;
     if (hasLpgOrMethane && !lpgExpiresOn) return false;
     return true;
-  }, [make, plateNumber, fuelType, color, engineCc, powerKw, registrationExpiresOn, hasLpgOrMethane, lpgExpiresOn]);
+  }, [make, plateNumber, fuelType, registrationExpiresOn, hasLpgOrMethane, lpgExpiresOn]);
 
   async function save() {
     setSaving(true);
@@ -71,11 +62,8 @@ export function EditVehicleDialog({
         model: model.trim() || null,
         plateNumber: plateNumber.trim().toUpperCase(),
         fuelType,
-        color: color.trim(),
         vin: vin.trim() || null,
         year,
-        engineCc: engineCc === "" ? null : engineCc,
-        powerKw: powerKw === "" ? null : String(powerKw),
         registrationExpiresOn,
         hasLpgOrMethane,
         lpgMethaneCertificateExpiresOn: hasLpgOrMethane ? lpgExpiresOn : null,
@@ -141,11 +129,6 @@ export function EditVehicleDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="colorE">Boja</Label>
-            <Input id="colorE" value={color} onChange={(e) => setColor(e.target.value)} />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="yearE">Godište</Label>
             <Input id="yearE" type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} />
           </div>
@@ -153,16 +136,6 @@ export function EditVehicleDialog({
           <div className="space-y-2">
             <Label htmlFor="regE">Istek registracije</Label>
             <Input id="regE" type="date" value={registrationExpiresOn} onChange={(e) => setRegistrationExpiresOn(e.target.value)} />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="engineE">Zapremina (cc)</Label>
-            <Input id="engineE" type="number" min={50} value={engineCc} onChange={(e) => setEngineCc(e.target.value ? Number(e.target.value) : "")} />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="powerE">Snaga (kW)</Label>
-            <Input id="powerE" type="number" min={1} value={powerKw} onChange={(e) => setPowerKw(e.target.value ? Number(e.target.value) : "")} />
           </div>
 
           <div className="space-y-2 md:col-span-2">

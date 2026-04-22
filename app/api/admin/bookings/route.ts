@@ -27,6 +27,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   let from = url.searchParams.get("from");
   let to = url.searchParams.get("to");
+  const calendarOnly = url.searchParams.get("calendar") === "1";
 
   if (auth.user.role === "staff") {
     const today = toBelgradeDateKey(new Date());
@@ -42,6 +43,10 @@ export async function GET(request: Request) {
   const end = parseDateAtTime(to, "23:59", 59);
 
   const db = getDb();
+  const dateWhere = and(gte(schema.bookings.startsAt, start), lte(schema.bookings.startsAt, end));
+  const calendarWhere = calendarOnly
+    ? and(dateWhere, eq(schema.services.calendarEnabled, true))
+    : dateWhere;
   const rows = await db
     .select({
       booking: schema.bookings,
@@ -56,7 +61,7 @@ export async function GET(request: Request) {
     .innerJoin(schema.services, eq(schema.bookings.serviceId, schema.services.id))
     .innerJoin(schema.users, eq(schema.bookings.userId, schema.users.id))
     .leftJoin(schema.profiles, eq(schema.profiles.userId, schema.users.id))
-    .where(and(gte(schema.bookings.startsAt, start), lte(schema.bookings.startsAt, end)))
+    .where(calendarWhere)
     .orderBy(desc(schema.bookings.startsAt));
 
   const employee = await getDefaultEmployee();
@@ -150,6 +155,9 @@ export async function POST(request: Request) {
   if (!svc) {
     return fail(400, "Usluga nije pronađena.");
   }
+  if (!svc.calendarEnabled) {
+    return fail(400, "Ova usluga nije u kalendaru; ne može se zakazivati u terminu.");
+  }
 
   const [vehicle] = await db
     .select()
@@ -161,7 +169,6 @@ export async function POST(request: Request) {
   }
 
   const durationMin = svc.durationMin;
-  const priceRsd = svc.priceRsd;
   const endsAt = addMinutes(startAt, durationMin);
 
   if (!(await isWithinWorkHours(startAt, durationMin))) {
@@ -198,7 +205,7 @@ export async function POST(request: Request) {
           endsAt,
           status,
           totalDurationMin: durationMin,
-          totalPriceRsd: priceRsd,
+          totalPriceRsd: 0,
           workerNotes: parsed.data.workerNotes || null,
           clientNotes: null,
         })

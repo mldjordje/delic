@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,22 +13,11 @@ type Vehicle = {
   year: number;
 };
 
-type Service = {
-  id: string;
-  name: string;
-  description: string | null;
-  durationMin: number;
-  priceRsd: number;
-};
-
 type Slot = { startAt: string; endAt: string; available: boolean };
 
 const googleHref = `/api/auth/google?next=${encodeURIComponent("/dashboard")}`;
 
-function formatMoneyRsd(value: number) {
-  if (!value) return "Cena po dogovoru";
-  return `${value.toLocaleString("sr-RS")} RSD`;
-}
+const TEH_SLUG = "tehnicki-pregled";
 
 function timeHHMM(iso: string) {
   return new Date(iso).toLocaleTimeString("sr-RS", {
@@ -53,8 +42,8 @@ export function PublicBookingWidget({ className }: { className?: string }) {
   const [authChecked, setAuthChecked] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
 
-  const [services, setServices] = useState<Service[]>([]);
-  const [serviceId, setServiceId] = useState("");
+  const [tehnickiId, setTehnickiId] = useState("");
+  const [tehnickiDuration, setTehnickiDuration] = useState(30);
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [vehicleId, setVehicleId] = useState("");
@@ -68,10 +57,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
   const [newPlateNumber, setNewPlateNumber] = useState("");
   const [newModel, setNewModel] = useState("");
   const [newFuelType, setNewFuelType] = useState("");
-  const [newColor, setNewColor] = useState("");
   const [newVin, setNewVin] = useState("");
-  const [newEngineCc, setNewEngineCc] = useState<number | "">("");
-  const [newPowerKw, setNewPowerKw] = useState<number | "">("");
   const [newReg, setNewReg] = useState("");
   const [newHasLpgOrMethane, setNewHasLpgOrMethane] = useState(false);
   const [newLpgMethaneCertificateExpiresOn, setNewLpgMethaneCertificateExpiresOn] = useState("");
@@ -81,20 +67,20 @@ export function PublicBookingWidget({ className }: { className?: string }) {
   const [slotsBusy, setSlotsBusy] = useState(false);
   const [vehiclesBusy, setVehiclesBusy] = useState(false);
 
-  const selectedService = useMemo(
-    () => services.find((s) => s.id === serviceId) || null,
-    [services, serviceId]
-  );
-
   useEffect(() => {
     void (async () => {
       const rs = await fetch("/api/services").catch(() => null);
       if (rs) {
         const js = await rs.json().catch(() => null);
         if (rs.ok && js?.services?.length) {
-          const list = js.services as Service[];
-          setServices(list);
-          setServiceId((prev) => prev || list[0].id);
+          const list = js.services as { id: string; slug: string | null; durationMin: number; calendarEnabled: boolean }[];
+          const t =
+            list.find((s) => s.calendarEnabled && s.slug === TEH_SLUG) ||
+            list.find((s) => s.calendarEnabled);
+          if (t) {
+            setTehnickiId(t.id);
+            setTehnickiDuration(t.durationMin);
+          }
         }
       }
 
@@ -125,7 +111,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
   }, [loggedIn, authChecked]);
 
   useEffect(() => {
-    if (!date || !serviceId) {
+    if (!date || !tehnickiId) {
       setSlots([]);
       setSelectedStartAt("");
       return;
@@ -135,7 +121,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
       setMessage(null);
       setSelectedStartAt("");
       const r = await fetch(
-        `/api/bookings/availability?date=${encodeURIComponent(date)}&serviceId=${encodeURIComponent(serviceId)}`,
+        `/api/bookings/availability?date=${encodeURIComponent(date)}&serviceId=${encodeURIComponent(tehnickiId)}`,
         { credentials: "include" }
       );
       const j = await r.json().catch(() => null);
@@ -147,7 +133,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
       }
       setSlots((j?.slots as Slot[]) || []);
     })();
-  }, [date, serviceId]);
+  }, [date, tehnickiId]);
 
   async function addVehicle(e: React.FormEvent) {
     e.preventDefault();
@@ -164,18 +150,6 @@ export function PublicBookingWidget({ className }: { className?: string }) {
       setMessage({ tone: "warn", text: "Izaberite vrstu goriva." });
       return;
     }
-    if (!newColor.trim()) {
-      setMessage({ tone: "warn", text: "Unesite boju vozila." });
-      return;
-    }
-    if (newEngineCc === "" || newEngineCc <= 0) {
-      setMessage({ tone: "warn", text: "Unesite zapreminu motora (cc)." });
-      return;
-    }
-    if (newPowerKw === "" || newPowerKw <= 0) {
-      setMessage({ tone: "warn", text: "Unesite snagu motora (kW)." });
-      return;
-    }
     if (newHasLpgOrMethane && !newLpgMethaneCertificateExpiresOn) {
       setMessage({ tone: "warn", text: "Unesite datum isteka atesta za gas." });
       return;
@@ -190,10 +164,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
         plateNumber: newPlateNumber.trim().toUpperCase(),
         model: newModel.trim() || null,
         fuelType: newFuelType,
-        color: newColor.trim(),
         vin: newVin.trim() || null,
-        engineCc: newEngineCc,
-        powerKw: String(newPowerKw),
         year: newYear,
         registrationExpiresOn: newReg,
         hasLpgOrMethane: newHasLpgOrMethane,
@@ -210,17 +181,14 @@ export function PublicBookingWidget({ className }: { className?: string }) {
     setNewPlateNumber("");
     setNewModel("");
     setNewFuelType("");
-    setNewColor("");
     setNewVin("");
-    setNewEngineCc("");
-    setNewPowerKw("");
     await loadVehicles();
     setVehicleId(j?.vehicle?.id || "");
     setMessage({ tone: "ok", text: "Vozilo je sačuvano." });
   }
 
   async function submitBooking() {
-    if (!vehicleId || !serviceId || !selectedStartAt) return;
+    if (!vehicleId || !selectedStartAt) return;
     setBusy(true);
     setMessage(null);
     const r = await fetch("/api/bookings", {
@@ -229,7 +197,6 @@ export function PublicBookingWidget({ className }: { className?: string }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         vehicleId,
-        serviceId,
         startAt: selectedStartAt,
       }),
     });
@@ -244,7 +211,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
   }
 
   const canSeeBookingFlow = Boolean(loggedIn);
-  const canSubmit = Boolean(vehicleId && serviceId && date && selectedStartAt && !busy);
+  const canSubmit = Boolean(vehicleId && tehnickiId && date && selectedStartAt && !busy);
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -274,57 +241,14 @@ export function PublicBookingWidget({ className }: { className?: string }) {
       ) : null}
 
       <Card className="glass p-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold">1. Izaberite uslugu</p>
-            <p className="text-sm text-muted-foreground">Trajanje i cena važe za izabrani termin.</p>
-          </div>
-          {selectedService ? (
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{selectedService.durationMin} min</span> ·{" "}
-              {formatMoneyRsd(selectedService.priceRsd)}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {services.map((s) => {
-            const active = serviceId === s.id;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                className={cn(
-                  "rounded-sm border p-4 text-left transition-colors",
-                  "bg-background/40 hover:bg-accent/30",
-                  active
-                    ? "border-primary/70 ring-2 ring-primary/45 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
-                    : "border-border"
-                )}
-                onClick={() => {
-                  setServiceId(s.id);
-                  setSelectedStartAt("");
-                }}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold">{s.name}</p>
-                    {s.description ? (
-                      <p className="text-xs text-muted-foreground line-clamp-2">{s.description}</p>
-                    ) : null}
-                  </div>
-                  <span className="shrink-0 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
-                    {s.durationMin}m
-                  </span>
-                </div>
-                <p className="mt-3 text-xs text-muted-foreground">{formatMoneyRsd(s.priceRsd)}</p>
-              </button>
-            );
-          })}
-          {services.length === 0 ? (
-            <p className="text-sm text-destructive md:col-span-2">Nema aktivnih usluga. Kontaktirajte salon.</p>
-          ) : null}
-        </div>
+        <p className="text-sm font-semibold">1. Usluga</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Zakazujete isključivo <span className="font-medium text-foreground">tehnički pregled vozila</span>{" "}
+          {tehnickiId ? <span>— trajanje na traci: {tehnickiDuration} min.</span> : <span>— učitavanje…</span>}
+        </p>
+        {!tehnickiId ? (
+          <p className="mt-3 text-sm text-destructive">Usluga nije dostupna. Pokušajte kasnije ili nas pozovite.</p>
+        ) : null}
       </Card>
 
       {canSeeBookingFlow ? (
@@ -418,31 +342,6 @@ export function PublicBookingWidget({ className }: { className?: string }) {
                     <option value="other">Drugo</option>
                   </select>
                 </label>
-                <label className="space-y-2">
-                  <span className="text-xs text-muted-foreground">Boja</span>
-                  <Input value={newColor} onChange={(e) => setNewColor(e.target.value)} placeholder="npr. crna" />
-                </label>
-                <label className="space-y-2">
-                  <span className="text-xs text-muted-foreground">Zapremina (cc)</span>
-                  <Input
-                    type="number"
-                    min={50}
-                    value={newEngineCc}
-                    onChange={(e) => setNewEngineCc(e.target.value ? Number(e.target.value) : "")}
-                    placeholder="npr. 1968"
-                  />
-                </label>
-                <label className="space-y-2">
-                  <span className="text-xs text-muted-foreground">Snaga (kW)</span>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={newPowerKw}
-                    onChange={(e) => setNewPowerKw(e.target.value ? Number(e.target.value) : "")}
-                    placeholder="npr. 110"
-                  />
-                </label>
-
                 <label className="space-y-2 md:col-span-2">
                   <span className="text-xs text-muted-foreground">VIN (opciono)</span>
                   <Input value={newVin} onChange={(e) => setNewVin(e.target.value)} placeholder="npr. WVWZZZ..." />
@@ -472,9 +371,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
                   </label>
                 ) : null}
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">
-                Ako niste sigurni za cc/kW, pogledajte saobraćajnu dozvolu ili specifikaciju vozila.
-              </p>
+              <p className="mt-3 text-xs text-muted-foreground">Podatke o registraciji možete uvek dopuniti u „Moj nalog”.</p>
             </details>
           </Card>
 
@@ -482,15 +379,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-sm font-semibold">3. Datum i termin</p>
-                <p className="text-sm text-muted-foreground">
-                  Slotovi su računati za izabranu uslugu{" "}
-                  {selectedService ? (
-                    <span className="font-medium text-foreground">
-                      ({selectedService.durationMin} min)
-                    </span>
-                  ) : null}
-                  .
-                </p>
+                <p className="text-sm text-muted-foreground">Slotovi za tehnički pregled (traka {tehnickiDuration} min).</p>
               </div>
               <div className="flex gap-2">
                 <Button type="button" onClick={() => void submitBooking()} disabled={!canSubmit}>
@@ -503,7 +392,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">Datum</p>
                 <BookingDateGrid
-                  serviceId={serviceId}
+                  serviceId={tehnickiId}
                   value={date}
                   onChange={(d) => setDate(d)}
                 />

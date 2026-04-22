@@ -41,11 +41,9 @@ export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
               <div className="rounded-md border bg-background/30 p-3">
                 <p className="text-xs text-muted-foreground">Osnovno</p>
                 <p className="mt-1 text-sm font-medium">
-                  {v.plateNumber ? v.plateNumber : "—"} · {v.fuelType ? v.fuelType : "—"} · {v.color ? v.color : "—"}
+                  {v.plateNumber ? v.plateNumber : "—"} · {v.fuelType ? v.fuelType : "—"}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {v.engineCc ? `${v.engineCc}cc` : "—"} · {v.powerKw ? `${v.powerKw}kW` : "—"}
-                </p>
+                {v.model ? <p className="mt-1 text-xs text-muted-foreground">Model: {v.model}</p> : null}
               </div>
 
               <div className="rounded-md border bg-background/30 p-3">
