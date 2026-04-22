@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { InstallPwaButton } from "@/components/pwa/InstallPwaButton";
 
 const NAV_BG = [
   "/assets/images/tehnicki2.jpg",
@@ -102,6 +103,15 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         </div>
 
         <ul className="nav-menu dark-bg-1">
+          <li className="nav-box nav-bg-change">
+            <div className="nav-link" style={{ padding: "18px 0" }}>
+              <InstallPwaButton
+                className="border-btn pointer-large"
+                label="Instaliraj aplikaciju"
+              />
+            </div>
+            <div className="nav-bg" style={{ backgroundImage: `url(${NAV_BG[0]})` }} />
+          </li>
           {NAV.map((item, i) => {
             const active = pathMatches(pathname, item.href);
             return (

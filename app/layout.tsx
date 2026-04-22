@@ -3,6 +3,7 @@ import "./globals.css";
 import { Open_Sans } from "next/font/google";
 import { ToastProviderState } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { PwaRegistrar } from "@/components/pwa/PwaRegistrar";
 
 export const metadata: Metadata = {
   title: "Auto Delić — tehnički pregled",
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ToastProviderState>
           {children}
           <Toaster />
+          <PwaRegistrar />
         </ToastProviderState>
       </body>
     </html>

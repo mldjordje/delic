@@ -3,8 +3,12 @@ import { getSessionUser } from "@/lib/auth/guards";
 import { getDb, schema } from "@/lib/db/client";
 import { eq } from "drizzle-orm";
 import { PortalShell } from "@/components/portal/PortalShell";
+import type { Metadata } from "next";
 
 export const runtime = "nodejs";
+export const metadata: Metadata = {
+  manifest: "/manifest-client.webmanifest",
+};
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();

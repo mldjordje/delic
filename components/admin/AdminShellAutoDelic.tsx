@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import AdminNotificationsBell from "@/components/admin/AdminNotificationsBell";
 import { LogoutButton } from "@/components/LogoutButton";
+import { InstallPwaButton } from "@/components/pwa/InstallPwaButton";
 
 type Role = "admin" | "staff" | "client";
 
@@ -143,6 +144,7 @@ export default function AdminShellAutoDelic({ children }: { children: React.Reac
           </div>
           <div className="admin-template-topbar-actions">
             <AdminNotificationsBell />
+            <InstallPwaButton className="admin-template-link-btn" label="Instaliraj admin app" />
             <Link href="/admin/kalendar" className="admin-template-link-btn">
               Kalendar
             </Link>

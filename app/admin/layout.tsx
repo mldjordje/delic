@@ -9,6 +9,7 @@ export const metadata: Metadata = {
     template: `%s | ${ADMIN_SITE_NAME}`,
   },
   description: "Administracija — Auto Delić tehnički pregled",
+  manifest: "/manifest-admin.webmanifest",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
