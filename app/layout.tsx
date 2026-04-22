@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import { ToastProviderState } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -9,15 +9,16 @@ export const metadata: Metadata = {
   description: "Online zakazivanje tehničkog pregleda vozila — Niš",
 };
 
-const inter = Inter({
-  subsets: ["latin"],
+const openSans = Open_Sans({
+  subsets: ["latin", "latin-ext"],
   display: "swap",
+  variable: "--font-open-sans",
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="sr" className="dark">
-      <body className={inter.className}>
+    <html lang="sr" className={`dark ${openSans.variable}`}>
+      <body className={`${openSans.className} antialiased`}>
         <ToastProviderState>
           {children}
           <Toaster />

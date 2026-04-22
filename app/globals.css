@@ -4,50 +4,50 @@
 
 @layer base {
   :root {
-    --radius: 14px;
+    --radius: 2px;
 
-    /* shadcn/ui tokens (dark premium) */
-    --background: 222 47% 5%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 7%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 6%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 346 77% 49%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 222 23% 13%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 23% 12%;
-    --muted-foreground: 215 20% 70%;
-    --accent: 222 23% 14%;
-    --accent-foreground: 210 40% 98%;
+    /* Auto Delić — usklađeno sa legacy `assets/css/style.css` (.dark-bg-1, .red-color #FFBF00) */
+    --background: 200 18% 8%;
+    --foreground: 210 25% 92%;
+    --card: 198 20% 12%;
+    --card-foreground: 210 25% 92%;
+    --popover: 198 20% 11%;
+    --popover-foreground: 210 25% 92%;
+    --primary: 45 100% 50%;
+    --primary-foreground: 200 18% 8%;
+    --secondary: 198 16% 16%;
+    --secondary-foreground: 210 25% 92%;
+    --muted: 198 14% 18%;
+    --muted-foreground: 210 12% 65%;
+    --accent: 198 18% 16%;
+    --accent-foreground: 210 25% 92%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
-    --border: 222 23% 16%;
-    --input: 222 23% 18%;
-    --ring: 346 77% 49%;
+    --border: 198 14% 22%;
+    --input: 198 14% 20%;
+    --ring: 45 100% 50%;
   }
 
   .dark {
-    --background: 222 47% 5%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 7%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 6%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 346 77% 49%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 222 23% 13%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 23% 12%;
-    --muted-foreground: 215 20% 70%;
-    --accent: 222 23% 14%;
-    --accent-foreground: 210 40% 98%;
+    --background: 200 18% 8%;
+    --foreground: 210 25% 92%;
+    --card: 198 20% 12%;
+    --card-foreground: 210 25% 92%;
+    --popover: 198 20% 11%;
+    --popover-foreground: 210 25% 92%;
+    --primary: 45 100% 50%;
+    --primary-foreground: 200 18% 8%;
+    --secondary: 198 16% 16%;
+    --secondary-foreground: 210 25% 92%;
+    --muted: 198 14% 18%;
+    --muted-foreground: 210 12% 65%;
+    --accent: 198 18% 16%;
+    --accent-foreground: 210 25% 92%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
-    --border: 222 23% 16%;
-    --input: 222 23% 18%;
-    --ring: 346 77% 49%;
+    --border: 198 14% 22%;
+    --input: 198 14% 20%;
+    --ring: 45 100% 50%;
   }
 
   * {
@@ -67,11 +67,11 @@ body {
   .glass {
     background: linear-gradient(
       180deg,
-      hsl(var(--card) / 0.75),
-      hsl(var(--card) / 0.5)
+      hsl(var(--card) / 0.92),
+      hsl(198 20% 10% / 0.88)
     );
-    border: 1px solid hsl(var(--border) / 0.8);
-    backdrop-filter: blur(12px);
+    border: 1px solid hsl(45 60% 50% / 0.18);
+    backdrop-filter: blur(10px);
   }
 
   .page-container {
@@ -92,6 +92,11 @@ body {
 
   .lead {
     @apply text-sm text-muted-foreground sm:text-base;
+  }
+
+  /* Javni booking (iframe /zakazivanje/embed) — bliže legacy tamnoj sekciji */
+  .booking-embed-widget .glass {
+    border-color: hsl(45 45% 50% / 0.2);
   }
 }
 

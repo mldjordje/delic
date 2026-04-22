@@ -266,7 +266,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
             </div>
             <div className="flex gap-2">
               <Button asChild>
-                <a href={googleHref}>Sign in with Google</a>
+                <a href={googleHref}>Prijava Google nalogom</a>
               </Button>
             </div>
           </div>
@@ -295,9 +295,11 @@ export function PublicBookingWidget({ className }: { className?: string }) {
                 key={s.id}
                 type="button"
                 className={cn(
-                  "rounded-lg border p-4 text-left transition-colors",
-                  "bg-background/30 hover:bg-accent/20",
-                  active ? "ring-2 ring-ring" : "border-border"
+                  "rounded-sm border p-4 text-left transition-colors",
+                  "bg-background/40 hover:bg-accent/30",
+                  active
+                    ? "border-primary/70 ring-2 ring-primary/45 shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
+                    : "border-border"
                 )}
                 onClick={() => {
                   setServiceId(s.id);
