@@ -17,6 +17,25 @@
   16. Contact form
 ********************************************************/
 
+// Safety fallback: if legacy plugins fail (jQuery/animsition), never keep preloader forever.
+// This runs even if the rest of the file throws later.
+(function () {
+  function hidePreloader() {
+    try {
+      var body = document.body;
+      if (body) body.classList.remove("loader");
+      var el = document.querySelector(".loading");
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    } catch (e) {}
+  }
+
+  // Remove as soon as possible after load; keep a hard timeout too.
+  window.addEventListener("load", function () {
+    setTimeout(hidePreloader, 50);
+  });
+  setTimeout(hidePreloader, 3000);
+})();
+
 $(function() {
     "use strict";
     
