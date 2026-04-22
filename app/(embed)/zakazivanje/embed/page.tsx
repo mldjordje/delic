@@ -11,12 +11,10 @@ export const metadata = {
 
 export default function ZakazivanjeEmbedPage() {
   return (
-    <main className="min-h-0 bg-background p-4 md:p-6">
-      <div className="mx-auto w-full max-w-3xl">
-        <EmbedHeightReporter>
-          <PublicBookingWidget className="booking-embed-widget" />
-        </EmbedHeightReporter>
-      </div>
+    <main className="min-h-0 bg-transparent p-0">
+      <EmbedHeightReporter>
+        <PublicBookingWidget className="booking-embed-widget" />
+      </EmbedHeightReporter>
     </main>
   );
 }

@@ -264,6 +264,61 @@
         </a>
       </section>
 
+      <section class="dark-bg-2 top-bottom-padding-120" id="zakazi">
+        <div class="container small">
+          <div class="text-center bottom-padding-60">
+            <h2 class="medium-title red-color">Online zakazivanje</h2>
+            <p class="p-style-bold-up text-height-20 text-color-4 top-margin-20" style="max-width: 640px; margin: 0 auto">
+              Birate <strong>uslugu</strong> (trajanje i cena), <strong>vozilo</strong> i <strong>slobodan termin</strong>.
+              Brza prijava Google nalogom — isti sadržaj kao na stranici
+              <a href="/zakazivanje" class="pointer-large animsition-link" style="color: inherit; text-decoration: underline"
+                >/zakazivanje</a
+              >.
+            </p>
+            <div class="top-margin-30">
+              <div class="border-btn-box border-btn-red pointer-large" style="display: inline-block">
+                <div class="border-btn-inner">
+                  <a href="/zakazivanje" class="border-btn" data-text="Otvori punu stranicu">Otvori punu stranicu</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="top-margin-10">
+            <iframe
+              id="booking-embed"
+              title="Online zakazivanje — Auto Delić"
+              src="/zakazivanje/embed"
+              style="
+                display: block;
+                width: 100%;
+                height: 1600px;
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+              "
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        </div>
+
+        <script>
+          (function () {
+            var iframe = document.getElementById("booking-embed");
+            if (!iframe) return;
+            window.addEventListener("message", function (event) {
+              try {
+                if (!event || !event.data || event.data.type !== "autodelic-booking-height") return;
+                var h = Number(event.data.height);
+                if (!h || !isFinite(h)) return;
+                iframe.style.height = Math.max(980, Math.min(h + 24, 8000)) + "px";
+              } catch (e) {}
+            });
+          })();
+        </script>
+      </section>
+
       <!-- home-slider start -->
       <section class="home-slider">
         <div class="swiper-wrapper">
@@ -454,60 +509,6 @@
             </div>
           </div>
         </div>
-      </section>
-
-      <section class="dark-bg-2 top-bottom-padding-120" id="zakazi">
-        <div class="container small">
-          <div class="text-center bottom-padding-60">
-            <h2 class="medium-title red-color">Online zakazivanje</h2>
-            <p class="p-style-bold-up text-height-20 text-color-4 top-margin-20" style="max-width: 640px; margin: 0 auto">
-              Birate <strong>uslugu</strong> (trajanje i cena), <strong>vozilo</strong> i <strong>slobodan termin</strong>.
-              Brza prijava Google nalogom — isti sadržaj kao na stranici
-              <a href="/zakazivanje" class="pointer-large animsition-link" style="color: inherit; text-decoration: underline"
-                >/zakazivanje</a
-              >.
-            </p>
-            <div class="top-margin-30">
-              <div class="border-btn-box border-btn-red pointer-large" style="display: inline-block">
-                <div class="border-btn-inner">
-                  <a href="/zakazivanje" class="border-btn" data-text="Otvori punu stranicu">Otvori punu stranicu</a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="top-margin-10">
-            <iframe
-              id="booking-embed"
-              title="Online zakazivanje — Auto Delić"
-              src="/zakazivanje/embed"
-              style="
-                width: 100%;
-                height: 980px;
-                border: 1px solid rgba(255, 191, 0, 0.22);
-                border-radius: 2px;
-                background: rgba(17, 21, 23, 0.85);
-              "
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-            ></iframe>
-          </div>
-        </div>
-
-        <script>
-          (function () {
-            var iframe = document.getElementById("booking-embed");
-            if (!iframe) return;
-            window.addEventListener("message", function (event) {
-              try {
-                if (!event || !event.data || event.data.type !== "autodelic-booking-height") return;
-                var h = Number(event.data.height);
-                if (!h || !isFinite(h)) return;
-                iframe.style.height = Math.max(720, Math.min(h + 24, 5000)) + "px";
-              } catch (e) {}
-            });
-          })();
-        </script>
       </section>
 
       <section id="services" class="light-bg-1 bottom-padding-30 top-padding-120" data-midnight="black">
