@@ -14,6 +14,16 @@ const envSchema = z.object({
   RESEND_FROM: z.string().min(3).default("Auto Delić <onboarding@resend.dev>"),
   RESEND_REPLY_TO: z.string().optional(),
   ADMIN_BOOKING_NOTIFY_EMAIL: z.string().optional(),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().optional(),
+  SMTP_SECURE: z
+    .union([z.literal("true"), z.literal("false")])
+    .optional()
+    .transform((v) => (v === undefined ? undefined : v === "true")),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  MAIL_FROM: z.string().optional(),
+  MAIL_ADMIN_TO: z.string().optional(),
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   APP_URL: z.string().url().optional(),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),

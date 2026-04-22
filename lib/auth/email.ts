@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { env } from "@/lib/env";
+import { sendMailViaSmtp, smtpConfigured } from "@/lib/email/smtp";
 
 let resendClient: Resend | null = null;
 const FALLBACK_FROM = "Auto Delić <onboarding@resend.dev>";
@@ -28,11 +29,6 @@ function escapeHtml(value: string) {
 }
 
 export async function sendOtpEmail({ to, code }: { to: string; code: string }) {
-  const resend = getResend();
-  if (!resend) {
-    return { sent: false as const, reason: "RESEND_API_KEY missing" };
-  }
-
   const subject = "Auto Delić — kod za prijavu";
   const text = `Vaš jednokratni kod: ${code}\nVaži 10 minuta.\nAko niste Vi tražili prijavu, ignorišite poruku.`;
   const html = `
@@ -46,6 +42,16 @@ export async function sendOtpEmail({ to, code }: { to: string; code: string }) {
     </div>`;
 
   const replyTo = env.RESEND_REPLY_TO?.trim();
+
+  if (smtpConfigured()) {
+    return await sendMailViaSmtp({ to, subject, text, html, replyTo: replyTo || undefined });
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    return { sent: false as const, reason: "SMTP/RESEND not configured" };
+  }
+
   const r = await resend.emails.send({
     from: resolveFrom(),
     to,
@@ -70,9 +76,18 @@ export async function notifyAdminInbox({
   subject: string;
   text: string;
 }) {
+  if (smtpConfigured()) {
+    return await sendMailViaSmtp({
+      to,
+      subject,
+      text,
+      replyTo: env.RESEND_REPLY_TO || undefined,
+    });
+  }
+
   const resend = getResend();
   if (!resend) {
-    return { sent: false as const, reason: "RESEND_API_KEY missing" };
+    return { sent: false as const, reason: "SMTP/RESEND not configured" };
   }
   await resend.emails.send({
     from: resolveFrom(),
@@ -91,15 +106,74 @@ export async function sendBookingConfirmationEmail({
   to: string;
   startsAtIso: string;
 }) {
-  const resend = getResend();
-  if (!resend) {
-    return { sent: false as const, reason: "RESEND_API_KEY missing" };
-  }
   const when = new Date(startsAtIso).toLocaleString("sr-RS", {
     timeZone: "Europe/Belgrade",
   });
   const subject = "Auto Delić — zahtev za termin je primljen";
   const text = `Zdravo,\n\nVaš zahtev za termin tehničkog pregleda (${when}) je primljen. Uskoro ćete dobiti potvrdu.\n\nAuto Delić`;
+
+  if (smtpConfigured()) {
+    return await sendMailViaSmtp({
+      to,
+      subject,
+      text,
+      replyTo: env.RESEND_REPLY_TO || undefined,
+    });
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    return { sent: false as const, reason: "SMTP/RESEND not configured" };
+  }
+  await resend.emails.send({
+    from: resolveFrom(),
+    to,
+    replyTo: env.RESEND_REPLY_TO || undefined,
+    subject,
+    text,
+  });
+  return { sent: true as const };
+}
+
+export async function sendBookingUpdateEmail({
+  to,
+  startsAtIso,
+  status,
+  workerNotes,
+}: {
+  to: string;
+  startsAtIso: string;
+  status: string;
+  workerNotes?: string | null;
+}) {
+  const when = new Date(startsAtIso).toLocaleString("sr-RS", {
+    timeZone: "Europe/Belgrade",
+  });
+  const subject = `Auto Delić — ažuriranje termina (${when})`;
+  const lines = [
+    "Zdravo,",
+    "",
+    `Termin: ${when}`,
+    `Status: ${status}`,
+    workerNotes ? `Napomena servisera: ${workerNotes}` : null,
+    "",
+    "Auto Delić",
+  ].filter(Boolean);
+  const text = lines.join("\n");
+
+  if (smtpConfigured()) {
+    return await sendMailViaSmtp({
+      to,
+      subject,
+      text,
+      replyTo: env.RESEND_REPLY_TO || undefined,
+    });
+  }
+
+  const resend = getResend();
+  if (!resend) {
+    return { sent: false as const, reason: "SMTP/RESEND not configured" };
+  }
   await resend.emails.send({
     from: resolveFrom(),
     to,
