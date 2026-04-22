@@ -1,9 +1,4 @@
-import dynamic from "next/dynamic";
-
-const ZakazivanjeClient = dynamic(
-  () => import("@/components/ZakazivanjeClient").then((m) => m.ZakazivanjeClient),
-  { ssr: false, loading: () => <p className="p-style-bold-up text-color-4 top-margin-20">Učitavanje…</p> }
-);
+import { ZakazivanjeClient } from "@/components/ZakazivanjeClient";
 
 export const metadata = {
   title: "Online zakazivanje — tehnički pregled",
