@@ -16,4 +16,9 @@ if (!hasDbUrl()) {
 }
 
 console.log("[migrate-ci] Pokrećem drizzle-kit migrate…");
-execSync("npx drizzle-kit migrate", { stdio: "inherit", env: process.env });
+try {
+  execSync("npx drizzle-kit migrate", { stdio: "inherit", env: process.env });
+} catch (e) {
+  console.error("[migrate-ci] drizzle-kit migrate nije uspeo. Uobičajeno: migracija je već ručno primenjena (npr. tip `inspection_result` već postoji) ili fali konekcija. Proveri Neon log / sql.");
+  process.exit(1);
+}

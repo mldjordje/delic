@@ -1,4 +1,8 @@
-CREATE TYPE "public"."inspection_result" AS ENUM('passed', 'failed');
+DO $$ BEGIN
+	CREATE TYPE "public"."inspection_result" AS ENUM('passed', 'failed');
+EXCEPTION
+	WHEN duplicate_object THEN null;
+END $$;
 --> statement-breakpoint
 ALTER TABLE "services" ADD COLUMN IF NOT EXISTS "calendar_enabled" boolean DEFAULT true NOT NULL;
 --> statement-breakpoint
