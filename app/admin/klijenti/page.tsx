@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type ClientRow = {
   id: string;
@@ -70,7 +71,11 @@ export default function AdminKlijentiPage() {
                 })
                 .map((c) => (
                 <tr key={c.id} style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                  <td style={{ padding: 8 }}>{c.fullName || "—"}</td>
+                  <td style={{ padding: 8 }}>
+                    <Link className="admin-template-link-btn" href={`/admin/klijenti/${c.id}`} style={{ padding: "6px 10px" }}>
+                      {c.fullName || "—"}
+                    </Link>
+                  </td>
                   <td style={{ padding: 8 }}>{c.email || "—"}</td>
                   <td style={{ padding: 8 }}>{c.phone || "—"}</td>
                   <td style={{ padding: 8 }}>{c.vehicleCount}</td>

@@ -9,11 +9,12 @@ import type { EventClickArg } from "@fullcalendar/core";
 
 type BookingRow = {
   id: string;
+  userId: string;
   startsAt: string;
   endsAt: string;
   status: string;
   workerNotes: string | null;
-  vehicle: { make: string; year: number };
+  vehicle: { make: string; year: number; plateNumber?: string | null; registrationExpiresOn?: string };
   serviceName?: string;
   client: { email: string | null; phone: string | null; fullName: string | null };
 };
@@ -377,9 +378,54 @@ export default function AdminKalendarPage() {
           }}
         >
           <h3 style={{ marginTop: 0 }}>Termin</h3>
-          <p style={{ fontSize: 14, color: "#94a3b8" }}>
-            {active.client.fullName || active.client.email} · {active.vehicle.make}
+          <p style={{ fontSize: 14, color: "#94a3b8", marginTop: 6 }}>
+            {new Date(active.startsAt).toLocaleString("sr-RS", { timeZone: "Europe/Belgrade" })}{" "}
+            {active.serviceName ? `· ${active.serviceName}` : ""}
           </p>
+
+          {active.status !== "blocked" ? (
+            <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ minWidth: 220 }}>
+                  <p style={{ margin: 0, fontSize: 14, color: "#e2e8f0" }}>
+                    {active.client.fullName || "—"}
+                  </p>
+                  <p style={{ margin: "6px 0 0", fontSize: 13, color: "#94a3b8" }}>
+                    {active.client.email || "—"} {active.client.phone ? `· ${active.client.phone}` : ""}
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {active.client.phone ? (
+                    <a className="admin-template-link-btn" href={`tel:${active.client.phone}`}>
+                      Pozovi
+                    </a>
+                  ) : null}
+                  {active.client.phone ? (
+                    <a className="admin-template-link-btn" href={`sms:${active.client.phone}`}>
+                      Pošalji poruku
+                    </a>
+                  ) : null}
+                  {active.userId ? (
+                    <a className="admin-template-link-btn" href={`/admin/klijenti/${active.userId}`}>
+                      Profil klijenta
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 13, color: "#94a3b8" }}>
+                  Vozilo: <span style={{ color: "#e2e8f0" }}>{active.vehicle.make} ({active.vehicle.year})</span>
+                  {active.vehicle.plateNumber ? ` · ${active.vehicle.plateNumber}` : ""}
+                  {active.vehicle.registrationExpiresOn ? ` · reg. do ${active.vehicle.registrationExpiresOn}` : ""}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <p style={{ marginTop: 12, fontSize: 14, color: "#94a3b8" }}>
+              Blokada: {active.workerNotes || "—"}
+            </p>
+          )}
           <label className="admin-field">
             <span>Status</span>
             <select value={status} onChange={(e) => setStatus(e.target.value)} className="admin-input">

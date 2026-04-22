@@ -60,11 +60,29 @@ export async function GET(request: Request) {
     .orderBy(desc(schema.bookings.startsAt));
 
   const employee = await getDefaultEmployee();
-  const blocked = await db
-    .select()
-    .from(schema.blockedSlots)
-    .where(and(eq(schema.blockedSlots.employeeId, employee.id), gte(schema.blockedSlots.startsAt, start), lte(schema.blockedSlots.startsAt, end)))
-    .orderBy(desc(schema.blockedSlots.startsAt));
+  let blocked: (typeof schema.blockedSlots.$inferSelect)[] = [];
+  try {
+    blocked = await db
+      .select()
+      .from(schema.blockedSlots)
+      .where(
+        and(
+          eq(schema.blockedSlots.employeeId, employee.id),
+          gte(schema.blockedSlots.startsAt, start),
+          lte(schema.blockedSlots.startsAt, end)
+        )
+      )
+      .orderBy(desc(schema.blockedSlots.startsAt));
+  } catch (e) {
+    // Backwards-compatible if migration isn't applied yet
+    const anyErr = e as any;
+    const code = typeof anyErr?.code === "string" ? anyErr.code : "";
+    const msg = typeof anyErr?.message === "string" ? anyErr.message : "";
+    const missing = code === "42P01" || (msg.toLowerCase().includes("relation") && msg.toLowerCase().includes("does not exist"));
+    if (!missing) {
+      throw e;
+    }
+  }
 
   return ok({
     ok: true,
