@@ -6,7 +6,7 @@ export const GOOGLE_OAUTH_NEXT_COOKIE = "autodelic_google_oauth_next";
 /** Mora biti identičan pri /authorize i pri /token — čuva se u cookie tokom flow-a. */
 export const GOOGLE_OAUTH_REDIRECT_COOKIE = "autodelic_google_oauth_redirect_uri";
 
-const PRODUCTION_FALLBACK_BASE_URL = "https://autodelic.com";
+const PRODUCTION_FALLBACK_BASE_URL = "https://www.autodelic.com";
 
 export function getGoogleOauthCookieOptions(hostHeader?: string | null) {
   return {
@@ -64,12 +64,11 @@ function getConfiguredBaseUrl() {
 function getRequestBaseUrl(request: Request) {
   try {
     const origin = new URL(request.url).origin.replace(/\/+$/, "");
-    // Normalize www → apex for our domain to avoid broken OAuth callbacks
-    // when www DNS isn't configured.
+    // Normalize apex → www to match production domain routing.
     try {
       const u = new URL(origin);
-      if (u.hostname === "www.autodelic.com") {
-        return `${u.protocol}//autodelic.com`;
+      if (u.hostname === "autodelic.com") {
+        return `${u.protocol}//www.autodelic.com`;
       }
     } catch {}
     return origin;
@@ -85,8 +84,8 @@ function getRequestBaseUrl(request: Request) {
     request.headers.get("host");
 
   if (!host) return `${proto}://localhost:3000`;
-  // Normalize www → apex for our domain to avoid broken OAuth callbacks.
-  const normalizedHost = host === "www.autodelic.com" ? "autodelic.com" : host;
+  // Normalize apex → www to match production domain routing.
+  const normalizedHost = host === "autodelic.com" ? "www.autodelic.com" : host;
   return `${proto}://${normalizedHost}`;
 }
 
