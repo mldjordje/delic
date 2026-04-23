@@ -3,7 +3,12 @@
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
-export function PrijavaPageClient() {
+type Props = {
+  /** Kanonski origin (npr. https://www.autodelic.com) da OAuth uvek krene na istom hostu kao callback. */
+  oauthStartUrl?: string;
+};
+
+export function PrijavaPageClient({ oauthStartUrl }: Props) {
   const sp = useSearchParams();
   const nextPath = sp.get("next") || "/nalog";
   const reason = sp.get("reason");
@@ -33,7 +38,10 @@ export function PrijavaPageClient() {
     }
   }, [reason]);
 
-  const googleHref = `/api/auth/google?next=${encodeURIComponent(nextPath)}`;
+  const googleBase = (oauthStartUrl || "").trim().replace(/\/+$/, "");
+  const googleHref = googleBase
+    ? `${googleBase}/api/auth/google?next=${encodeURIComponent(nextPath)}`
+    : `/api/auth/google?next=${encodeURIComponent(nextPath)}`;
 
   return (
     <div className="dark-bg-2 client-card">

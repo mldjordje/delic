@@ -100,14 +100,26 @@ export function getBaseUrl(request: Request) {
 }
 
 export function getGoogleRedirectUri(request: Request) {
-  const configuredRedirectUri = normalizeUrlValue(process.env.GOOGLE_REDIRECT_URI);
   const requestBaseUrl = getRequestBaseUrl(request);
+  const derived = `${requestBaseUrl}/api/auth/google/callback`;
+  const configuredRedirectUri = normalizeUrlValue(process.env.GOOGLE_REDIRECT_URI);
   const requestHost = requestBaseUrl ? new URL(requestBaseUrl).hostname : "";
 
-  if (configuredRedirectUri && requestHost && !requestHost.endsWith(".vercel.app")) {
-    return configuredRedirectUri;
+  if (!configuredRedirectUri || requestHost.endsWith(".vercel.app")) {
+    return derived;
   }
-  return `${getBaseUrl(request)}/api/auth/google/callback`;
+  try {
+    const cfg = new URL(configuredRedirectUri);
+    const cur = new URL(requestBaseUrl);
+    // If Vercel has GOOGLE_REDIRECT_URI for apex but users hit www (or obrnuto),
+    // Google token exchange fails. Only trust configured URI when host matches.
+    if (cfg.hostname === cur.hostname) {
+      return configuredRedirectUri;
+    }
+  } catch {
+    return derived;
+  }
+  return derived;
 }
 
 export function createGoogleOauthState() {

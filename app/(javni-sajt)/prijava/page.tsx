@@ -1,8 +1,29 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { headers } from "next/headers";
 import { PrijavaPageClient } from "@/components/PrijavaPageClient";
 
-export default function PrijavaPage() {
+function oauthStartUrlFromHeaders(headerList: Headers) {
+  const hostHeader =
+    headerList.get("x-forwarded-host")?.split(",")[0]?.trim() || headerList.get("host") || "";
+  const proto = (headerList.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https").replace(
+    /:$/,
+    ""
+  );
+  try {
+    const origin = new URL(`${proto}://${hostHeader}`).origin;
+    const hn = new URL(origin).hostname.toLowerCase();
+    if (hn === "autodelic.com" || hn === "www.autodelic.com") return "https://www.autodelic.com";
+    return origin;
+  } catch {
+    return "";
+  }
+}
+
+export default async function PrijavaPage() {
+  const headerList = await headers();
+  const oauthStartUrl = oauthStartUrlFromHeaders(headerList);
+
   return (
     <main className="dark-bg-1">
       <div className="container top-bottom-padding-120">
@@ -19,7 +40,7 @@ export default function PrijavaPage() {
             </div>
           }
         >
-          <PrijavaPageClient />
+          <PrijavaPageClient oauthStartUrl={oauthStartUrl || undefined} />
         </Suspense>
       </div>
     </main>

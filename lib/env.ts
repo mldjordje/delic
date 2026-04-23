@@ -10,6 +10,8 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GOOGLE_REDIRECT_URI: z.string().url().optional(),
+  /** Zarezom odvojeni mejlovi radnika — pri prijavi dobijaju ulogu staff (pored RAW_STAFF_EMAILS u kodu). */
+  STAFF_LOGIN_EMAILS: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM: z.string().min(3).default("Auto Delić <onboarding@resend.dev>"),
   RESEND_REPLY_TO: z.string().optional(),
