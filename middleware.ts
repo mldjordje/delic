@@ -92,7 +92,9 @@ export async function middleware(request: NextRequest) {
 
   const role = String(session.role || "");
   if (role !== "admin" && role !== "staff") {
-    return forbidden(request);
+    // If someone has a session but not an allowed backoffice role,
+    // redirect them out of /admin to avoid an infinite redirect loop.
+    return unauthorized(request);
   }
 
   const isAdminOnlyPage = ADMIN_ONLY_PAGE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
