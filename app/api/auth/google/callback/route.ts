@@ -189,10 +189,18 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     const isClient = user.role === "client";
+    const isBackoffice = user.role === "admin" || user.role === "staff";
     const mustCompleteProfile =
       isClient && (!String(profileRow?.fullName || "").trim() || !String(user.phone || "").trim());
 
-    const finalNextPath = mustCompleteProfile ? "/profile?complete=1" : sanitizeNextPath(nextPath);
+    let finalNextPath: string;
+    if (mustCompleteProfile) {
+      finalNextPath = "/profile?complete=1";
+    } else if (isBackoffice && !sanitizeNextPath(nextPath).startsWith("/admin")) {
+      finalNextPath = "/admin/kalendar";
+    } else {
+      finalNextPath = sanitizeNextPath(nextPath);
+    }
 
     const successRedirect = new URL(finalNextPath, getBaseUrl(request));
     const response = NextResponse.redirect(successRedirect);
