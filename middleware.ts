@@ -65,16 +65,6 @@ const ADMIN_ONLY_API_PREFIXES = [
 ];
 
 export async function middleware(request: NextRequest) {
-  const host = request.headers.get("host") || "";
-  // Canonicalize apex → www to match production domain routing.
-  // Avoid apex<->www redirect loops (platform redirect + middleware redirect).
-  if (host.split(":")[0]?.toLowerCase() === "autodelic.com") {
-    const url = request.nextUrl.clone();
-    url.hostname = "www.autodelic.com";
-    url.protocol = "https:";
-    return NextResponse.redirect(url, 308);
-  }
-
   const path = request.nextUrl.pathname;
   if (request.method === "OPTIONS") {
     return NextResponse.next();
