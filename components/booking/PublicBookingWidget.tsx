@@ -42,7 +42,7 @@ function dayLabel(date: string) {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: "easeOut" } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: "easeOut" as const } },
 };
 
 export function PublicBookingWidget({ className }: { className?: string }) {
