@@ -33,15 +33,10 @@ function dayLabel(date: string) {
   });
 }
 
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
 const slideUp = {
   hidden: { opacity: 0, y: 22 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
-};
+} as const;
 
 const selectClass =
   "h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-foreground " +
@@ -171,15 +166,10 @@ export function PublicBookingWidget({ className }: { className?: string }) {
   const availableSlots = slots.filter((s) => s.available);
 
   return (
-    <motion.div
-      className={cn("space-y-4", className)}
-      variants={stagger}
-      initial="hidden"
-      animate="visible"
-    >
+    <div className={cn("space-y-4", className)}>
       {/* Loading */}
       {!authChecked ? (
-        <motion.div variants={slideUp}>
+        <motion.div initial="hidden" animate="visible" variants={slideUp}>
           <div className="rounded-2xl border border-white/8 bg-white/4 p-8 text-center">
             <p className="text-sm text-muted-foreground">Učitavanje…</p>
           </div>
@@ -188,7 +178,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
 
       {/* Prijava */}
       {authChecked && !loggedIn ? (
-        <motion.div variants={slideUp}>
+        <motion.div initial="hidden" animate="visible" variants={slideUp}>
           <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/8 via-card/80 to-card/60 p-6 shadow-lg shadow-black/20 backdrop-blur-sm">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent pointer-events-none" />
             <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -210,7 +200,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
       ) : null}
 
       {/* ─── KORAK 1 — USLUGA ─── */}
-      <motion.div variants={slideUp}>
+      <motion.div initial="hidden" animate="visible" variants={slideUp}>
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-card/95 to-card/70 shadow-lg shadow-black/20 backdrop-blur-sm">
           {/* zlatna linija na vrhu */}
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
@@ -272,7 +262,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
       {loggedIn ? (
         <>
           {/* ─── KORAK 2 — VOZILO ─── */}
-          <motion.div variants={slideUp}>
+          <motion.div initial="hidden" animate="visible" variants={slideUp}>
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-card/95 to-card/70 shadow-lg shadow-black/20 backdrop-blur-sm">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
 
@@ -422,7 +412,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
           </motion.div>
 
           {/* ─── KORAK 3 — DATUM & TERMIN ─── */}
-          <motion.div variants={slideUp}>
+          <motion.div initial="hidden" animate="visible" variants={slideUp}>
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-card/95 to-card/70 shadow-lg shadow-black/20 backdrop-blur-sm">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
 
@@ -573,6 +563,6 @@ export function PublicBookingWidget({ className }: { className?: string }) {
           </motion.div>
         ) : null}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }

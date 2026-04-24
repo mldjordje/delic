@@ -250,6 +250,33 @@
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+/* Cursor: legacy style.css je imao globalno cursor:none — vraćamo na browser default */
+.autodelic-client-site,
+.autodelic-client-site * {
+  cursor: auto;
+}
+.autodelic-client-site a,
+.autodelic-client-site button,
+.autodelic-client-site [role="button"],
+.autodelic-client-site select,
+.autodelic-client-site label,
+.autodelic-client-site input[type="checkbox"],
+.autodelic-client-site input[type="radio"],
+.autodelic-client-site input[type="submit"],
+.autodelic-client-site input[type="button"],
+.autodelic-client-site .pointer-large {
+  cursor: pointer;
+}
+.autodelic-client-site input[type="text"],
+.autodelic-client-site input[type="email"],
+.autodelic-client-site input[type="password"],
+.autodelic-client-site input[type="search"],
+.autodelic-client-site input[type="number"],
+.autodelic-client-site input[type="tel"],
+.autodelic-client-site textarea {
+  cursor: text;
+}
+
 /* --- Next.js: nema jQuery animsition/midnight skripte kao na public/index.html --- */
 
 /* globals.css (#root body) i legacy body overflow — omogući skrol */
