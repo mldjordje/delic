@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 
 const MAX_BYTES = 8 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_FOLDERS = new Set(["polovni", "blog"]);
 
 export async function POST(request: Request) {
   const auth = await requireAdmin();
@@ -29,6 +30,9 @@ export async function POST(request: Request) {
     return fail(400, "Očekuje se polje file (slika).");
   }
 
+  const folderRaw = form.get("folder");
+  const folder = typeof folderRaw === "string" && ALLOWED_FOLDERS.has(folderRaw) ? folderRaw : "polovni";
+
   if (file.size === 0) {
     return fail(400, "Prazan fajl.");
   }
@@ -42,7 +46,7 @@ export async function POST(request: Request) {
   }
 
   const ext = type === "image/jpeg" ? "jpg" : type === "image/png" ? "png" : "webp";
-  const pathname = `polovni/${crypto.randomUUID()}.${ext}`;
+  const pathname = `${folder}/${crypto.randomUUID()}.${ext}`;
 
   try {
     const blob = await put(pathname, file, {
