@@ -12,12 +12,17 @@ export const metadata: Metadata = {
 export const revalidate = 120;
 
 export default async function BlogListPage() {
-  const db = getDb();
-  const posts = await db
-    .select()
-    .from(schema.blogPosts)
-    .where(eq(schema.blogPosts.isPublished, true))
-    .orderBy(desc(schema.blogPosts.createdAt));
+  let posts: any[] = [];
+  try {
+    const db = getDb();
+    posts = await db
+      .select()
+      .from(schema.blogPosts)
+      .where(eq(schema.blogPosts.isPublished, true))
+      .orderBy(desc(schema.blogPosts.createdAt));
+  } catch {
+    posts = [];
+  }
 
   return (
     <main className="dark-bg-1">

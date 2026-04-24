@@ -7,3 +7,5 @@ drizzle/meta/*.json
 !drizzle/meta/_journal.json
 .DS_Store
 *.log
+*.tsbuildinfo
+index-legacy.php

@@ -1,0 +1,7 @@
+# Auto Delić — AI / LLM guidance
+#
+# This file intentionally mirrors the key parts of llms.txt.
+# Prefer: /llms.txt
+
+See: /llms.txt
+

@@ -11,12 +11,18 @@ export const revalidate = 120;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const db = getDb();
-  const [post] = await db
-    .select()
-    .from(schema.blogPosts)
-    .where(and(eq(schema.blogPosts.slug, slug), eq(schema.blogPosts.isPublished, true)))
-    .limit(1);
+  let post: any | null = null;
+  try {
+    const db = getDb();
+    const [p] = await db
+      .select()
+      .from(schema.blogPosts)
+      .where(and(eq(schema.blogPosts.slug, slug), eq(schema.blogPosts.isPublished, true)))
+      .limit(1);
+    post = p ?? null;
+  } catch {
+    post = null;
+  }
   if (!post) {
     return { title: "Nije pronađeno" };
   }
@@ -31,12 +37,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const db = getDb();
-  const [post] = await db
-    .select()
-    .from(schema.blogPosts)
-    .where(and(eq(schema.blogPosts.slug, slug), eq(schema.blogPosts.isPublished, true)))
-    .limit(1);
+  let post: any | null = null;
+  try {
+    const db = getDb();
+    const [p] = await db
+      .select()
+      .from(schema.blogPosts)
+      .where(and(eq(schema.blogPosts.slug, slug), eq(schema.blogPosts.isPublished, true)))
+      .limit(1);
+    post = p ?? null;
+  } catch {
+    post = null;
+  }
   if (!post) {
     notFound();
   }
@@ -61,7 +73,7 @@ export default async function BlogPostPage({ params }: Props) {
           {post.excerpt}
         </p>
         {Array.isArray(post.imageUrls) &&
-          post.imageUrls.map((u, i) => (
+          post.imageUrls.map((u: string, i: number) => (
             <p key={i} className="top-margin-30" style={{ margin: "24px 0" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

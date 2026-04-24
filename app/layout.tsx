@@ -17,9 +17,27 @@ export const metadata: Metadata = {
     siteName: "Auto Delić",
     type: "website",
     locale: "sr_RS",
+    url: "/",
+    images: [
+      {
+        url: "/assets/images/logonovi.png",
+        width: 512,
+        height: 512,
+        alt: "Auto Delić",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Auto Delić — tehnički pregled vozila",
+    description: "Tehnički pregled vozila, servis, polovni automobili — Niš. Online nalog, zakazivanje tehničkog pregleda.",
+    images: ["/assets/images/logonovi.png"],
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },
+  icons: {
+    icon: [{ url: "/favicon.png" }],
+  },
 };
 
 const openSans = Open_Sans({

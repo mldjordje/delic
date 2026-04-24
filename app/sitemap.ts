@@ -5,9 +5,9 @@ import { getPublicAppUrl } from "@/lib/env";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getPublicAppUrl();
-  const db = getDb();
   let posts: { slug: string; updatedAt: Date }[] = [];
   try {
+    const db = getDb();
     posts = await db
       .select({ slug: schema.blogPosts.slug, updatedAt: schema.blogPosts.updatedAt })
       .from(schema.blogPosts)
