@@ -5552,12 +5552,12 @@ body.anim .load-title-fill:after {
 }
 
 button.mfp-arrow,
-.mfp-zoom-out-cur, 
+.mfp-zoom-out-cur,
 .mfp-zoom-out-cur .mfp-image-holder .mfp-close,
 .mfp-close,
 .mfp-zoom,
 .mfp-gallery .mfp-image-holder .mfp-figure {
-	cursor: none !important;
+	cursor: auto !important;
 }
 
 .mfp-arrow-left, 
@@ -6372,7 +6372,7 @@ button.mfp-close {
 
 /* 15.4. Swiper pagination */
 .swiper-pagination-clickable .swiper-pagination-bullet {
-  	cursor: none;
+  	cursor: pointer;
 }
 
 .swiper-pagination-bullets {
@@ -6842,7 +6842,7 @@ body.anim.out .portfolio-slider .swiper-pagination-bullet {
   	width: 50px;
   	height: 26px;
   	margin-top: 0;
-  	cursor: none;
+  	cursor: pointer;
   	background-image: none;
   	overflow: hidden;
 }
@@ -8975,7 +8975,7 @@ textarea.form-input {
 	border: 0;
 	background: transparent;
 	margin: 0 15px;
-	cursor: none;
+	cursor: pointer;
 	outline: 0;
 	position: relative;
 	color: transparent;
