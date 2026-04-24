@@ -89,13 +89,16 @@ export async function notifyAdminInbox({
   if (!resend) {
     return { sent: false as const, reason: "SMTP/RESEND not configured" };
   }
-  await resend.emails.send({
+  const r = await resend.emails.send({
     from: resolveFrom(),
     to,
     replyTo: env.RESEND_REPLY_TO || undefined,
     subject,
     text,
   });
+  if (r?.error) {
+    return { sent: false as const, reason: r.error.message };
+  }
   return { sent: true as const };
 }
 
