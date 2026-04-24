@@ -1503,9 +1503,7 @@ input[type="submit"]:hover {
 /*--------------------------------------------------------------
 2. Custom mouse cursor
 --------------------------------------------------------------*/
-* {
-	cursor: none;
-}
+/* custom cursor disabled – restored to browser default */
 
 .pointer {
 	position: fixed;

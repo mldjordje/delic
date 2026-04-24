@@ -57,7 +57,6 @@ export function NalogClient() {
   const [newPlateNumber, setNewPlateNumber] = useState("");
   const [newModel, setNewModel] = useState("");
   const [newFuelType, setNewFuelType] = useState("");
-  const [newVin, setNewVin] = useState("");
   const [newReg, setNewReg] = useState("");
   const [newHasLpgOrMethane, setNewHasLpgOrMethane] = useState(false);
   const [newLpgMethaneCertificateExpiresOn, setNewLpgMethaneCertificateExpiresOn] = useState("");
@@ -161,7 +160,6 @@ export function NalogClient() {
         plateNumber: newPlateNumber.trim().toUpperCase(),
         model: newModel.trim() || null,
         fuelType: newFuelType,
-        vin: newVin.trim() || null,
         year: newYear,
         registrationExpiresOn: newReg,
         hasLpgOrMethane: newHasLpgOrMethane,
@@ -179,7 +177,6 @@ export function NalogClient() {
     setNewPlateNumber("");
     setNewModel("");
     setNewFuelType("");
-    setNewVin("");
     setNewReg("");
     setNewHasLpgOrMethane(false);
     setNewLpgMethaneCertificateExpiresOn("");
@@ -304,10 +301,6 @@ export function NalogClient() {
                   <option value="cng">CNG</option>
                   <option value="other">Drugo</option>
                 </select>
-              </label>
-              <label className="client-field" style={{ flexBasis: "100%" }}>
-                <span className="client-label">VIN (opciono)</span>
-                <input className="client-input" value={newVin} onChange={(e) => setNewVin(e.target.value)} placeholder="npr. WVWZZZ..." />
               </label>
             </div>
 

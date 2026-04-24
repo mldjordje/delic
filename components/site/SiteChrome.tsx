@@ -33,7 +33,6 @@ const NAV: NavItem[] = [
   { href: "/nalog", label: "Moj nalog" },
   { href: "/nalog#vozila", label: "Moja vozila" },
   { href: "/contact.html", label: "Kontakt" },
-  { href: "/admin", label: "Admin" },
 ];
 
 function pathMatches(pathname: string, href: string) {
