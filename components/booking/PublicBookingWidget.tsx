@@ -452,7 +452,7 @@ export function PublicBookingWidget({ className }: { className?: string }) {
                               {busy ? "Čuvam…" : "Sačuvaj vozilo"}
                             </Button>
                             <p className="text-xs text-muted-foreground">
-                              Ostale detalje možete dopuniti u „Moj nalog".
+                              {`Ostale detalje možete dopuniti u „Moj nalog".`}
                             </p>
                           </div>
                         </form>
