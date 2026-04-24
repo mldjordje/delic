@@ -33,7 +33,7 @@ const envSchema = z.object({
   CORS_ALLOWED_ORIGINS: z.string().optional(),
   GARAGE_DEFAULT_EMPLOYEE_SLUG: z.string().default("auto-delic-lane-1"),
   CLINIC_WORKDAY_START: z.string().default("08:00"),
-  CLINIC_WORKDAY_END: z.string().default("17:00"),
+  CLINIC_WORKDAY_END: z.string().default("22:00"),
   CLINIC_SATURDAY_START: z.string().default("08:00"),
   CLINIC_SATURDAY_END: z.string().default("14:00"),
   CLINIC_SLOT_MINUTES: z.coerce.number().int().min(15).max(120).default(30),

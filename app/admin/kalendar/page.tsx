@@ -350,7 +350,7 @@ export default function AdminKalendarPage() {
             locale="sr"
             firstDay={1}
             slotMinTime="06:00:00"
-            slotMaxTime="21:00:00"
+            slotMaxTime="22:00:00"
             height="auto"
             events={events}
             eventClick={handleEventClick}

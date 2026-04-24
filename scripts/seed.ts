@@ -41,7 +41,7 @@ async function main() {
       slotMinutes: 30,
       bookingWindowDays: 31,
       workdayStart: "08:00",
-      workdayEnd: "17:00",
+      workdayEnd: "22:00",
       saturdayStart: "08:00",
       saturdayEnd: "14:00",
     });

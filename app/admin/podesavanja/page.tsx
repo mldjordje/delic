@@ -102,7 +102,7 @@ export default function AdminPodesavanjaPage() {
               className="admin-input"
               value={s.workdayEnd}
               onChange={(e) => setS({ ...s, workdayEnd: e.target.value })}
-              placeholder="17:00"
+              placeholder="22:00"
             />
           </label>
           <label className="admin-field">

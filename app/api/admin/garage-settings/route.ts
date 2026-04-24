@@ -57,7 +57,7 @@ export async function PATCH(request: Request) {
         slotMinutes: parsed.data.slotMinutes ?? 30,
         bookingWindowDays: parsed.data.bookingWindowDays ?? 31,
         workdayStart: parsed.data.workdayStart ?? "08:00",
-        workdayEnd: parsed.data.workdayEnd ?? "17:00",
+        workdayEnd: parsed.data.workdayEnd ?? "22:00",
         saturdayStart: parsed.data.saturdayStart ?? "08:00",
         saturdayEnd: parsed.data.saturdayEnd ?? "14:00",
       })
