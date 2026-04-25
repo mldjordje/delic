@@ -152,23 +152,29 @@ export async function POST(request: Request) {
     return withCors(request, fail(500, "Greška pri zakazivanju."));
   }
 
+  console.log("[bookings:email] booking created, starting email flow", {
+    bookingId: createdBooking!.id,
+    userEmail: auth.user.email || null,
+    resendKeySet: !!process.env.RESEND_API_KEY,
+    resendFrom: process.env.RESEND_FROM || "(not set)",
+    adminNotify: process.env.MAIL_ADMIN_TO || process.env.ADMIN_BOOKING_NOTIFY_EMAIL || "(not set)",
+  });
+
   if (auth.user.email) {
     try {
       const c = await sendBookingConfirmationEmail({
         to: auth.user.email,
         startsAtIso: createdBooking!.startsAt.toISOString(),
       });
+      console.log("[bookings:email] confirmation result", c);
       if (!c?.sent) {
-        console.error(
-          "[bookings] confirmation email not sent",
-          (c as { reason?: string })?.reason
-        );
+        console.error("[bookings:email] confirmation NOT sent — reason:", (c as { reason?: string })?.reason);
       }
     } catch (e) {
-      console.error(e);
+      console.error("[bookings:email] confirmation threw exception:", e);
     }
   } else {
-    console.warn("[bookings] user has no email on file — no confirmation message sent.");
+    console.warn("[bookings:email] user has no email — skipping confirmation.");
   }
 
   const notify = String(
@@ -181,14 +187,15 @@ export async function POST(request: Request) {
         subject: "Novi zahtev za termin — Auto Delić",
         text: `Korisnik ${auth.user.email || auth.user.id} — Tehnički pregled — ${createdBooking!.startsAt.toISOString()}`,
       });
+      console.log("[bookings:email] admin notify result", r);
       if (!r?.sent) {
-        console.error("[bookings] admin notify not sent", (r as { reason?: string })?.reason);
+        console.error("[bookings:email] admin notify NOT sent — reason:", (r as { reason?: string })?.reason);
       }
     } catch (e) {
-      console.error(e);
+      console.error("[bookings:email] admin notify threw exception:", e);
     }
   } else {
-    console.warn("[bookings] Set MAIL_ADMIN_TO or ADMIN_BOOKING_NOTIFY_EMAIL to receive new booking emails.");
+    console.warn("[bookings:email] MAIL_ADMIN_TO / ADMIN_BOOKING_NOTIFY_EMAIL not set — skipping admin notify.");
   }
 
   return withCors(
