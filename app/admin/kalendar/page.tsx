@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -52,6 +52,8 @@ export default function AdminKalendarPage() {
   const [inspectionResult, setInspectionResult] = useState<"" | "passed" | "failed">("");
   const [inspectionNote, setInspectionNote] = useState("");
   const [msg, setMsg] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createStartIso, setCreateStartIso] = useState<string>("");
@@ -125,9 +127,7 @@ export default function AdminKalendarPage() {
 
   function handleEventClick(arg: EventClickArg) {
     const row = arg.event.extendedProps.row as BookingRow;
-    if (!row) {
-      return;
-    }
+    if (!row) return;
     setActive(row);
     setNotes(row.workerNotes || "");
     setStatus(row.status);
@@ -136,6 +136,7 @@ export default function AdminKalendarPage() {
     );
     setInspectionNote(row.inspectionNote || "");
     setMsg("");
+    setDeleteConfirm(false);
   }
 
   async function saveDetail() {
@@ -176,6 +177,33 @@ export default function AdminKalendarPage() {
       await loadRange(from, to);
     }
     setActive(null);
+  }
+
+  async function deleteBooking() {
+    if (!active) return;
+    setDeleting(true);
+    setMsg("");
+    const r = await fetch(`/api/admin/bookings/${active.id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const j = await r.json().catch(() => null);
+    setDeleting(false);
+    if (!r.ok) {
+      setMsg(j?.message || "Greška pri brisanju.");
+      setDeleteConfirm(false);
+      return;
+    }
+    const api = calendarRef.current?.getApi();
+    const start = api?.view.activeStart;
+    const endEx = api?.view.activeEnd;
+    if (start && endEx) {
+      const from = start.toISOString().slice(0, 10);
+      const to = new Date(endEx.getTime() - 86400000).toISOString().slice(0, 10);
+      await loadRange(from, to);
+    }
+    setActive(null);
+    setDeleteConfirm(false);
   }
 
   function openCreateFromSelection(startStr: string, endStr: string) {
@@ -330,6 +358,18 @@ export default function AdminKalendarPage() {
     setCreateOpen(false);
   }
 
+  const linkBtnStyle: React.CSSProperties = {
+    fontSize: 11,
+    padding: "4px 8px",
+    borderRadius: 6,
+    border: "1px solid rgba(255,255,255,0.1)",
+    background: "rgba(255,255,255,0.05)",
+    color: "#94a3b8",
+    textDecoration: "none",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+  };
+
   return (
     <div className="admin-stack">
       <section className="admin-card">
@@ -382,140 +422,214 @@ export default function AdminKalendarPage() {
 
       {active ? (
         <>
+          {/* Overlay */}
+          <div
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 49 }}
+            onClick={() => { setActive(null); setDeleteConfirm(false); }}
+          />
+
+          {/* Panel */}
           <div
             style={{
               position: "fixed",
-              inset: 0,
-              background: "rgba(0,0,0,0.55)",
-              zIndex: 49,
+              bottom: 16, right: 16,
+              left: isMobile ? 16 : "auto",
+              width: isMobile ? "auto" : 480,
+              maxHeight: "calc(100vh - 32px)",
+              overflowY: "auto",
+              zIndex: 50,
+              background: "rgba(10, 15, 25, 0.98)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: 16,
+              boxShadow: "0 24px 60px rgba(0,0,0,0.7)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 0,
             }}
-            onClick={() => setActive(null)}
-          />
-        <div
-          className="admin-card"
-          style={{
-            position: "fixed",
-            bottom: 16,
-            right: 16,
-            left: isMobile ? 16 : "auto",
-            maxWidth: isMobile ? 860 : 460,
-            zIndex: 50,
-            boxShadow: "0 12px 40px rgba(0,0,0,0.55)",
-            background: "rgba(12, 18, 29, 0.98)",
-            border: "1px solid rgba(217, 232, 248, 0.22)",
-            backdropFilter: "none",
-            WebkitBackdropFilter: "none",
-          }}
-        >
-          <h3 style={{ marginTop: 0 }}>Termin</h3>
-          <p style={{ fontSize: 14, color: "#94a3b8", marginTop: 6 }}>
-            {new Date(active.startsAt).toLocaleString("sr-RS", { timeZone: "Europe/Belgrade" })}{" "}
-            {active.serviceName ? `· ${active.serviceName}` : ""}
-          </p>
-
-          {active.status !== "blocked" ? (
-            <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div style={{ minWidth: 220 }}>
-                  <p style={{ margin: 0, fontSize: 14, color: "#e2e8f0" }}>
-                    {active.client.fullName || "—"}
-                  </p>
-                  <p style={{ margin: "6px 0 0", fontSize: 13, color: "#94a3b8" }}>
-                    {active.client.email || "—"} {active.client.phone ? `· ${active.client.phone}` : ""}
-                  </p>
-                </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {active.client.phone ? (
-                    <a className="admin-template-link-btn" href={`tel:${active.client.phone}`}>
-                      Pozovi
-                    </a>
-                  ) : null}
-                  {active.client.phone ? (
-                    <a className="admin-template-link-btn" href={`sms:${active.client.phone}`}>
-                      Pošalji poruku
-                    </a>
-                  ) : null}
-                  {active.userId ? (
-                    <a className="admin-template-link-btn" href={`/admin/klijenti/${active.userId}`}>
-                      Profil klijenta
-                    </a>
+          >
+            {/* Header */}
+            <div style={{ padding: "18px 20px 14px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#64748b", marginBottom: 4 }}>
+                    Termin
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#f1f5f9" }}>
+                    {new Date(active.startsAt).toLocaleString("sr-RS", { timeZone: "Europe/Belgrade", weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                  {active.serviceName ? (
+                    <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{active.serviceName}</div>
                   ) : null}
                 </div>
-              </div>
-
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 13, color: "#94a3b8" }}>
-                  Vozilo: <span style={{ color: "#e2e8f0" }}>{active.vehicle.make} ({active.vehicle.year})</span>
-                  {active.vehicle.plateNumber ? ` · ${active.vehicle.plateNumber}` : ""}
-                  {active.vehicle.registrationExpiresOn ? ` · reg. do ${active.vehicle.registrationExpiresOn}` : ""}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => { setActive(null); setDeleteConfirm(false); }}
+                  style={{ background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 8, width: 32, height: 32, color: "#94a3b8", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                >
+                  ×
+                </button>
               </div>
             </div>
-          ) : (
-            <p style={{ marginTop: 12, fontSize: 14, color: "#94a3b8" }}>
-              Blokada: {active.workerNotes || "—"}
-            </p>
-          )}
-            <label className="admin-field">
-            <span>Status</span>
-            <select
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-                if (e.target.value !== "completed") {
-                  setInspectionResult("");
-                  setInspectionNote("");
-                }
-              }}
-              className="admin-input"
-            >
-              <option value="pending">Na čekanju</option>
-              <option value="confirmed">Potvrđeno</option>
-              <option value="completed">Završeno</option>
-              <option value="cancelled">Otkazano</option>
-              <option value="no_show">Nije se pojavio</option>
-            </select>
-          </label>
-            {status === "completed" ? (
-              <>
-                <label className="admin-field">
-                  <span>Rezultat tehničkog</span>
-                  <select
-                    value={inspectionResult}
-                    onChange={(e) => setInspectionResult(e.target.value as "passed" | "failed" | "")}
-                    className="admin-input"
-                  >
-                    <option value="">— izaberite —</option>
-                    <option value="passed">Položio</option>
-                    <option value="failed">Nije položio</option>
-                  </select>
-                </label>
-                <label className="admin-field">
-                  <span>Napomena (obavezno)</span>
+
+            <div style={{ padding: "14px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
+
+              {/* Klijent + vozilo */}
+              {active.status !== "blocked" ? (
+                <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "#f1f5f9" }}>{active.client.fullName || "—"}</div>
+                      <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{active.client.email || "—"}</div>
+                      {active.client.phone ? <div style={{ fontSize: 12, color: "#64748b" }}>{active.client.phone}</div> : null}
+                    </div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {active.client.phone ? (
+                        <a href={`tel:${active.client.phone}`} style={linkBtnStyle}>📞 Pozovi</a>
+                      ) : null}
+                      {active.client.phone ? (
+                        <a href={`sms:${active.client.phone}`} style={linkBtnStyle}>💬 SMS</a>
+                      ) : null}
+                      {active.userId ? (
+                        <a href={`/admin/klijenti/${active.userId}`} style={linkBtnStyle}>👤 Profil</a>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#64748b", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8 }}>
+                    🚗 <span style={{ color: "#94a3b8" }}>{active.vehicle.make} ({active.vehicle.year})</span>
+                    {active.vehicle.plateNumber ? <span> · {active.vehicle.plateNumber}</span> : null}
+                    {active.vehicle.registrationExpiresOn ? <span style={{ color: "#475569" }}> · reg. do {active.vehicle.registrationExpiresOn}</span> : null}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#94a3b8" }}>
+                  Blokada: {active.workerNotes || "—"}
+                </div>
+              )}
+
+              {/* Status dugmad */}
+              {active.status !== "blocked" ? (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#475569", marginBottom: 8 }}>Status</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                    {([
+                      { value: "pending",   label: "Na čekanju",       color: "#ca8a04", bg: "rgba(202,138,4,0.12)" },
+                      { value: "confirmed", label: "Potvrđeno",         color: "#2563eb", bg: "rgba(37,99,235,0.12)" },
+                      { value: "completed", label: "Završeno",          color: "#16a34a", bg: "rgba(22,163,74,0.12)" },
+                      { value: "cancelled", label: "Otkazano",          color: "#6b7280", bg: "rgba(107,114,128,0.12)" },
+                      { value: "no_show",   label: "Nije se pojavio",   color: "#dc2626", bg: "rgba(220,38,38,0.12)" },
+                    ] as const).map((s) => {
+                      const isActive = status === s.value;
+                      return (
+                        <button
+                          key={s.value}
+                          type="button"
+                          onClick={() => {
+                            setStatus(s.value);
+                            if (s.value !== "completed") { setInspectionResult(""); setInspectionNote(""); }
+                          }}
+                          style={{
+                            padding: "9px 12px",
+                            borderRadius: 8,
+                            border: isActive ? `1.5px solid ${s.color}` : "1.5px solid rgba(255,255,255,0.07)",
+                            background: isActive ? s.bg : "rgba(255,255,255,0.03)",
+                            color: isActive ? s.color : "#64748b",
+                            fontSize: 12,
+                            fontWeight: isActive ? 700 : 500,
+                            cursor: "pointer",
+                            textAlign: "left",
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          {isActive ? "✓ " : ""}{s.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Inspekcija — samo kad je Završeno */}
+              {status === "completed" ? (
+                <div style={{ background: "rgba(22,163,74,0.06)", border: "1px solid rgba(22,163,74,0.2)", borderRadius: 10, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#16a34a" }}>Rezultat tehničkog pregleda</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                    {([
+                      { value: "passed", label: "✅ Položio",    color: "#16a34a", bg: "rgba(22,163,74,0.15)" },
+                      { value: "failed", label: "❌ Nije položio", color: "#dc2626", bg: "rgba(220,38,38,0.15)" },
+                    ] as const).map((r) => (
+                      <button
+                        key={r.value}
+                        type="button"
+                        onClick={() => setInspectionResult(r.value)}
+                        style={{
+                          padding: "10px 12px",
+                          borderRadius: 8,
+                          border: inspectionResult === r.value ? `1.5px solid ${r.color}` : "1.5px solid rgba(255,255,255,0.07)",
+                          background: inspectionResult === r.value ? r.bg : "rgba(255,255,255,0.03)",
+                          color: inspectionResult === r.value ? r.color : "#64748b",
+                          fontSize: 12, fontWeight: 600, cursor: "pointer",
+                        }}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
                   <textarea
                     value={inspectionNote}
                     onChange={(e) => setInspectionNote(e.target.value)}
                     className="admin-input"
-                    rows={3}
-                    placeholder="Razlog, dodatne informacije…"
+                    rows={2}
+                    placeholder="Napomena o pregledu (obavezno)…"
+                    style={{ marginTop: 2 }}
                   />
-                </label>
-              </>
-            ) : null}
-          <label className="admin-field">
-            <span>Napomena radnika</span>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="admin-input" rows={5} />
-          </label>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button type="button" className="admin-template-link-btn" onClick={() => void saveDetail()}>
-              Sačuvaj
-            </button>
-            <button type="button" className="admin-template-link-btn" onClick={() => setActive(null)}>
-              Zatvori
-            </button>
+                </div>
+              ) : null}
+
+              {/* Napomena radnika */}
+              <label className="admin-field" style={{ gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#475569" }}>Napomena radnika</span>
+                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="admin-input" rows={3} placeholder="Interna napomena…" />
+              </label>
+
+              {/* Poruka */}
+              {msg ? (
+                <div style={{ fontSize: 13, padding: "8px 12px", borderRadius: 8, background: msg === "Sačuvano." ? "rgba(22,163,74,0.12)" : "rgba(220,38,38,0.12)", color: msg === "Sačuvano." ? "#4ade80" : "#f87171", border: `1px solid ${msg === "Sačuvano." ? "rgba(22,163,74,0.3)" : "rgba(220,38,38,0.3)"}` }}>
+                  {msg}
+                </div>
+              ) : null}
+
+              {/* Akcije */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 14 }}>
+                <button
+                  type="button"
+                  onClick={() => void saveDetail()}
+                  style={{ flex: 1, padding: "10px 16px", borderRadius: 8, border: "none", background: "#2563eb", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                >
+                  Sačuvaj promene
+                </button>
+
+                {deleteConfirm ? (
+                  <button
+                    type="button"
+                    onClick={() => void deleteBooking()}
+                    disabled={deleting}
+                    style={{ padding: "10px 14px", borderRadius: 8, border: "1.5px solid #dc2626", background: "rgba(220,38,38,0.2)", color: "#f87171", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    {deleting ? "Brišem…" : "Potvrdi brisanje"}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirm(true)}
+                    style={{ padding: "10px 14px", borderRadius: 8, border: "1.5px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#64748b", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+                  >
+                    Obriši
+                  </button>
+                )}
+              </div>
+
+            </div>
           </div>
-          {msg ? <p style={{ marginTop: 8, fontSize: 14 }}>{msg}</p> : null}
-        </div>
         </>
       ) : null}
 

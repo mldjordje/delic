@@ -146,3 +146,32 @@ export async function PATCH(
 
   return ok({ ok: true, booking: row });
 }
+
+export async function DELETE(
+  _request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const auth = await requireStaffOrAdmin();
+  if (auth.error) return auth.error;
+
+  if (auth.user.role === "staff") {
+    return fail(403, "Radnici ne mogu brisati termine.");
+  }
+
+  const { id } = await context.params;
+  const db = getDb();
+
+  const [existing] = await db
+    .select({ id: schema.bookings.id })
+    .from(schema.bookings)
+    .where(eq(schema.bookings.id, id))
+    .limit(1);
+
+  if (!existing) return fail(404, "Termin nije pronađen.");
+
+  // Brišemo status log pa booking (FK constraint)
+  await db.delete(schema.bookingStatusLog).where(eq(schema.bookingStatusLog.bookingId, id));
+  await db.delete(schema.bookings).where(eq(schema.bookings.id, id));
+
+  return ok({ ok: true, deleted: id });
+}
