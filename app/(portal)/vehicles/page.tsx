@@ -37,7 +37,7 @@ export default async function VehiclesPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Koristite dugme „Dodaj vozilo" da biste uneli prvo vozilo.
+              Koristite dugme Dodaj vozilo da biste uneli prvo vozilo.
             </p>
           </CardContent>
         </Card>
