@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { after } from "next/server";
 import { created, fail, readJson } from "@/lib/api/http";
 import { withCors, corsPreflightResponse } from "@/lib/api/cors";
 import { requireUser } from "@/lib/auth/guards";
@@ -152,51 +153,45 @@ export async function POST(request: Request) {
     return withCors(request, fail(500, "Greška pri zakazivanju."));
   }
 
-  console.log("[bookings:email] booking created, starting email flow", {
-    bookingId: createdBooking!.id,
-    userEmail: auth.user.email || null,
-    resendKeySet: !!process.env.RESEND_API_KEY,
-    resendFrom: process.env.RESEND_FROM || "(not set)",
-    adminNotify: process.env.MAIL_ADMIN_TO || process.env.ADMIN_BOOKING_NOTIFY_EMAIL || "(not set)",
+  // Emailovi idu NAKON što response stigne korisniku — nema čekanja
+  const userEmail = auth.user.email;
+  const startsAtIso = createdBooking!.startsAt.toISOString();
+  const notify = String(env.MAIL_ADMIN_TO || env.ADMIN_BOOKING_NOTIFY_EMAIL || "").trim();
+
+  after(async () => {
+    console.log("[bookings:email] sending emails after response", {
+      userEmail: userEmail || null,
+      resendKeySet: !!process.env.RESEND_API_KEY,
+      resendFrom: process.env.RESEND_FROM || "(not set)",
+      adminNotify: notify || "(not set)",
+    });
+
+    await Promise.all([
+      // Potvrda korisniku
+      userEmail
+        ? sendBookingConfirmationEmail({ to: userEmail, startsAtIso })
+            .then((c) => {
+              if (!c?.sent) console.error("[bookings:email] confirmation NOT sent:", (c as { reason?: string })?.reason);
+              else console.log("[bookings:email] confirmation sent ok");
+            })
+            .catch((e) => console.error("[bookings:email] confirmation exception:", e))
+        : Promise.resolve(console.warn("[bookings:email] no user email, skipping confirmation")),
+
+      // Obaveštenje adminu
+      notify
+        ? notifyAdminInbox({
+            to: notify,
+            subject: "Novi zahtev za termin — Auto Delić",
+            text: `Korisnik ${userEmail || auth.user.id} — Tehnički pregled — ${startsAtIso}`,
+          })
+            .then((r) => {
+              if (!r?.sent) console.error("[bookings:email] admin notify NOT sent:", (r as { reason?: string })?.reason);
+              else console.log("[bookings:email] admin notify sent ok");
+            })
+            .catch((e) => console.error("[bookings:email] admin notify exception:", e))
+        : Promise.resolve(console.warn("[bookings:email] no admin email set, skipping notify")),
+    ]);
   });
-
-  if (auth.user.email) {
-    try {
-      const c = await sendBookingConfirmationEmail({
-        to: auth.user.email,
-        startsAtIso: createdBooking!.startsAt.toISOString(),
-      });
-      console.log("[bookings:email] confirmation result", c);
-      if (!c?.sent) {
-        console.error("[bookings:email] confirmation NOT sent — reason:", (c as { reason?: string })?.reason);
-      }
-    } catch (e) {
-      console.error("[bookings:email] confirmation threw exception:", e);
-    }
-  } else {
-    console.warn("[bookings:email] user has no email — skipping confirmation.");
-  }
-
-  const notify = String(
-    env.MAIL_ADMIN_TO || env.ADMIN_BOOKING_NOTIFY_EMAIL || ""
-  ).trim();
-  if (notify) {
-    try {
-      const r = await notifyAdminInbox({
-        to: notify,
-        subject: "Novi zahtev za termin — Auto Delić",
-        text: `Korisnik ${auth.user.email || auth.user.id} — Tehnički pregled — ${createdBooking!.startsAt.toISOString()}`,
-      });
-      console.log("[bookings:email] admin notify result", r);
-      if (!r?.sent) {
-        console.error("[bookings:email] admin notify NOT sent — reason:", (r as { reason?: string })?.reason);
-      }
-    } catch (e) {
-      console.error("[bookings:email] admin notify threw exception:", e);
-    }
-  } else {
-    console.warn("[bookings:email] MAIL_ADMIN_TO / ADMIN_BOOKING_NOTIFY_EMAIL not set — skipping admin notify.");
-  }
 
   return withCors(
     request,
