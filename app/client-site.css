@@ -250,10 +250,10 @@
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* Cursor: legacy style.css je imao globalno cursor:none — vraćamo na browser default */
+/* Cursor: force browser default — !important da pobijedi svaki legacy cursor:none */
 .autodelic-client-site,
 .autodelic-client-site * {
-  cursor: auto;
+  cursor: auto !important;
 }
 .autodelic-client-site a,
 .autodelic-client-site button,
@@ -264,8 +264,13 @@
 .autodelic-client-site input[type="radio"],
 .autodelic-client-site input[type="submit"],
 .autodelic-client-site input[type="button"],
-.autodelic-client-site .pointer-large {
-  cursor: pointer;
+.autodelic-client-site .pointer-large,
+.autodelic-client-site .border-btn,
+.autodelic-client-site .client-google-btn,
+.autodelic-client-site .menu-open,
+.autodelic-client-site .menu-close,
+.autodelic-client-site .nav-link {
+  cursor: pointer !important;
 }
 .autodelic-client-site input[type="text"],
 .autodelic-client-site input[type="email"],
@@ -274,7 +279,7 @@
 .autodelic-client-site input[type="number"],
 .autodelic-client-site input[type="tel"],
 .autodelic-client-site textarea {
-  cursor: text;
+  cursor: text !important;
 }
 
 /* --- Next.js: nema jQuery animsition/midnight skripte kao na public/index.html --- */

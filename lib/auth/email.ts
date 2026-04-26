@@ -77,13 +77,19 @@ export async function notifyAdminInbox({
   subject,
   text,
 }: {
-  to: string;
+  to: string | string[];
   subject: string;
   text: string;
 }) {
+  // Podrška za više primatelja zarezom odvojenih: "a@x.com,b@x.com"
+  const recipients = Array.isArray(to)
+    ? to.flatMap((t) => t.split(",").map((e) => e.trim())).filter(Boolean)
+    : to.split(",").map((e) => e.trim()).filter(Boolean);
+
   if (!preferResend() && smtpConfigured()) {
+    // SMTP šalje jednom pozivu sa svim adresama (Nodemailer prihvata niz)
     return await sendMailViaSmtp({
-      to,
+      to: recipients.join(", "),
       subject,
       text,
       replyTo: env.RESEND_REPLY_TO || undefined,
@@ -96,7 +102,7 @@ export async function notifyAdminInbox({
   }
   const r = await resend.emails.send({
     from: resolveFrom(),
-    to,
+    to: recipients,
     replyTo: env.RESEND_REPLY_TO || undefined,
     subject,
     text,
