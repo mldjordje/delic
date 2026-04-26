@@ -5,6 +5,11 @@ import { sendMailViaSmtp, smtpConfigured } from "@/lib/email/smtp";
 let resendClient: Resend | null = null;
 const FALLBACK_FROM = "Auto Delić <onboarding@resend.dev>";
 
+/** Resend ima prednost nad SMTP — SMTP je fallback samo ako nema RESEND_API_KEY */
+function preferResend() {
+  return Boolean(String(env.RESEND_API_KEY || "").trim());
+}
+
 function getResend() {
   const key = String(env.RESEND_API_KEY || "").trim();
   if (!key) return null;
@@ -43,7 +48,7 @@ export async function sendOtpEmail({ to, code }: { to: string; code: string }) {
 
   const replyTo = env.RESEND_REPLY_TO?.trim();
 
-  if (smtpConfigured()) {
+  if (!preferResend() && smtpConfigured()) {
     return await sendMailViaSmtp({ to, subject, text, html, replyTo: replyTo || undefined });
   }
 
@@ -76,7 +81,7 @@ export async function notifyAdminInbox({
   subject: string;
   text: string;
 }) {
-  if (smtpConfigured()) {
+  if (!preferResend() && smtpConfigured()) {
     return await sendMailViaSmtp({
       to,
       subject,
@@ -118,7 +123,7 @@ export async function sendBookingConfirmationEmail({
     when
   )}</strong> je primljen. Uskoro možete očekivati potvrdu.</p><p>— Auto Delić</p>`;
 
-  if (smtpConfigured()) {
+  if (!preferResend() && smtpConfigured()) {
     return await sendMailViaSmtp({
       to,
       subject,
@@ -186,7 +191,7 @@ ${inspectionNote ? `<p>Napomena: ${escapeHtml(String(inspectionNote))}</p>` : ""
 ${workerNotes ? `<p>Napomena servisera: ${escapeHtml(String(workerNotes))}</p>` : ""}
 <p>— Auto Delić</p>`;
 
-  if (smtpConfigured()) {
+  if (!preferResend() && smtpConfigured()) {
     return await sendMailViaSmtp({
       to,
       subject,
