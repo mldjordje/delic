@@ -20,9 +20,9 @@ export default async function VehiclesPage() {
   return (
     <div className="space-y-6">
       <PortalHero
-        eyebrow="My vehicles"
-        title="Vehicles"
-        description="A clean dashboard view of your important dates and certificates."
+        eyebrow="Moja vozila"
+        title="Vozila"
+        description="Pregled datuma isteka registracije i atesta za vaša vozila."
         imageSrc="/assets/images/tehnicki2.jpg"
         right={<VehiclesClientExtras />}
       />
@@ -32,12 +32,12 @@ export default async function VehiclesPage() {
       {vehicles.length === 0 ? (
         <Card className="glass">
           <CardHeader>
-            <CardTitle>No vehicles yet</CardTitle>
-            <CardDescription>Add your first vehicle to start booking.</CardDescription>
+            <CardTitle>Nemate dodato nijedno vozilo</CardTitle>
+            <CardDescription>Dodajte vozilo kako biste mogli da zakažete termin.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Use “Add vehicle” to create one.
+              Koristite dugme „Dodaj vozilo" da biste uneli prvo vozilo.
             </p>
           </CardContent>
         </Card>
@@ -45,4 +45,3 @@ export default async function VehiclesPage() {
     </div>
   );
 }
-

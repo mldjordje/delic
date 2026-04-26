@@ -23,7 +23,7 @@ export default async function PortalLayout({ children }: { children: React.React
     .where(eq(schema.profiles.userId, user.id))
     .limit(1);
 
-  const userLabel = profile?.fullName || user.email || "Client";
+  const userLabel = profile?.fullName || user.email || "Klijent";
 
   return <PortalShell userLabel={userLabel}>{children}</PortalShell>;
 }

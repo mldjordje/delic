@@ -7,6 +7,14 @@ import { desc, eq } from "drizzle-orm";
 import { BookingsClientActions } from "@/components/portal/BookingsClientActions";
 import { PortalHero } from "@/components/portal/PortalHero";
 
+const STATUS_SR: Record<string, string> = {
+  pending: "Na čekanju",
+  confirmed: "Potvrđeno",
+  completed: "Završeno",
+  cancelled: "Otkazano",
+  no_show: "Nije se pojavio",
+};
+
 export default async function BookingsPage() {
   const { user } = await requireCompleteClientProfile();
 
@@ -30,13 +38,13 @@ export default async function BookingsPage() {
   return (
     <div className="space-y-6">
       <PortalHero
-        eyebrow="Appointments"
-        title="Bookings"
-        description="Upcoming appointments, history, and technician notes."
+        eyebrow="Termini"
+        title="Moji termini"
+        description="Predstojeći termini, istorija i napomene servisera."
         imageSrc="/assets/images/tehnicki3.jpg"
         right={
           <Button asChild>
-            <Link href="/bookings/new">New booking</Link>
+            <Link href="/bookings/new">Zakaži termin</Link>
           </Button>
         }
       />
@@ -44,8 +52,8 @@ export default async function BookingsPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="glass">
           <CardHeader>
-            <CardTitle>Upcoming</CardTitle>
-            <CardDescription>Your next appointments.</CardDescription>
+            <CardTitle>Predstojeći</CardTitle>
+            <CardDescription>Vaši naredni termini.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {upcoming.length ? (
@@ -65,7 +73,8 @@ export default async function BookingsPage() {
                         })}
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {r.vehicle.make} ({r.vehicle.year}) · status: {r.booking.status}
+                        {r.vehicle.make} ({r.vehicle.year}) ·{" "}
+                        {STATUS_SR[r.booking.status] ?? r.booking.status}
                       </p>
                     </div>
                     <BookingsClientActions bookingId={r.booking.id} status={r.booking.status} />
@@ -73,15 +82,15 @@ export default async function BookingsPage() {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No upcoming bookings.</p>
+              <p className="text-sm text-muted-foreground">Nema predstojećih termina.</p>
             )}
           </CardContent>
         </Card>
 
         <Card className="glass">
           <CardHeader>
-            <CardTitle>History</CardTitle>
-            <CardDescription>Previous visits and technician notes.</CardDescription>
+            <CardTitle>Istorija</CardTitle>
+            <CardDescription>Prethodne posete i napomene servisera.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {history.length ? (
@@ -90,17 +99,18 @@ export default async function BookingsPage() {
                   <p className="text-sm font-semibold">{r.serviceName}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {new Date(r.booking.startsAt).toLocaleDateString("sr-RS", { timeZone: "Europe/Belgrade" })} ·{" "}
-                    {r.vehicle.make} ({r.vehicle.year}) · {r.booking.status}
+                    {r.vehicle.make} ({r.vehicle.year}) ·{" "}
+                    {STATUS_SR[r.booking.status] ?? r.booking.status}
                   </p>
                   {r.booking.workerNotes ? (
                     <p className="mt-2 text-xs text-muted-foreground">
-                      Technician notes: {r.booking.workerNotes}
+                      Napomena servisera: {r.booking.workerNotes}
                     </p>
                   ) : null}
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No history yet.</p>
+              <p className="text-sm text-muted-foreground">Još nema istorije.</p>
             )}
           </CardContent>
         </Card>
@@ -108,4 +118,3 @@ export default async function BookingsPage() {
     </div>
   );
 }
-

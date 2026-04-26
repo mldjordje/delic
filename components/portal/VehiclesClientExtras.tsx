@@ -16,7 +16,7 @@ export function VehiclesClientExtras() {
         }}
       />
       <Button asChild variant="outline">
-        <Link href="/bookings/new">Book</Link>
+        <Link href="/bookings/new">Zakaži</Link>
       </Button>
     </div>
   );

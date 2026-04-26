@@ -7,16 +7,16 @@ export default async function NewBookingPage() {
   return (
     <div className="space-y-6">
       <div className="glass rounded-xl p-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Book inspection</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Zakazivanje tehničkog pregleda</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Choose vehicle → service → time. 30-minute slots, no overlap.
+          Izaberite vozilo → uslugu → slobodan termin.
         </p>
       </div>
 
       <Card className="glass">
         <CardHeader>
-          <CardTitle>New booking</CardTitle>
-          <CardDescription>Vehicle → service → time. 30-minute slots.</CardDescription>
+          <CardTitle>Novi termin</CardTitle>
+          <CardDescription>Vozilo → usluga → termin.</CardDescription>
         </CardHeader>
         <CardContent>
           <BookingFlow />
@@ -25,4 +25,3 @@ export default async function NewBookingPage() {
     </div>
   );
 }
-

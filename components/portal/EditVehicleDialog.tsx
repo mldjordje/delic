@@ -172,10 +172,10 @@ export function EditVehicleDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            Otkaži
           </Button>
           <Button type="button" onClick={() => void save()} disabled={!canSave || saving}>
-            {saving ? "Saving…" : "Save"}
+            {saving ? "Čuvam…" : "Sačuvaj"}
           </Button>
         </DialogFooter>
       </DialogContent>

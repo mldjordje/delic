@@ -14,11 +14,11 @@ type NavItem = {
 };
 
 const NAV: NavItem[] = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/bookings/new", label: "Book", icon: CalendarClock },
-  { href: "/bookings", label: "Bookings", icon: CalendarClock },
-  { href: "/vehicles", label: "Vehicles", icon: Car },
-  { href: "/profile", label: "Profile", icon: UserRound },
+  { href: "/dashboard", label: "Pregled", icon: LayoutDashboard },
+  { href: "/bookings/new", label: "Zakaži", icon: CalendarClock },
+  { href: "/bookings", label: "Termini", icon: CalendarClock },
+  { href: "/vehicles", label: "Vozila", icon: Car },
+  { href: "/profile", label: "Profil", icon: UserRound },
   { href: "/video", label: "Video", icon: Video },
 ];
 
@@ -61,11 +61,11 @@ export function PortalShell({
               Auto Delić
             </Link>
             <span className="rounded-md border bg-background/40 px-2 py-1 text-xs text-muted-foreground">
-              Client
+              Klijent
             </span>
           </div>
 
-          <p className="mt-3 text-xs text-muted-foreground">Signed in as</p>
+          <p className="mt-3 text-xs text-muted-foreground">Prijavljeni kao</p>
           <p className="text-sm font-medium">{userLabel}</p>
 
           <Separator className="my-4" />
@@ -81,7 +81,7 @@ export function PortalShell({
           <form action="/api/auth/logout" method="post">
             <Button type="submit" variant="outline" className="w-full justify-start">
               <LogOut className="h-4 w-4" />
-              Sign out
+              Odjavi se
             </Button>
           </form>
         </aside>

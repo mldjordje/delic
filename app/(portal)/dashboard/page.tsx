@@ -6,6 +6,14 @@ import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
 import { PortalHero } from "@/components/portal/PortalHero";
 
+const STATUS_SR: Record<string, string> = {
+  pending: "Na čekanju",
+  confirmed: "Potvrđeno",
+  completed: "Završeno",
+  cancelled: "Otkazano",
+  no_show: "Nije se pojavio",
+};
+
 export default async function DashboardPage() {
   const { user } = await requireCompleteClientProfile();
 
@@ -35,17 +43,17 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <PortalHero
-        eyebrow="Client portal"
-        title="Overview"
-        description="Your vehicles, bookings, and technician notes — all in one place."
+        eyebrow="Korisnički portal"
+        title="Pregled"
+        description="Vaša vozila, termini i napomene servisera — sve na jednom mestu."
         imageSrc="/assets/images/tehnickinocu.jpg"
         right={
           <>
             <Button asChild>
-              <Link href="/bookings/new">Book inspection</Link>
+              <Link href="/bookings/new">Zakaži termin</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/vehicles">Vehicles</Link>
+              <Link href="/vehicles">Vozila</Link>
             </Button>
           </>
         }
@@ -54,23 +62,25 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="glass">
           <CardHeader>
-            <CardTitle>Vehicles</CardTitle>
+            <CardTitle>Vozila</CardTitle>
             <CardDescription>
-              {vehicles.length ? `${vehicles.length} total` : "Add your vehicles to get reminders and faster booking."}
+              {vehicles.length
+                ? `Ukupno: ${vehicles.length}`
+                : "Dodajte vozilo kako biste mogli da zakažete termin."}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild variant="secondary">
-              <Link href="/vehicles">Open</Link>
+              <Link href="/vehicles">Otvori</Link>
             </Button>
           </CardContent>
         </Card>
         <Card className="glass">
           <CardHeader>
-            <CardTitle>Bookings</CardTitle>
+            <CardTitle>Termini</CardTitle>
             <CardDescription>
               {upcoming
-                ? `Next: ${new Date(upcoming.booking.startsAt).toLocaleString("sr-RS", {
+                ? `Sledeći: ${new Date(upcoming.booking.startsAt).toLocaleString("sr-RS", {
                     timeZone: "Europe/Belgrade",
                     weekday: "short",
                     year: "numeric",
@@ -79,15 +89,15 @@ export default async function DashboardPage() {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}`
-                : "No upcoming booking."}
+                : "Nema zakazanih termina."}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex gap-3">
             <Button asChild variant="secondary">
-              <Link href="/bookings/new">New booking</Link>
+              <Link href="/bookings/new">Zakaži</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/bookings">View all</Link>
+              <Link href="/bookings">Svi termini</Link>
             </Button>
           </CardContent>
         </Card>
@@ -96,24 +106,24 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="glass md:col-span-2">
           <CardHeader>
-            <CardTitle>Upcoming</CardTitle>
-            <CardDescription>Your next appointment and details.</CardDescription>
+            <CardTitle>Sledeći termin</CardTitle>
+            <CardDescription>Detalji vašeg narednog termina.</CardDescription>
           </CardHeader>
           <CardContent>
             {upcoming ? (
               <div className="space-y-2">
                 <p className="text-sm">
-                  <span className="text-muted-foreground">Service: </span>
+                  <span className="text-muted-foreground">Usluga: </span>
                   <span className="font-medium">{upcoming.service.name}</span>
                 </p>
                 <p className="text-sm">
-                  <span className="text-muted-foreground">Vehicle: </span>
+                  <span className="text-muted-foreground">Vozilo: </span>
                   <span className="font-medium">
                     {upcoming.vehicle.make} ({upcoming.vehicle.year})
                   </span>
                 </p>
                 <p className="text-sm">
-                  <span className="text-muted-foreground">Time: </span>
+                  <span className="text-muted-foreground">Vreme: </span>
                   <span className="font-medium">
                     {new Date(upcoming.booking.startsAt).toLocaleString("sr-RS", {
                       timeZone: "Europe/Belgrade",
@@ -127,14 +137,16 @@ export default async function DashboardPage() {
                 </p>
                 <p className="text-sm">
                   <span className="text-muted-foreground">Status: </span>
-                  <span className="font-medium">{upcoming.booking.status}</span>
+                  <span className="font-medium">
+                    {STATUS_SR[upcoming.booking.status] ?? upcoming.booking.status}
+                  </span>
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">No upcoming booking yet.</p>
+                <p className="text-sm text-muted-foreground">Nemate zakazan termin.</p>
                 <Button asChild>
-                  <Link href="/bookings/new">Book now</Link>
+                  <Link href="/bookings/new">Zakaži termin</Link>
                 </Button>
               </div>
             )}
@@ -143,8 +155,8 @@ export default async function DashboardPage() {
 
         <Card className="glass">
           <CardHeader>
-            <CardTitle>History</CardTitle>
-            <CardDescription>Last 5 visits.</CardDescription>
+            <CardTitle>Istorija</CardTitle>
+            <CardDescription>Poslednjih 5 poseta.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {history.length ? (
@@ -159,13 +171,13 @@ export default async function DashboardPage() {
                   </p>
                   {h.booking.workerNotes ? (
                     <p className="mt-2 text-xs text-muted-foreground line-clamp-3">
-                      Technician notes: {h.booking.workerNotes}
+                      Napomena servisera: {h.booking.workerNotes}
                     </p>
                   ) : null}
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No history yet.</p>
+              <p className="text-sm text-muted-foreground">Još nema istorije.</p>
             )}
           </CardContent>
         </Card>
@@ -173,4 +185,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-

@@ -37,7 +37,7 @@ export function BookingsClientActions({
         disabled={!canCancel || busy}
         onClick={() => void cancel()}
       >
-        {busy ? "Cancelling…" : "Cancel"}
+        {busy ? "Otkazujem…" : "Otkaži"}
       </Button>
     </div>
   );

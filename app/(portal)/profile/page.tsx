@@ -13,12 +13,12 @@ export default async function ProfilePage({
   return (
     <div className="space-y-6">
       <PortalHero
-        eyebrow="Account"
-        title={forceComplete ? "Complete profile" : "Profile"}
+        eyebrow="Nalog"
+        title={forceComplete ? "Dopunite profil" : "Profil"}
         description={
           forceComplete
-            ? "Name + phone are required for booking."
-            : "Clean account panel for your personal details."
+            ? "Ime i telefon su obavezni za zakazivanje."
+            : "Upravljajte ličnim podacima."
         }
         imageSrc="/assets/images/znak3.jpg"
       />
@@ -26,12 +26,12 @@ export default async function ProfilePage({
       {forceComplete ? (
         <Card className="glass">
           <CardHeader>
-            <CardTitle>Complete your profile</CardTitle>
-            <CardDescription>Name + phone are required for booking.</CardDescription>
+            <CardTitle>Dopunite profil</CardTitle>
+            <CardDescription>Ime i telefon su obavezni za zakazivanje.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              This takes less than a minute. After saving, you’ll return to the dashboard.
+              Popunjavanje traje manje od minut. Nakon čuvanja, bićete vraćeni na pregled.
             </p>
           </CardContent>
         </Card>
@@ -41,4 +41,3 @@ export default async function ProfilePage({
     </div>
   );
 }
-

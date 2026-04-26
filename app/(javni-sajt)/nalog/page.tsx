@@ -21,7 +21,7 @@ export default function NalogPage() {
           </div>
         </div>
         <h2 className="large-title-bold text-color-4">
-          <span className="overlay-loading2 overlay-light-bg-1">Moj nalog</span>
+          Moj nalog
         </h2>
         <p className="p-style-bold-up text-height-20 top-margin-20 text-color-4">Upravljanje profilom i pregled vozila.</p>
         <div className="top-margin-40">

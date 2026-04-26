@@ -17,9 +17,9 @@ export default async function VideoPortalPage() {
   return (
     <div className="space-y-6">
       <PortalHero
-        eyebrow="Media"
+        eyebrow="Mediji"
         title="Video"
-        description="YouTube videos published by the admin."
+        description="YouTube video snimci objavljeni od strane administratora."
         imageSrc="/assets/images/tehnickiunutra4.jpg"
       />
 
@@ -44,7 +44,7 @@ export default async function VideoPortalPage() {
                     />
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Invalid YouTube URL.</p>
+                  <p className="text-sm text-muted-foreground">Nevažeći YouTube link.</p>
                 )}
               </CardContent>
             </Card>
@@ -55,15 +55,14 @@ export default async function VideoPortalPage() {
       {videos.length === 0 ? (
         <Card className="glass">
           <CardHeader>
-            <CardTitle>No videos yet</CardTitle>
-            <CardDescription>When the admin publishes videos, they’ll appear here.</CardDescription>
+            <CardTitle>Još nema videa</CardTitle>
+            <CardDescription>Kada administrator objavi video, pojaviće se ovde.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Nothing to show right now.</p>
+            <p className="text-sm text-muted-foreground">Trenutno nema ničega za prikaz.</p>
           </CardContent>
         </Card>
       ) : null}
     </div>
   );
 }
-

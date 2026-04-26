@@ -47,10 +47,10 @@ export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
               </div>
 
               <div className="rounded-md border bg-background/30 p-3">
-                <p className="text-xs text-muted-foreground">Registration expiry</p>
+                <p className="text-xs text-muted-foreground">Istek registracije</p>
                 <p className="mt-1 text-sm font-medium">
                   {v.registrationExpiresOn}{" "}
-                  <span className="text-xs text-muted-foreground">({regDaysLeft > 0 ? `${regDaysLeft}d left` : "expired"})</span>
+                  <span className="text-xs text-muted-foreground">({regDaysLeft > 0 ? `još ${regDaysLeft} d` : "istekla"})</span>
                 </p>
               </div>
 
@@ -60,14 +60,14 @@ export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
                   <p className="mt-1 text-sm font-medium">
                     {v.lpgMethaneCertificateExpiresOn || "—"}{" "}
                     {lpgDaysLeft != null ? (
-                      <span className="text-xs text-muted-foreground">({lpgDaysLeft > 0 ? `${lpgDaysLeft}d left` : "expired"})</span>
+                      <span className="text-xs text-muted-foreground">({lpgDaysLeft > 0 ? `još ${lpgDaysLeft} d` : "istekao"})</span>
                     ) : null}
                   </p>
                 </div>
               ) : null}
 
               <Button asChild variant="outline" size="sm">
-                <Link href="/bookings/new">Book with this vehicle</Link>
+                <Link href="/bookings/new">Zakaži za ovo vozilo</Link>
               </Button>
             </CardContent>
           </Card>

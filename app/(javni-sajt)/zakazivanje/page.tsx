@@ -13,7 +13,7 @@ export default function ZakazivanjePage() {
         <header className="top-margin-20">
           <p className="small-title-oswald text-color-4">Online zakazivanje</p>
           <h2 className="large-title-bold text-color-4 top-margin-10">
-            <span className="overlay-loading2 overlay-light-bg-1">Zakažite termin</span>
+            Zakažite termin
           </h2>
           <p className="p-style-bold-up text-height-20 top-margin-20 text-color-4" style={{ maxWidth: 640 }}>
             Zakazujete isključivo tehnički pregled vozila. Izaberite vozilo i slobodan termin. Nakon prijave, vozila

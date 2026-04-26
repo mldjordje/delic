@@ -68,25 +68,25 @@ export function ProfilePanel({ forceComplete }: { forceComplete: boolean }) {
   return (
     <Card className="glass">
       <CardHeader>
-        <CardTitle>Account</CardTitle>
+        <CardTitle>Nalog</CardTitle>
         <CardDescription>
           {forceComplete
-            ? "Complete your profile to continue (name + phone)."
-            : "Update your name and phone number."}
+            ? "Unesite ime i telefon da biste nastavili."
+            : "Ažurirajte ime i broj telefona."}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className="text-sm text-muted-foreground">Učitavam…</p>
         ) : (
           <div className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Name</Label>
+                <Label htmlFor="fullName">Ime i prezime</Label>
                 <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">Telefon</Label>
                 <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" />
               </div>
             </div>
@@ -96,7 +96,7 @@ export function ProfilePanel({ forceComplete }: { forceComplete: boolean }) {
                 Email: <span className="text-foreground">{data?.user?.email}</span>
               </div>
               <Button type="button" onClick={() => void save()} disabled={saving || (forceComplete && !isComplete)}>
-                {saving ? "Saving…" : forceComplete ? "Save & continue" : "Save"}
+                {saving ? "Čuvam…" : forceComplete ? "Sačuvaj i nastavi" : "Sačuvaj"}
               </Button>
             </div>
 

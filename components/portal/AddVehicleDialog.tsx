@@ -98,40 +98,40 @@ export function AddVehicleDialog({
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); setMsg(null); }}>
       <DialogTrigger asChild>
         <Button type="button" variant="secondary">
-          Add vehicle
+          Dodaj vozilo
         </Button>
       </DialogTrigger>
       <DialogContent className="glass">
         <DialogHeader>
-        <DialogTitle>Add vehicle</DialogTitle>
-        <DialogDescription>Unesite osnovne podatke (za tehnički/registraciju) i datume isteka.</DialogDescription>
+          <DialogTitle>Dodaj vozilo</DialogTitle>
+          <DialogDescription>Unesite osnovne podatke (za tehnički/registraciju) i datume isteka.</DialogDescription>
         </DialogHeader>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="make">Brand / make</Label>
-            <Input id="make" value={make} onChange={(e) => setMake(e.target.value)} placeholder="e.g. Volkswagen Golf" />
+            <Label htmlFor="make">Marka / model</Label>
+            <Input id="make" value={make} onChange={(e) => setMake(e.target.value)} placeholder="npr. Volkswagen Golf" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="plate">Plate number</Label>
+            <Label htmlFor="plate">Tablice</Label>
             <Input id="plate" value={plateNumber} onChange={(e) => setPlateNumber(e.target.value)} placeholder="NI-123-AB" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="model">Model (optional)</Label>
-            <Input id="model" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Golf / Passat..." />
+            <Label htmlFor="model">Model (opciono)</Label>
+            <Input id="model" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Golf / Passat…" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fuel">Fuel type</Label>
+            <Label htmlFor="fuel">Gorivo</Label>
             <select
               id="fuel"
               value={fuelType}
               onChange={(e) => setFuelType(e.target.value)}
               className="h-10 w-full rounded-md border border-input bg-background/40 px-3 text-sm"
             >
-              <option value="">— select —</option>
+              <option value="">— izaberite —</option>
               <option value="petrol">Benzin</option>
               <option value="diesel">Dizel</option>
               <option value="hybrid">Hibrid</option>
@@ -143,47 +143,47 @@ export function AddVehicleDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="color">Color</Label>
+            <Label htmlFor="color">Boja</Label>
             <Input id="color" value={color} onChange={(e) => setColor(e.target.value)} placeholder="npr. crna" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="year">Year</Label>
+            <Label htmlFor="year">Godište</Label>
             <Input id="year" type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reg">Registration expiry</Label>
+            <Label htmlFor="reg">Istek registracije</Label>
             <Input id="reg" type="date" value={registrationExpiresOn} onChange={(e) => setRegistrationExpiresOn(e.target.value)} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="engineCc">Engine (cc)</Label>
+            <Label htmlFor="engineCc">Zapremina (cm³)</Label>
             <Input
               id="engineCc"
               type="number"
               min={50}
               value={engineCc}
               onChange={(e) => setEngineCc(e.target.value ? Number(e.target.value) : "")}
-              placeholder="e.g. 1968"
+              placeholder="npr. 1968"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="powerKw">Power (kW)</Label>
+            <Label htmlFor="powerKw">Snaga (kW)</Label>
             <Input
               id="powerKw"
               type="number"
               min={1}
               value={powerKw}
               onChange={(e) => setPowerKw(e.target.value ? Number(e.target.value) : "")}
-              placeholder="e.g. 110"
+              placeholder="npr. 110"
             />
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="vin">VIN (optional)</Label>
-            <Input id="vin" value={vin} onChange={(e) => setVin(e.target.value)} placeholder="e.g. WVWZZZ..." />
+            <Label htmlFor="vin">VIN (opciono)</Label>
+            <Input id="vin" value={vin} onChange={(e) => setVin(e.target.value)} placeholder="npr. WVWZZZ…" />
           </div>
 
           <div className="md:col-span-2 flex items-center gap-2 rounded-md border bg-background/30 p-3">
@@ -195,13 +195,13 @@ export function AddVehicleDialog({
               className="h-4 w-4 accent-[hsl(var(--primary))]"
             />
             <Label htmlFor="hasLpg" className="cursor-pointer">
-              Has gas / attest
+              LPG/CNG (atest)
             </Label>
           </div>
 
           {hasLpgOrMethane ? (
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="lpg">Gas certificate expiry</Label>
+              <Label htmlFor="lpg">Istek atesta</Label>
               <Input
                 id="lpg"
                 type="date"
@@ -220,14 +220,13 @@ export function AddVehicleDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            Otkaži
           </Button>
           <Button type="button" onClick={() => void save()} disabled={!canSave || saving}>
-            {saving ? "Saving…" : "Save vehicle"}
+            {saving ? "Čuvam…" : "Sačuvaj vozilo"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
