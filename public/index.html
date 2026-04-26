@@ -258,56 +258,50 @@
       <section class="dark-bg-2 top-bottom-padding-120" id="zakazi">
         <div class="container small">
           <div class="text-center bottom-padding-60">
-            <h2 class="medium-title red-color">Online zakazivanje</h2>
-            <p class="p-style-bold-up text-height-20 text-color-4 top-margin-20" style="max-width: 640px; margin: 0 auto">
-              Birate <strong>uslugu</strong> (trajanje i cena), <strong>vozilo</strong> i <strong>slobodan termin</strong>.
-              Brza prijava Google nalogom — isti sadržaj kao na stranici
-              <a href="/zakazivanje" class="pointer-large animsition-link" style="color: inherit; text-decoration: underline"
-                >/zakazivanje</a
-              >.
+            <p class="small-title-oswald text-color-4">Online zakazivanje</p>
+            <h2 class="medium-title red-color top-margin-10">Tehnički pregled vozila</h2>
+            <p class="p-style-bold-up text-height-20 text-color-4 top-margin-20" style="max-width: 600px; margin-left: auto; margin-right: auto">
+              Zakazujete isključivo tehnički pregled vozila. Izaberite vozilo i slobodan termin.
+              Brza prijava Google nalogom — bez lozinke.
             </p>
-            <div class="top-margin-30">
-              <div class="border-btn-box border-btn-red pointer-large" style="display: inline-block">
-                <div class="border-btn-inner">
-                  <a href="/zakazivanje" class="border-btn" data-text="Otvori punu stranicu">Otvori punu stranicu</a>
-                </div>
-              </div>
+          </div>
+
+          <!-- feature grid -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;max-width:860px;margin:0 auto">
+            <div style="background:#111517;padding:28px 24px">
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,191,0,.7);margin:0 0 10px">Trajanje</p>
+              <p style="font-size:22px;font-weight:700;color:#f1f5f9;margin:0">30 minuta</p>
+              <p style="font-size:13px;color:#64748b;margin:6px 0 0">Kompletna provera na modernoj traci</p>
+            </div>
+            <div style="background:#111517;padding:28px 24px">
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,191,0,.7);margin:0 0 10px">Šta proveravamo</p>
+              <ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">
+                <li style="font-size:12px;color:#94a3b8">✓ Kočioni sistem</li>
+                <li style="font-size:12px;color:#94a3b8">✓ Svetlosna oprema</li>
+                <li style="font-size:12px;color:#94a3b8">✓ Upravljanje</li>
+                <li style="font-size:12px;color:#94a3b8">✓ Izduvni gasovi</li>
+                <li style="font-size:12px;color:#94a3b8">✓ Karoserija</li>
+                <li style="font-size:12px;color:#94a3b8">✓ Bezbednosni pojasevi</li>
+              </ul>
+            </div>
+            <div style="background:#111517;padding:28px 24px">
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,191,0,.7);margin:0 0 10px">Kako zakazati</p>
+              <ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:steps">
+                <li style="font-size:13px;color:#94a3b8;display:flex;align-items:flex-start;gap:8px"><span style="color:rgba(255,191,0,.8);font-weight:700;flex-shrink:0">1.</span>Prijavite se Google nalogom</li>
+                <li style="font-size:13px;color:#94a3b8;display:flex;align-items:flex-start;gap:8px"><span style="color:rgba(255,191,0,.8);font-weight:700;flex-shrink:0">2.</span>Izaberite vozilo i dodajte ako nemate</li>
+                <li style="font-size:13px;color:#94a3b8;display:flex;align-items:flex-start;gap:8px"><span style="color:rgba(255,191,0,.8);font-weight:700;flex-shrink:0">3.</span>Izaberite slobodan termin i potvrdite</li>
+              </ol>
             </div>
           </div>
 
-          <div class="top-margin-10">
-            <iframe
-              id="booking-embed"
-              title="Online zakazivanje — Auto Delić"
-              src="/zakazivanje/embed"
-              style="
-                display: block;
-                width: 100%;
-                height: 1600px;
-                border: 0;
-                border-radius: 0;
-                background: transparent;
-              "
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-            ></iframe>
+          <div class="text-center top-margin-40">
+            <div class="border-btn-box border-btn-red pointer-large" style="display:inline-block">
+              <div class="border-btn-inner">
+                <a href="/zakazivanje" class="border-btn animsition-link" data-text="Zakaži termin online">Zakaži termin online</a>
+              </div>
+            </div>
           </div>
         </div>
-
-        <script>
-          (function () {
-            var iframe = document.getElementById("booking-embed");
-            if (!iframe) return;
-            window.addEventListener("message", function (event) {
-              try {
-                if (!event || !event.data || event.data.type !== "autodelic-booking-height") return;
-                var h = Number(event.data.height);
-                if (!h || !isFinite(h)) return;
-                iframe.style.height = Math.max(980, Math.min(h + 24, 8000)) + "px";
-              } catch (e) {}
-            });
-          })();
-        </script>
       </section>
 
       <!-- home-slider start -->
