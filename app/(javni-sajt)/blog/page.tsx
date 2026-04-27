@@ -4,9 +4,21 @@ import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
 
 export const metadata: Metadata = {
-  title: "Blog | Auto Delić",
-  description: "Vesti, saveti i obaveštenja o tehničkom pregledu i servisu.",
-  openGraph: { title: "Blog | Auto Delić" },
+  title: "Blog — saveti o tehničkom pregledu | Auto Delić",
+  description:
+    "Vesti, saveti i obaveštenja o tehničkom pregledu vozila, registraciji i auto industriji od Auto Delić, Niš.",
+  keywords: [
+    "blog tehnički pregled",
+    "saveti registracija vozila",
+    "auto Delić blog",
+    "vesti tehnički pregled Srbija",
+  ],
+  openGraph: {
+    title: "Blog — saveti o tehničkom pregledu | Auto Delić",
+    description: "Saveti, vesti i obaveštenja o tehničkom pregledu i registraciji vozila.",
+    url: "/blog",
+  },
+  alternates: { canonical: "/blog" },
 };
 
 export const revalidate = 120;

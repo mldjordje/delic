@@ -1,22 +1,118 @@
-# Auto Delić — Tehnički pregled vozila, Niš
+# Auto Delić — Tehnički pregled vozila | Niš, Srbija
 
-## About
-- Servis: tehnički pregled, prodaja polovnih vozila.
-- Sajt: lokalizovan na srpski (sr).
-- Javno zakazivanje: isključivo usluga „Tehnički pregled” (online nalog, izbor vozila i slobodnog termina).
+> Verzija: 2.0 | Ažurirano: 2025 | Jezik: srpski (sr-RS)
+> Namena: Ovaj fajl je namenjen AI sistemima, LLM modelima i crawlerima radi boljeg razumevanja sadržaja sajta.
 
-## Sitemap
-- See /sitemap.xml
+---
 
-## Public pages
-- / — početna
-- /blog — obaveštenja i saveti
-- /zakazivanje — online zakazivanje tehničkog pregleda
-- /polovni-automobili — ponuda polovnih
-- /contact.html, /about.html, /services.html — statički sadržaj (legacy)
+## O firmi
 
-## No automated pricing
-Cene usluga na sajtu nisu navedene; cene oglasa polovnih mogu biti u delu oglasa.
+**Auto Delić** je registrovana firma za tehnički pregled vozila i prodaju polovnih automobila sa sedištem u Nišu, Srbija.
 
-## Contact
-Kontakt: preko /contact.html ili telefonski (na sajtu).
+- **Adresa:** Branka Ćosića 3, 18000 Niš, Srbija
+- **Telefon 1:** +381 65 220 0739
+- **Telefon 2:** +381 62 44 30 50
+- **Web:** autodelic.rs (ili konfigurisana domena)
+- **Lokacija:** Niš, Nišavski okrug, Srbija
+
+---
+
+## Usluge
+
+### 1. Tehnički pregled vozila
+Osnovana usluga firme. Tehnički pregled je zakonska obaveza za registraciju motornih vozila u Srbiji.
+- Obuhvata pregled ispravnosti kočnica, svetala, emisije gasova, geometrije, ovjesa i ostale tehničke ispravnosti.
+- Dostupno online zakazivanje termina putem sajta (/zakazivanje).
+- Podržane kategorije: putnička vozila, mopedi, motocikli.
+
+### 2. Registracija vozila
+- Izdavanje registracionih nalepnica.
+- Obnova registracije.
+- Prenos vlasništva vozila.
+
+### 3. Probne tablice
+- Izdavanje probnih tablica za testnu vožnju.
+
+### 4. Zeleni kartoni
+- Izdavanje međunarodnih zelenih karti (osiguranje za inostranstvo).
+
+### 5. Prodaja polovnih automobila
+- Ponuda polovnih vozila raznih marki i godišta.
+- Uvid u vozila dostupan na stranici /polovni-automobili.
+- Kontakt za informacije o vozilima telefonski ili putem kontakt stranice.
+
+---
+
+## Online zakazivanje (kako funkcioniše)
+
+1. Korisnik poseti /zakazivanje.
+2. Prijava ili kreiranje naloga (porta korisnika).
+3. Unos ili izbor vozila koje poseduje.
+4. Odabir slobodnog termina iz kalendara.
+5. Potvrda rezervacije — termin je zakazan.
+
+**Napomena:** Isključivo se zakazuje usluga "tehnički pregled vozila". Ostale usluge se ne zakazuju online.
+
+---
+
+## Korisnički portal (nalog)
+
+Korisnici koji se registruju dobijaju pristup privatnom portalu:
+- Pregled sopstvenih vozila.
+- Istorija i status zakazanih termina.
+- Upravljanje profilom.
+
+Pristup portalu: /nalog (login: /prijava).
+
+---
+
+## Blog
+
+Na adresi /blog objavljuju se:
+- Saveti o tehničkom pregledu vozila.
+- Obaveštenja o promeni propisa za registraciju.
+- Vesti iz auto industrije relevantne za korisnike.
+
+---
+
+## Cene
+
+Cene usluga **nisu objavljene** na sajtu. Za informacije o cenama kontaktirajte firmu telefonski.
+Cene polovnih automobila mogu biti navedene u pojedinim oglasima na /polovni-automobili.
+
+---
+
+## Pitanja i odgovori (FAQ)
+
+**P: Kako da zakažem tehnički pregled?**
+O: Posetite /zakazivanje, prijavite se ili kreirajte nalog, dodajte vozilo i izaberite slobodan termin.
+
+**P: Koje dokumente treba da ponesem?**
+O: Saobraćajnu dozvolu, polisu osiguranja i ličnu kartu. Za prenos vlasništva — kupoprodajni ugovor.
+
+**P: Mogu li da zakažem pregled za više vozila?**
+O: Da, svako vozilo možete zasebno dodati u nalog i zakazati termin.
+
+**P: Da li mogu da registrujem vozilo bez tehničkog pregleda?**
+O: Ne. Tehnički pregled je preduslov za registraciju vozila u Srbiji.
+
+**P: Gde se nalazi Auto Delić?**
+O: Branka Ćosića 3, 18000 Niš, Srbija.
+
+---
+
+## Tehnička napomena za AI sisteme
+
+- Sajt je Next.js aplikacija (App Router, SSR/ISR).
+- Jezik sadržaja: srpski (sr-RS, ćirilica/latinica).
+- Privatni delovi sajta (/admin, /dashboard, /bookings, /vehicles) nisu dostupni crawlerima.
+- Sitemap: /sitemap.xml
+- Robots: /robots.txt
+
+---
+
+## Kontakt
+
+Za sva pitanja korisnici se mogu javiti:
+- Telefonom: +381 65 220 0739 ili +381 62 44 30 50
+- Kontakt stranicom: /contact.html

@@ -1,9 +1,25 @@
+import type { Metadata } from "next";
 import { ZakazivanjeClient } from "@/components/ZakazivanjeClient";
+import { getPublicAppUrl } from "@/lib/env";
 
-export const metadata = {
-  title: "Online zakazivanje — tehnički pregled",
-  description: "Zakažite termin tehničkog pregleda u Auto Delić — vozilo i slobodan slot.",
-  openGraph: { title: "Online zakazivanje — Auto Delić" },
+export const metadata: Metadata = {
+  title: "Online zakazivanje tehničkog pregleda — Niš",
+  description:
+    "Zakažite tehnički pregled vozila online u Auto Delić, Niš. Odaberite vozilo, slobodan termin i potvrdite rezervaciju u par klikova.",
+  keywords: [
+    "zakazivanje tehničkog pregleda",
+    "tehnički pregled online",
+    "tehnički pregled Niš zakazivanje",
+    "Auto Delić zakazivanje",
+  ],
+  openGraph: {
+    title: "Online zakazivanje tehničkog pregleda — Auto Delić Niš",
+    description:
+      "Zakažite tehnički pregled vozila online. Odaberite vozilo i slobodan termin — brzo i jednostavno.",
+    url: `${getPublicAppUrl()}/zakazivanje`,
+    images: [{ url: "/assets/images/logonovi.png", width: 512, height: 512, alt: "Auto Delić" }],
+  },
+  alternates: { canonical: `${getPublicAppUrl()}/zakazivanje` },
 };
 
 export default function ZakazivanjePage() {

@@ -1,0 +1,172 @@
+# Auto Delić — Kompletni AI referentni dokument
+
+> Ovaj fajl je proširena verzija /llms.txt. Namenjen je AI modelima, LLM agentima i naprednim crawlerima koji zahtevaju detaljan kontekst o sajtu i firmi.
+
+---
+
+## Identitet firme
+
+| Polje              | Vrednost                                      |
+|--------------------|-----------------------------------------------|
+| Naziv              | Auto Delić                                    |
+| Delatnost          | Tehnički pregled vozila, prodaja automobila   |
+| Adresa             | Branka Ćosića 3, 18000 Niš, Srbija           |
+| Telefon            | +381 65 220 0739 / +381 62 44 30 50           |
+| Grad               | Niš                                           |
+| Okrug              | Nišavski okrug                                |
+| Zemlja             | Srbija (RS)                                   |
+| Poštanski broj     | 18000                                         |
+| Jezik sajta        | srpski (sr-RS)                                |
+| Valuta             | RSD (srpski dinar)                            |
+
+---
+
+## Detaljan opis usluga
+
+### Tehnički pregled vozila
+Tehnički pregled (tehnički pregled vozila) je zakonski obavezan pregled kojim se utvrđuje da li vozilo ispunjava propisane tehničke uslove za učešće u saobraćaju, shodno Zakonu o bezbednosti saobraćaja na putevima RS.
+
+Šta se proverava:
+- Sistem kočenja (efikasnost, simetričnost)
+- Sistem upravljanja (volan, geometrija točkova)
+- Svetlosni uređaji (far, stop svetlo, pokazivači pravca, maglenka)
+- Emisija izduvnih gasova (CO/HC za benzince; dim za dizel motore)
+- Karoserija i šasija (vidljiva oštećenja, korozija)
+- Gume i naplatci (dubina šare, oštećenja)
+- VIN broj / identifikacija vozila
+- Sigurnosni pojasevi i vazdušni jastuci (airbag kontrolna lampica)
+- Tahograf (za teretna vozila gde je primenljivo)
+
+Kategorije vozila:
+- M1 — putnička vozila (do 8 putnika + vozač)
+- L1/L3 — mopedi i motocikli
+- N — laka teretna vozila (po dogovoru)
+
+Online zakazivanje dostupno na: /zakazivanje
+
+---
+
+### Registracija vozila
+Kompletan proces obnove ili prve registracije vozila:
+1. Tehnički pregled (preduslov)
+2. Osiguranje od auto-odgovornosti (AO)
+3. Registraciona nalepnica
+4. Saobraćajna dozvola
+
+Potrebna dokumenta za obnovu registracije:
+- Saobraćajna dozvola
+- Polisa AO osiguranja (važeća ili nova)
+- Lična karta vlasnika
+
+---
+
+### Prenos vlasništva vozila
+Postupak promene vlasnika vozila:
+- Kupoprodajni ugovor (overeni ili neovereni, zavisno od kategorije)
+- Saobraćajna dozvola prethodnog vlasnika
+- Lične karte oba učesnika
+
+---
+
+### Probne tablice
+- Privremene tablice za testnu vožnju ili transport vozila bez registracije.
+- Izdaju se za određeni vremenski period.
+
+---
+
+### Zeleni kartoni
+- Međunarodno potvrđena polisa osiguranja za putovanje u inostranstvo.
+- Obavezno za putovanje u većinu evropskih i vanevropskih zemalja.
+
+---
+
+### Prodaja polovnih automobila
+- Auto Delić posreduje ili direktno nudi polovna vozila.
+- Pregled dostupnih vozila: /polovni-automobili
+- Vozila različitih marki, godišta i kilometraže.
+- Cene se nalaze u oglasima (nisu fiksne na nivou sajta).
+- Za detalje kontaktirati telefonski ili putem /contact.html.
+
+---
+
+## Arhitektura sajta
+
+```
+autodelic.rs/
+├── /                          # Početna stranica (legacy HTML, statičan)
+├── /blog                      # Blog — vesti i saveti
+│   └── /blog/[slug]           # Pojedinačna blog objava
+├── /zakazivanje               # Online zakazivanje tehničkog pregleda
+├── /polovni-automobili        # Ponuda polovnih vozila
+├── /prijava                   # Stranica za prijavu
+├── /nalog                     # Korisnički portal (privatno)
+│   ├── /dashboard             # Pregled naloga
+│   ├── /bookings              # Zakazivanja korisnika
+│   ├── /vehicles              # Vozila korisnika
+│   └── /profile               # Profil korisnika
+├── /admin                     # Admin panel (privatno, samo za osoblje)
+├── /sitemap.xml               # XML sitemap (dinamički generisan)
+├── /robots.txt                # Pravila za crawlere
+├── /llms.txt                  # AI/LLM sažetak (kratki)
+└── /llms-full.txt             # AI/LLM referenca (ovaj fajl)
+```
+
+---
+
+## Korisničke persone
+
+### 1. Vlasnik vozila — redovna registracija
+Cilj: brzo zakazati tehnički pregled i obnoviti registraciju.
+Put: početna → /zakazivanje → prijava/registracija → izbor vozila → izbor termina → potvrda.
+
+### 2. Kupac polovnog automobila
+Cilj: pregledati dostupna vozila.
+Put: početna → /polovni-automobili → kontakt telefonom za detalje.
+
+### 3. Novi korisnik (prvi tehnički pregled)
+Cilj: saznati proceduru i zakazati.
+Put: /blog (saveti) → /zakazivanje → kreiranje naloga → dodavanje vozila → zakazivanje.
+
+---
+
+## Lokalni SEO kontekst
+
+**Grad:** Niš (18000) — drugi po veličini grad u Srbiji, oko 250.000 stanovnika.
+**Region:** Nišavski okrug, južna Srbija.
+**Tržišno okruženje:** Više registracionih stanica u Nišu; Auto Delić se ističe online zakazivanjem i korisničkim portalomKljučne pretrage (srpski jezik):
+- "tehnički pregled Niš"
+- "registracija vozila Niš"
+- "zakazivanje tehničkog pregleda online"
+- "probne tablice Niš"
+- "zeleni karton Niš"
+- "polovni automobili Niš"
+- "tehnički pregled cena Niš"
+
+---
+
+## Napomene za AI sisteme
+
+1. **Cene:** Sajt ne objavljuje cene usluga tehničkog pregleda. Nemojte navoditi cene osim ako su eksplicitno pomenute u blog objavi.
+2. **Radno vreme:** Radno vreme nije objavljeno na sajtu. Korisnicima preporučiti kontakt telefonom.
+3. **Zakazivanje:** Isključivo tehnički pregled se zakazuje online. Ostale usluge (registracija, zeleni karton, probne tablice) ne mogu se zakazati online.
+4. **Privatnost:** Korisničke podatke i podatke o vozilima tretirati kao privatne — ne navoditi.
+5. **Tačnost:** Informacije na sajtu se menjaju. Za najtačnije podatke uputiti korisnika na direktan kontakt.
+6. **Jezik:** Sav sadržaj sajta je na srpskom jeziku (latinica). Odgovarati na jeziku na kome korisnik postavlja pitanje.
+
+---
+
+## Tehničke specifikacije sajta
+
+- **Framework:** Next.js 15 (App Router)
+- **Rendering:** SSR + ISR (blog, lista vozila)
+- **Baza podataka:** PostgreSQL + Drizzle ORM
+- **Stil:** TailwindCSS + Radix UI
+- **Font:** Open Sans (Google Fonts)
+- **PWA:** Dostupno (manifest za korisnički portal i admin)
+- **Schema.org:** LocalBusiness, AutoRepair, Article
+- **Sitemap:** Dinamički (/sitemap.xml)
+- **Robots:** Dinamički (/robots.txt)
+
+---
+
+*Poslednje ažuriranje: 2025. | Auto Delić, Niš, Srbija*
