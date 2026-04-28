@@ -1,5 +1,5 @@
-/* Basic app-shell SW for installability. */
-const CACHE = "autodelic-v1";
+/* App-shell SW for installability. */
+const CACHE = "autodelic-v2";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -7,9 +7,6 @@ self.addEventListener("install", (event) => {
       .open(CACHE)
       .then((cache) =>
         cache.addAll([
-          "/",
-          "/nalog",
-          "/admin",
           "/assets/css/style.css",
           "/assets/css/plugins.css",
           "/assets/images/logonovi.png",
@@ -38,6 +35,21 @@ self.addEventListener("fetch", (event) => {
   // Never cache API responses.
   if (url.pathname.startsWith("/api/")) return;
 
+  // HTML navigation requests — Network First so users always get fresh content.
+  if (req.mode === "navigate" || req.headers.get("accept")?.includes("text/html")) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => undefined);
+          return res;
+        })
+        .catch(() => caches.match(req).then((hit) => hit || Response.error()))
+    );
+    return;
+  }
+
+  // Static assets — Cache First for performance.
   event.respondWith(
     caches.match(req).then((hit) => {
       if (hit) return hit;
@@ -47,7 +59,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => undefined);
           return res;
         })
-        .catch(() => hit || Response.error());
+        .catch(() => Response.error());
     })
   );
 });
