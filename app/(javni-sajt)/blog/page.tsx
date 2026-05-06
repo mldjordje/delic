@@ -2,11 +2,25 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
+import { getPublicAppUrl } from "@/lib/env";
 
 export const metadata: Metadata = {
-  title: "Blog | Auto Delić",
-  description: "Vesti, saveti i obaveštenja o tehničkom pregledu i servisu.",
-  openGraph: { title: "Blog | Auto Delić" },
+  title: "Blog — saveti i vesti o tehničkom pregledu | Auto Delić Niš",
+  description:
+    "Korisni saveti, vesti i obaveštenja o tehničkom pregledu vozila, registraciji i servisu. Auto Delić Niš — ostanite informisani.",
+  keywords: [
+    "tehnički pregled saveti",
+    "registracija vozila Srbija",
+    "tehnički pregled blog",
+    "Auto Delić blog",
+    "vesti tehnički pregled Niš",
+  ],
+  openGraph: {
+    title: "Blog — tehnički pregled vozila | Auto Delić Niš",
+    description: "Saveti, vesti i obaveštenja o tehničkom pregledu i registraciji vozila.",
+    url: "/blog",
+  },
+  alternates: { canonical: `${getPublicAppUrl()}/blog` },
 };
 
 export const revalidate = 120;

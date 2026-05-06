@@ -53,8 +53,41 @@ export default async function BlogPostPage({ params }: Props) {
     notFound();
   }
 
+  const base = getPublicAppUrl();
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt.slice(0, 180),
+    datePublished: post.createdAt,
+    dateModified: post.updatedAt,
+    author: { "@type": "Organization", name: "Auto Delić", url: base },
+    publisher: {
+      "@type": "Organization",
+      name: "Auto Delić",
+      url: base,
+      logo: { "@type": "ImageObject", url: `${base}/assets/images/logonovi.png` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${base}/blog/${slug}` },
+    ...(Array.isArray(post.imageUrls) && post.imageUrls[0]
+      ? { image: post.imageUrls[0] }
+      : {}),
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Početna", item: base },
+      { "@type": "ListItem", position: 2, name: "Blog", item: `${base}/blog` },
+      { "@type": "ListItem", position: 3, name: post.title, item: `${base}/blog/${slug}` },
+    ],
+  };
+
   return (
     <main className="dark-bg-1" itemScope itemType="https://schema.org/Article">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <meta itemProp="headline" content={post.title} />
       <div className="container top-bottom-padding-120" style={{ maxWidth: 780 }}>
         <p className="small-title-oswald text-color-4">

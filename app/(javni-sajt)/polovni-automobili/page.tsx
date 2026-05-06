@@ -1,8 +1,25 @@
 import { PolovniPublicClient } from "@/components/PolovniPublicClient";
+import type { Metadata } from "next";
+import { getPublicAppUrl } from "@/lib/env";
 
-export const metadata = {
-  title: "Polovni automobili",
-  description: "Ponuda polovnih vozila — Auto Delić",
+export const metadata: Metadata = {
+  title: "Polovni automobili Niš — proverena vozila",
+  description:
+    "Pogledajte ponudu proverenih polovnih automobila u Auto Deliću, Niš. Sva vozila prošla tehnički pregled. Branka Ćosića 3, Niš — pozovite +381 65 220 0739.",
+  keywords: [
+    "polovni automobili Niš",
+    "kupovina polovnog automobila Niš",
+    "proverena vozila Niš",
+    "Auto Delić polovni automobili",
+    "polovna vozila Niš prodaja",
+  ],
+  openGraph: {
+    title: "Polovni automobili Niš — Auto Delić",
+    description:
+      "Proverena polovna vozila u Nišu. Tehnički pregledana, na jednom mestu.",
+    url: "/polovni-automobili",
+  },
+  alternates: { canonical: `${getPublicAppUrl()}/polovni-automobili` },
 };
 
 export default function PolovniAutomobiliPage() {
