@@ -1,8 +1,9 @@
 import type { NextResponse } from "next/server";
 import { SignJWT, jwtVerify } from "jose";
 import { env } from "@/lib/env";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
 
-export const SESSION_COOKIE_NAME = "autodelic_session";
+export { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 /**

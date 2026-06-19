@@ -80,6 +80,12 @@ export async function POST(request: Request) {
     return withCors(request, fail(400, "Vozilo nije pronađeno."));
   }
 
+  const [profile] = await db
+    .select({ fullName: schema.profiles.fullName })
+    .from(schema.profiles)
+    .where(eq(schema.profiles.userId, auth.user.id))
+    .limit(1);
+
   if (!isWithinBookingWindow(startAt, settings.bookingWindowDays)) {
     return withCors(
       request,
@@ -169,7 +175,17 @@ export async function POST(request: Request) {
     await Promise.all([
       // Potvrda korisniku
       userEmail
-        ? sendBookingConfirmationEmail({ to: userEmail, startsAtIso })
+        ? sendBookingConfirmationEmail({
+            to: userEmail,
+            fullName: profile?.fullName,
+            startsAtIso,
+            vehicle: [vehicle.make, vehicle.model, vehicle.year].filter(Boolean).join(" "),
+            plateNumber: vehicle.plateNumber,
+            companyName: "Auto Delić",
+            address: "Bulevar Svetog Cara Konstantina 67Nj, Niš",
+            phone: "+381 65 220 0739",
+            email: String(env.RESEND_REPLY_TO || "info@autodelic.com"),
+          })
             .then((c) => {
               if (!c?.sent) console.error("[bookings:email] confirmation NOT sent:", (c as { reason?: string })?.reason);
               else console.log("[bookings:email] confirmation sent ok");

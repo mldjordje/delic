@@ -180,6 +180,10 @@
   padding: 24px;
 }
 
+.admin-mobile-nav {
+  display: none;
+}
+
 .admin-card {
   background: rgba(217, 232, 248, 0.13);
   border: 1px solid rgba(217, 232, 248, 0.3);
@@ -1485,7 +1489,61 @@
   }
 
   .admin-template-content {
-    padding: 10px;
+    padding: 10px 10px calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .admin-mobile-nav {
+    position: fixed;
+    z-index: 90;
+    right: 10px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    left: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid rgba(217, 232, 248, 0.25);
+    border-radius: 18px;
+    background: rgba(9, 15, 25, 0.96);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .admin-mobile-nav-item {
+    min-width: 0;
+    min-height: 52px;
+    padding: 5px 3px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: #bcd0e8;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .admin-mobile-nav-item svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+  }
+
+  .admin-mobile-nav-item.is-active {
+    color: #ffffff;
+    background: rgba(217, 232, 248, 0.18);
+  }
+
+  .admin-mobile-nav-item:focus-visible {
+    outline: 2px solid #ffbf00;
+    outline-offset: 1px;
   }
 
   .admin-calendar-page.is-mobile-full {

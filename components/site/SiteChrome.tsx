@@ -29,8 +29,7 @@ const NAV: NavItem[] = [
   { href: "/polovni-automobili", label: "Polovni automobili" },
   { href: "/blog", label: "Blog" },
   { href: "/video-public", label: "Video" },
-  { href: "/prijava", label: "Prijava" },
-  { href: "/dashboard", label: "Moj nalog" },
+  { href: "/prijava", label: "Moj nalog" },
   { href: "/nalog#vozila", label: "Moja vozila" },
   { href: "/contact.html", label: "Kontakt" },
 ];
