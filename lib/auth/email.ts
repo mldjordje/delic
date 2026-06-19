@@ -1,6 +1,10 @@
 import { Resend } from "resend";
 import { env } from "@/lib/env";
 import { sendMailViaSmtp, smtpConfigured } from "@/lib/email/smtp";
+import {
+  buildBookingConfirmation,
+  type BookingConfirmationInput,
+} from "@/lib/email/booking-confirmation";
 
 let resendClient: Resend | null = null;
 const FALLBACK_FROM = "Auto Delić <onboarding@resend.dev>";
@@ -115,19 +119,9 @@ export async function notifyAdminInbox({
 
 export async function sendBookingConfirmationEmail({
   to,
-  startsAtIso,
-}: {
-  to: string;
-  startsAtIso: string;
-}) {
-  const when = new Date(startsAtIso).toLocaleString("sr-RS", {
-    timeZone: "Europe/Belgrade",
-  });
-  const subject = "Auto Delić — zahtev za termin je primljen";
-  const text = `Zdravo,\n\nVaš zahtev za termin tehničkog pregleda (${when}) je primljen. Uskoro ćete dobiti potvrdu.\n\nAuto Delić`;
-  const html = `<p>Zdravo,</p><p>Vaš <strong>zahtev za termin tehničkog pregleda</strong> za <strong>${escapeHtml(
-    when
-  )}</strong> je primljen. Uskoro možete očekivati potvrdu.</p><p>— Auto Delić</p>`;
+  ...booking
+}: BookingConfirmationInput & { to: string }) {
+  const { subject, text, html } = buildBookingConfirmation(booking);
 
   if (!preferResend() && smtpConfigured()) {
     return await sendMailViaSmtp({

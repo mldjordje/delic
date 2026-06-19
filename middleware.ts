@@ -1,21 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
+import { jwtVerify } from "jose/jwt/verify";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
 
-function base64UrlDecode(input: string) {
-  const normalized = input.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), "=");
-  // Next.js Middleware runtime supports Web APIs, not Node crypto/jose. Buffer is available.
-  // eslint-disable-next-line no-undef
-  return Buffer.from(padded, "base64").toString("utf8");
-}
-
-function unsafeReadJwtPayload(token: string | undefined) {
-  if (!token) return null;
-  const parts = token.split(".");
-  if (parts.length !== 3) return null;
+async function verifyMiddlewareSession(token: string | undefined) {
+  const secret = process.env.AUTH_JWT_SECRET;
+  if (!token || !secret) return null;
   try {
-    return JSON.parse(base64UrlDecode(parts[1])) as Record<string, unknown>;
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
+      algorithms: ["HS256"],
+    });
+    return payload;
   } catch {
     return null;
   }
@@ -75,7 +70,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = unsafeReadJwtPayload(token);
+  const session = await verifyMiddlewareSession(token);
   if (!session?.sub) {
     return unauthorized(request);
   }

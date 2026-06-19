@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, ClipboardList, Globe2, Menu } from "lucide-react";
 import AdminNotificationsBell from "@/components/admin/AdminNotificationsBell";
 import { LogoutButton } from "@/components/LogoutButton";
 import { InstallPwaButton } from "@/components/pwa/InstallPwaButton";
@@ -67,7 +68,7 @@ export default function AdminShellAutoDelic({ children }: { children: React.Reac
 
   return (
     <div className="admin-template-root">
-      <aside className={`admin-template-sidebar ${menuOpen ? "is-open" : ""}`}>
+      <aside id="admin-sidebar" className={`admin-template-sidebar ${menuOpen ? "is-open" : ""}`}>
         <div className="admin-template-brand">
           <h1>Auto Delić</h1>
           <p>
@@ -88,6 +89,7 @@ export default function AdminShellAutoDelic({ children }: { children: React.Reac
                   href={item.href}
                   className={`admin-template-nav-item ${active ? "is-active" : ""}`}
                   onClick={() => setMenuOpen(false)}
+                  aria-current={active ? "page" : undefined}
                 >
                   <span>{item.label}</span>
                 </Link>
@@ -160,6 +162,39 @@ export default function AdminShellAutoDelic({ children }: { children: React.Reac
         </header>
         <main className="admin-template-content">{children}</main>
       </div>
+
+      <nav className="admin-mobile-nav" aria-label="Brza navigacija">
+        <Link
+          href="/admin/kalendar"
+          className={`admin-mobile-nav-item ${pathname === "/admin" || pathname.startsWith("/admin/kalendar") ? "is-active" : ""}`}
+          aria-current={pathname === "/admin" || pathname.startsWith("/admin/kalendar") ? "page" : undefined}
+        >
+          <CalendarDays aria-hidden="true" />
+          <span>Kalendar</span>
+        </Link>
+        <Link
+          href="/admin/bookings"
+          className={`admin-mobile-nav-item ${pathname.startsWith("/admin/bookings") ? "is-active" : ""}`}
+          aria-current={pathname.startsWith("/admin/bookings") ? "page" : undefined}
+        >
+          <ClipboardList aria-hidden="true" />
+          <span>Termini</span>
+        </Link>
+        <Link href="/zakazivanje" className="admin-mobile-nav-item">
+          <Globe2 aria-hidden="true" />
+          <span>Javni sajt</span>
+        </Link>
+        <button
+          type="button"
+          className={`admin-mobile-nav-item ${menuOpen ? "is-active" : ""}`}
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-expanded={menuOpen}
+          aria-controls="admin-sidebar"
+        >
+          <Menu aria-hidden="true" />
+          <span>Meni</span>
+        </button>
+      </nav>
     </div>
   );
 }

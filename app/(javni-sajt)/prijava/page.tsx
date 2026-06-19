@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { PrijavaPageClient } from "@/components/PrijavaPageClient";
+import { getSessionUser } from "@/lib/auth/guards";
+import { loginDestinationForRole } from "@/lib/auth/login-destination";
 
 function oauthStartUrlFromHeaders(headerList: Headers) {
   const hostHeader =
@@ -21,12 +24,18 @@ function oauthStartUrlFromHeaders(headerList: Headers) {
 }
 
 export default async function PrijavaPage() {
+  const user = await getSessionUser();
+  const destination = loginDestinationForRole(user?.role);
+  if (destination) {
+    redirect(destination);
+  }
+
   const headerList = await headers();
   const oauthStartUrl = oauthStartUrlFromHeaders(headerList);
 
   return (
     <main className="dark-bg-1">
-      <div className="container top-bottom-padding-120">
+      <div className="container top-bottom-padding-120 client-auth-container">
         <div className="top-margin-20">
           <Link href="/" className="pointer-large xsmall-title-oswald text-color-4">
             ← Početna
