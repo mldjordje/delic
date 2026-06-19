@@ -9,3 +9,4 @@ drizzle/meta/*.json
 *.log
 *.tsbuildinfo
 index-legacy.php
+.worktrees/
