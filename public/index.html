@@ -163,6 +163,79 @@
     <link href="/assets/css/plugins.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/style.css" rel="stylesheet" type="text/css" />
     <style>
+      /* Hero CTA — naglašeno dugme za zakazivanje (desktop + mobile) */
+      .ad-hero-cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px 18px;
+        margin-top: 30px;
+      }
+      .ad-hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: clamp(15px, 1.7vw, 19px) clamp(26px, 3.4vw, 42px);
+        background: #ffbf00;
+        color: #0b1418 !important;
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: clamp(16px, 1.7vw, 21px);
+        line-height: 1;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0 14px 34px -10px rgba(255, 191, 0, 0.65);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        animation: adHeroPulse 2.6s ease-in-out infinite;
+      }
+      .ad-hero-cta:hover {
+        background: #ffd23d;
+        transform: translateY(-2px);
+        box-shadow: 0 20px 44px -10px rgba(255, 191, 0, 0.8);
+        color: #0b1418 !important;
+      }
+      .ad-hero-cta-arrow {
+        font-size: 1.2em;
+        transition: transform 0.18s ease;
+      }
+      .ad-hero-cta:hover .ad-hero-cta-arrow {
+        transform: translateX(4px);
+      }
+      .ad-hero-call {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: clamp(13px, 1.5vw, 17px) clamp(20px, 2.6vw, 28px);
+        border: 1.5px solid rgba(255, 255, 255, 0.55);
+        color: #fff !important;
+        font-family: "Oswald", sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        font-size: clamp(14px, 1.4vw, 17px);
+        border-radius: 8px;
+        text-decoration: none;
+        transition: border-color 0.18s ease, background 0.18s ease;
+      }
+      .ad-hero-call:hover {
+        border-color: #ffbf00;
+        background: rgba(255, 191, 0, 0.12);
+        color: #fff !important;
+      }
+      @keyframes adHeroPulse {
+        0%, 100% { box-shadow: 0 14px 34px -10px rgba(255, 191, 0, 0.55); }
+        50% { box-shadow: 0 14px 40px -8px rgba(255, 191, 0, 0.9); }
+      }
+      @media (max-width: 600px) {
+        .ad-hero-cta-row { gap: 12px; margin-top: 24px; }
+        .ad-hero-cta, .ad-hero-call { width: 100%; justify-content: center; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ad-hero-cta { animation: none; }
+      }
+    </style>
+    <style>
       /* Fallback: if legacy jQuery plugins fail to boot, keep content visible. */
       .animsition,
       .animsition-overlay {
@@ -378,11 +451,18 @@
                 >Posredovanje u prodaji</span
               >
             </p>
-            <a href="/zakazivanje" class="no-underline">
-              <h2 class="overlay-loading2 medium-title red-color">Zakaži termin / registraciju</h2>
-            </a>
+            <div class="ad-hero-cta-row fade-loading tr-delay06">
+              <a href="/zakazivanje" class="ad-hero-cta animsition-link pointer-large" aria-label="Zakaži termin za tehnički pregled online">
+                <span>Zakaži termin online</span>
+                <span class="ad-hero-cta-arrow" aria-hidden="true">&#8594;</span>
+              </a>
+              <a href="tel:+38162443050" class="ad-hero-call pointer-large" aria-label="Pozovi Auto Delić">
+                <span aria-hidden="true">&#9742;</span>
+                <span>062 44 30 50</span>
+              </a>
+            </div>
             <p class="top-margin-20 small-title-oswald text-color-4 fade-loading tr-delay06" style="max-width: 520px">
-              Online birate <strong>uslugu</strong>, <strong>vozilo</strong> i <strong>slobodan termin</strong> — brza prijava Google nalogom.
+              Online birate <strong>uslugu</strong>, <strong>vozilo</strong> i <strong>slobodan termin</strong> &mdash; bez čekanja u redu.
             </p>
           </div>
         </div>

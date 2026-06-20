@@ -2,13 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, RefreshCw, Car, Clock, CheckCircle2, ChevronRight } from "lucide-react";
+import { Plus, RefreshCw, Car, Clock, CheckCircle2, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { BookingDateGrid } from "@/components/booking/BookingDateGrid";
 
-type Vehicle = { id: string; make: string; year: number };
+type Vehicle = {
+  id: string;
+  make: string;
+  year: number;
+  model?: string | null;
+  plateNumber?: string | null;
+  registrationExpiresOn?: string | null;
+};
 type Slot = { startAt: string; endAt: string; available: boolean };
 
 const googleHref = `/api/auth/google?next=${encodeURIComponent("/dashboard")}`;
@@ -33,15 +47,18 @@ function dayLabel(date: string) {
   });
 }
 
+function regInfo(expiresOn?: string | null) {
+  if (!expiresOn) return null;
+  const days = Math.ceil((new Date(expiresOn).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  if (days < 0) return { label: "Registracija istekla", tone: "bad" as const };
+  if (days <= 30) return { label: `Reg. ističe za ${days} d`, tone: "warn" as const };
+  return { label: `Reg. važi još ${days} d`, tone: "ok" as const };
+}
+
 const slideUp = {
   hidden: { opacity: 0, y: 22 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
 } as const;
-
-const selectClass =
-  "h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-foreground " +
-  "focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-1 focus:ring-offset-background " +
-  "transition-colors hover:border-white/20";
 
 export function PublicBookingWidget({ className }: { className?: string }) {
   const [authChecked, setAuthChecked] = useState(false);
@@ -94,7 +111,12 @@ export function PublicBookingWidget({ className }: { className?: string }) {
     if (!r.ok) { setMessage({ tone: "warn", text: j?.message || "Greška pri učitavanju vozila." }); return; }
     const list = (j?.vehicles || []) as Vehicle[];
     setVehicles(list);
-    setVehicleId((prev) => prev || list[0]?.id || "");
+    const preselect =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("vehicle")
+        : null;
+    const matched = preselect && list.some((v) => v.id === preselect) ? preselect : "";
+    setVehicleId((prev) => prev || matched || list[0]?.id || "");
   }
 
   useEffect(() => {
@@ -288,31 +310,82 @@ export function PublicBookingWidget({ className }: { className?: string }) {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
-                  <select
-                    value={vehicleId}
-                    onChange={(e) => setVehicleId(e.target.value)}
-                    className={cn(selectClass, "flex-1")}
-                  >
-                    <option value="">— izaberite vozilo —</option>
-                    {vehicles.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.make} ({v.year})
-                      </option>
-                    ))}
-                  </select>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {vehicles.map((v) => {
+                    const active = vehicleId === v.id;
+                    const reg = regInfo(v.registrationExpiresOn);
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setVehicleId(v.id)}
+                        aria-pressed={active}
+                        className={cn(
+                          "group relative flex items-center gap-3 rounded-xl border p-4 text-left transition-all",
+                          active
+                            ? "border-primary bg-primary/10 ring-1 ring-primary/50"
+                            : "border-border bg-card/60 hover:border-primary/40 hover:bg-primary/5"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors",
+                            active ? "bg-primary/20 text-primary" : "bg-white/5 text-muted-foreground group-hover:text-primary"
+                          )}
+                        >
+                          <Car className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-bold text-foreground">
+                            {v.make} {v.model ? <span className="font-medium text-muted-foreground">{v.model}</span> : null}
+                          </p>
+                          <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                            <span>{v.year}</span>
+                            {v.plateNumber ? (
+                              <span className="rounded border border-border bg-background/60 px-1.5 py-px font-mono uppercase tracking-wide text-foreground/90">
+                                {v.plateNumber}
+                              </span>
+                            ) : null}
+                          </p>
+                          {reg ? (
+                            <span
+                              className={cn(
+                                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-medium",
+                                reg.tone === "ok" && "bg-emerald-500/15 text-emerald-300",
+                                reg.tone === "warn" && "bg-amber-500/15 text-amber-300",
+                                reg.tone === "bad" && "bg-red-500/15 text-red-300"
+                              )}
+                            >
+                              {reg.label}
+                            </span>
+                          ) : null}
+                        </div>
+                        <span
+                          className={cn(
+                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all",
+                            active ? "border-primary bg-primary text-primary-foreground" : "border-border"
+                          )}
+                        >
+                          {active ? <Check className="h-3.5 w-3.5" /> : null}
+                        </span>
+                      </button>
+                    );
+                  })}
+
                   <button
                     type="button"
                     onClick={() => setAddOpen((v) => !v)}
+                    aria-expanded={addOpen}
                     className={cn(
-                      "flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all",
+                      "flex items-center justify-center gap-2 rounded-xl border border-dashed p-4 text-sm font-semibold transition-all",
                       addOpen
-                        ? "border-primary/40 bg-primary/10 text-primary"
-                        : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-foreground"
+                        ? "border-primary/50 bg-primary/10 text-primary"
+                        : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary",
+                      vehicles.length === 0 && "sm:col-span-2"
                     )}
                   >
                     <Plus className="h-4 w-4" />
-                    {addOpen ? "Zatvori" : "Dodaj vozilo"}
+                    {addOpen ? "Zatvori formu" : vehicles.length === 0 ? "Dodajte prvo vozilo" : "Dodaj vozilo"}
                   </button>
                 </div>
 
@@ -352,16 +425,20 @@ export function PublicBookingWidget({ className }: { className?: string }) {
                           </label>
                           <label className="space-y-1.5">
                             <span className="text-xs font-medium text-muted-foreground">Gorivo *</span>
-                            <select value={newFuelType} onChange={(e) => setNewFuelType(e.target.value)} className={selectClass}>
-                              <option value="">— izaberite —</option>
-                              <option value="petrol">Benzin</option>
-                              <option value="diesel">Dizel</option>
-                              <option value="hybrid">Hibrid</option>
-                              <option value="ev">Električno</option>
-                              <option value="lpg">LPG</option>
-                              <option value="cng">CNG</option>
-                              <option value="other">Drugo</option>
-                            </select>
+                            <Select value={newFuelType} onValueChange={setNewFuelType}>
+                              <SelectTrigger className="h-11 border-white/10 bg-white/5">
+                                <SelectValue placeholder="— izaberite —" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="petrol">Benzin</SelectItem>
+                                <SelectItem value="diesel">Dizel</SelectItem>
+                                <SelectItem value="hybrid">Hibrid</SelectItem>
+                                <SelectItem value="ev">Električno</SelectItem>
+                                <SelectItem value="lpg">LPG</SelectItem>
+                                <SelectItem value="cng">CNG</SelectItem>
+                                <SelectItem value="other">Drugo</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </label>
                           <label className="space-y-1.5">
                             <span className="text-xs font-medium text-muted-foreground">Istek registracije *</span>
