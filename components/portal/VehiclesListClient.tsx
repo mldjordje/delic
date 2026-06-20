@@ -67,7 +67,7 @@ export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
               ) : null}
 
               <Button asChild variant="outline" size="sm">
-                <Link href="/bookings/new">Zakaži za ovo vozilo</Link>
+                <Link href={`/bookings/new?vehicle=${v.id}`}>Zakaži za ovo vozilo</Link>
               </Button>
             </CardContent>
           </Card>

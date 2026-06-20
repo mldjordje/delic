@@ -212,6 +212,36 @@ export default function AdminPolovniPage() {
             onChange={(e) => setImageUrl(e.target.value)}
             style={inputStyle}
           />
+          {imageUrl ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: 10,
+                border: "1px solid #334155",
+                borderRadius: 8,
+                background: "#0f172a",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt="Pregled slike"
+                style={{ width: 96, height: 72, objectFit: "cover", borderRadius: 6, background: "#1e293b" }}
+              />
+              <span style={{ color: "#94a3b8", fontSize: 13, flex: 1, wordBreak: "break-all" }}>
+                Slika spremna za objavu
+              </span>
+              <button
+                type="button"
+                className="admin-template-link-btn"
+                onClick={() => setImageUrl("")}
+              >
+                Ukloni sliku
+              </button>
+            </div>
+          ) : null}
           <input
             placeholder="Kontakt telefon (opciono)"
             value={contactPhone}
@@ -251,9 +281,26 @@ export default function AdminPolovniPage() {
               {items.map((l) => (
                 <tr key={l.id}>
                   <td>
-                    <strong>{l.title}</strong>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                      {[l.make, l.year].filter(Boolean).join(" · ")}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      {l.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={l.imageUrl}
+                          alt=""
+                          style={{ width: 56, height: 42, objectFit: "cover", borderRadius: 6, background: "#1e293b", flexShrink: 0 }}
+                        />
+                      ) : (
+                        <span
+                          style={{ width: 56, height: 42, borderRadius: 6, background: "#1e293b", flexShrink: 0, display: "inline-block" }}
+                          aria-hidden
+                        />
+                      )}
+                      <div>
+                        <strong>{l.title}</strong>
+                        <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                          {[l.make, l.year].filter(Boolean).join(" · ")}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   <td>{l.priceRsd.toLocaleString("sr-RS")} RSD</td>

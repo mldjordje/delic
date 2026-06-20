@@ -65,13 +65,27 @@ export default async function DashboardPage() {
             <CardTitle>Vozila</CardTitle>
             <CardDescription>
               {vehicles.length
-                ? `Ukupno: ${vehicles.length}`
+                ? `Ukupno: ${vehicles.length} · zakažite pregled za jedno od svojih vozila`
                 : "Dodajte vozilo kako biste mogli da zakažete termin."}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button asChild variant="secondary">
-              <Link href="/vehicles">Otvori</Link>
+          <CardContent className="space-y-3">
+            {vehicles.slice(0, 3).map((v) => (
+              <div
+                key={v.id}
+                className="flex items-center justify-between gap-3 rounded-md border bg-background/30 p-3"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{v.make}</p>
+                  <p className="text-xs text-muted-foreground">{v.year}</p>
+                </div>
+                <Button asChild size="sm" variant="secondary" className="shrink-0">
+                  <Link href={`/bookings/new?vehicle=${v.id}`}>Zakaži</Link>
+                </Button>
+              </div>
+            ))}
+            <Button asChild variant="outline">
+              <Link href="/vehicles">{vehicles.length ? "Sva vozila" : "Dodaj vozilo"}</Link>
             </Button>
           </CardContent>
         </Card>

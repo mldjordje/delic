@@ -100,7 +100,14 @@ export function BookingFlow() {
         if (rv.ok && vj?.vehicles) {
           const list = vj.vehicles as Vehicle[];
           setVehicles(list);
-          setVehicleId((prev) => prev || list[0]?.id || "");
+          // Prefill vozila iz ?vehicle=ID (brzo zakazivanje sa Pregleda / Vozila)
+          const preselect =
+            typeof window !== "undefined"
+              ? new URLSearchParams(window.location.search).get("vehicle")
+              : null;
+          const matched = preselect && list.some((v) => v.id === preselect) ? preselect : "";
+          setVehicleId((prev) => prev || matched || list[0]?.id || "");
+          if (matched) setStep("time");
         }
       }
     })();
@@ -193,7 +200,7 @@ export function BookingFlow() {
           >
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-sm font-medium">Choose a vehicle</p>
+                <p className="text-sm font-medium">Izaberite vozilo</p>
                 <p className="mt-1 text-sm text-muted-foreground">Koristi se za termin i podsetnike.</p>
               </div>
               <Button type="button" variant="secondary" onClick={() => setStep("time")} disabled={!canGoTime}>
@@ -237,8 +244,8 @@ export function BookingFlow() {
 
               {vehicles.length === 0 ? (
                 <Card className="glass p-4 md:col-span-2">
-                  <p className="text-sm font-medium">No vehicles yet</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Add a vehicle in your account first.</p>
+                  <p className="text-sm font-medium">Još nemate vozilo</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Prvo dodajte vozilo u svom nalogu.</p>
                 </Card>
               ) : null}
             </div>
@@ -256,7 +263,7 @@ export function BookingFlow() {
           >
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="text-sm font-medium">Pick date & time</p>
+                <p className="text-sm font-medium">Izaberite datum i vreme</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {selectedVehicle ? `${selectedVehicle.make} (${selectedVehicle.year})` : "—"} · Tehnički ·{" "}
                   {tehnickiDuration} min
@@ -264,30 +271,30 @@ export function BookingFlow() {
               </div>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" onClick={() => setStep("vehicle")}>
-                  Back
+                  Nazad
                 </Button>
                 <Button type="button" onClick={() => void submit()} disabled={!canSubmit}>
-                  {busy ? "Sending…" : "Send request"}
+                  {busy ? "Slanje…" : "Pošalji zahtev"}
                 </Button>
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-[280px_1fr]">
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">Date</p>
+                <p className="text-xs text-muted-foreground">Datum</p>
                 <BookingDateGrid serviceId={tehnickiId} value={date} onChange={(d) => setDate(d)} />
                 {date ? (
                   <p className="text-xs text-muted-foreground">{dayLabel(date)}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Choose a day to see slots.</p>
+                  <p className="text-xs text-muted-foreground">Izaberite dan da vidite slobodne termine.</p>
                 )}
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">Available slots</p>
+                  <p className="text-xs text-muted-foreground">Slobodni termini</p>
                   <p className="text-xs text-muted-foreground">
-                    {slotsBusy ? "Loading…" : `${slots.filter((s) => s.available).length} available`}
+                    {slotsBusy ? "Učitavanje…" : `Slobodno: ${slots.filter((s) => s.available).length}`}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -309,7 +316,7 @@ export function BookingFlow() {
                     })}
                   {!slotsBusy && date && slots.filter((s) => s.available).length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      No slots available for this day. Try another date.
+                      Nema slobodnih termina za ovaj dan. Probajte drugi datum.
                     </p>
                   ) : null}
                 </div>
