@@ -2,7 +2,7 @@
    immutable asset-e. Stara verzija je bila cache-first za SVE GET zahteve, pa
    je zaglavljivala stari admin app-shell i prikazivala keširane prijavljene
    stranice i posle odjave. */
-const VERSION = "autodelic-v3";
+const VERSION = "autodelic-v4";
 const STATIC_CACHE = `${VERSION}-static`;
 const OFFLINE_FALLBACK = "/";
 

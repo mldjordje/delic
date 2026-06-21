@@ -1,0 +1,1 @@
+- [SW cache staleness](sw-cache-staleness.md) — PWA service worker caching causes stale admin/portal bugs; bump version, keep navigations network-first

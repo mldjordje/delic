@@ -604,8 +604,22 @@ export default function AdminKalendarPage() {
                 </div>
               ) : null}
 
-              {/* Akcije */}
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 14 }}>
+              {/* Akcije — zalepljene za dno panela da „Sačuvaj” bude uvek vidljiv
+                  (i iznad donje mobilne navigacije), bez potrebe za skrolom. */}
+              <div
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  display: "flex",
+                  gap: 8,
+                  flexWrap: "wrap",
+                  margin: "0 -20px -14px",
+                  padding: "14px 20px calc(14px + env(safe-area-inset-bottom, 0px))",
+                  borderTop: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(10, 15, 25, 0.98)",
+                }}
+              >
                 <button
                   type="button"
                   onClick={() => void saveDetail()}
