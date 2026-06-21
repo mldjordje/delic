@@ -10,8 +10,8 @@ test("builds complete, escaped booking confirmation", () => {
     plateNumber: "NI-123-AB",
     companyName: "Auto Delić",
     address: "Bulevar Svetog Cara Konstantina 67Nj, Niš",
-    phone: "+381 65 220 0739",
-    email: "info@autodelic.com",
+    phone: "062 443 050 / 066 282 383",
+    email: "adtehnickipregled@gmail.com",
   });
 
   assert.match(result.subject, /potvrda termina/i);
@@ -22,6 +22,8 @@ test("builds complete, escaped booking confirmation", () => {
   assert.match(result.text, /Registarska oznaka: NI-123-AB/);
   assert.match(result.text, /10 minuta pre zakazanog termina/);
   assert.match(result.text, /Bulevar Svetog Cara Konstantina 67Nj, Niš/);
+  assert.match(result.text, /Kontakt: 062 443 050 \/ 066 282 383/);
+  assert.match(result.text, /Email: adtehnickipregled@gmail\.com/);
   assert.match(result.html, /Petar &lt;Delić&gt;/);
   assert.doesNotMatch(result.html, /Petar <Delić>/);
 });

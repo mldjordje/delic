@@ -5,6 +5,7 @@ import {
   buildBookingConfirmation,
   type BookingConfirmationInput,
 } from "@/lib/email/booking-confirmation";
+import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_PHONE } from "@/lib/site-contact";
 
 let resendClient: Resend | null = null;
 const FALLBACK_FROM = "Auto Delić <onboarding@resend.dev>";
@@ -96,7 +97,7 @@ export async function notifyAdminInbox({
       to: recipients.join(", "),
       subject,
       text,
-      replyTo: env.RESEND_REPLY_TO || undefined,
+      replyTo: PUBLIC_CONTACT_EMAIL,
     });
   }
 
@@ -107,7 +108,7 @@ export async function notifyAdminInbox({
   const r = await resend.emails.send({
     from: resolveFrom(),
     to: recipients,
-    replyTo: env.RESEND_REPLY_TO || undefined,
+    replyTo: PUBLIC_CONTACT_EMAIL,
     subject,
     text,
   });
@@ -129,7 +130,7 @@ export async function sendBookingConfirmationEmail({
       subject,
       text,
       html,
-      replyTo: env.RESEND_REPLY_TO || undefined,
+      replyTo: PUBLIC_CONTACT_EMAIL,
     });
   }
 
@@ -140,7 +141,7 @@ export async function sendBookingConfirmationEmail({
   const r = await resend.emails.send({
     from: resolveFrom(),
     to,
-    replyTo: env.RESEND_REPLY_TO || undefined,
+    replyTo: PUBLIC_CONTACT_EMAIL,
     subject,
     text,
     html,
@@ -181,6 +182,9 @@ export async function sendBookingUpdateEmail({
     inspectionNote ? `Napomena: ${inspectionNote}` : null,
     workerNotes ? `Napomena servisera: ${workerNotes}` : null,
     "",
+    `Kontakt: ${PUBLIC_CONTACT_PHONE}`,
+    `Email: ${PUBLIC_CONTACT_EMAIL}`,
+    "",
     "Auto Delić",
   ].filter(Boolean);
   const text = lines.join("\n");
@@ -189,6 +193,7 @@ export async function sendBookingUpdateEmail({
 ${resultSr ? `<p>Rezultat tehničkog: <strong>${escapeHtml(resultSr)}</strong></p>` : ""}
 ${inspectionNote ? `<p>Napomena: ${escapeHtml(String(inspectionNote))}</p>` : ""}
 ${workerNotes ? `<p>Napomena servisera: ${escapeHtml(String(workerNotes))}</p>` : ""}
+<p>Kontakt: <strong>${escapeHtml(PUBLIC_CONTACT_PHONE)}</strong><br/>Email: <strong>${escapeHtml(PUBLIC_CONTACT_EMAIL)}</strong></p>
 <p>— Auto Delić</p>`;
 
   if (!preferResend() && smtpConfigured()) {
@@ -197,7 +202,7 @@ ${workerNotes ? `<p>Napomena servisera: ${escapeHtml(String(workerNotes))}</p>` 
       subject,
       text,
       html,
-      replyTo: env.RESEND_REPLY_TO || undefined,
+      replyTo: PUBLIC_CONTACT_EMAIL,
     });
   }
 
@@ -208,7 +213,7 @@ ${workerNotes ? `<p>Napomena servisera: ${escapeHtml(String(workerNotes))}</p>` 
   const r = await resend.emails.send({
     from: resolveFrom(),
     to,
-    replyTo: env.RESEND_REPLY_TO || undefined,
+    replyTo: PUBLIC_CONTACT_EMAIL,
     subject,
     text,
     html,

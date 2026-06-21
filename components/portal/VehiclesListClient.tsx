@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditVehicleDialog, type VehicleEdit } from "@/components/portal/EditVehicleDialog";
 import { Reveal } from "@/components/ui/reveal";
+import { fuelLabelSr } from "@/lib/vehicles/fuel-label";
 
 export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
   const router = useRouter();
@@ -43,7 +44,7 @@ export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
               <div className="rounded-md border bg-background/30 p-3">
                 <p className="text-xs text-muted-foreground">Osnovno</p>
                 <p className="mt-1 text-sm font-medium">
-                  {v.plateNumber ? v.plateNumber : "—"} · {v.fuelType ? v.fuelType : "—"}
+                  {v.plateNumber ? v.plateNumber : "—"} · {fuelLabelSr(v.fuelType) || "—"}
                 </p>
                 {v.model ? <p className="mt-1 text-xs text-muted-foreground">Model: {v.model}</p> : null}
               </div>

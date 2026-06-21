@@ -17,9 +17,11 @@ import {
   userHasOverlappingBooking,
 } from "@/lib/booking/engine";
 import { getDefaultEmployee } from "@/lib/booking/config";
+import { initialBookingStatus } from "@/lib/booking/booking-policy";
 import { getTehnickiPregledService } from "@/lib/booking/technical-service";
 import { WORKING_HOURS_SUMMARY } from "@/lib/booking/schedule";
 import { and, eq } from "drizzle-orm";
+import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_PHONE } from "@/lib/site-contact";
 
 export const runtime = "nodejs";
 
@@ -109,6 +111,7 @@ export async function POST(request: Request) {
   }
 
   let createdBooking: typeof schema.bookings.$inferSelect | undefined;
+  const initialStatus = initialBookingStatus(settings.autoConfirmBookings);
 
   try {
     await db.transaction(async (tx) => {
@@ -134,7 +137,7 @@ export async function POST(request: Request) {
           serviceId: svc.id,
           startsAt: startAt,
           endsAt,
-          status: "pending",
+          status: initialStatus,
           totalDurationMin: durationMin,
           totalPriceRsd: 0,
           clientNotes: parsed.data.clientNotes || null,
@@ -146,9 +149,11 @@ export async function POST(request: Request) {
       await tx.insert(schema.bookingStatusLog).values({
         bookingId: row.id,
         previousStatus: null,
-        nextStatus: "pending",
+        nextStatus: initialStatus,
         changedByUserId: auth.user.id,
-        note: "Kreirano online",
+        note: settings.autoConfirmBookings
+          ? "Kreirano online — automatski potvrđeno"
+          : "Kreirano online — čeka potvrdu",
       });
     });
   } catch (e) {
@@ -187,8 +192,8 @@ export async function POST(request: Request) {
             plateNumber: vehicle.plateNumber,
             companyName: "Auto Delić",
             address: "Bulevar Svetog Cara Konstantina 67Nj, Niš",
-            phone: "+381 65 220 0739",
-            email: String(env.RESEND_REPLY_TO || "info@autodelic.com"),
+            phone: PUBLIC_CONTACT_PHONE,
+            email: PUBLIC_CONTACT_EMAIL,
           })
             .then((c) => {
               if (!c?.sent) console.error("[bookings:email] confirmation NOT sent:", (c as { reason?: string })?.reason);

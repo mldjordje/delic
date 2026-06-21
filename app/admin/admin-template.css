@@ -1,10 +1,12 @@
 .admin-template-root {
   min-height: 100vh;
+  height: 100dvh;
   display: grid;
   grid-template-columns: 280px 1fr;
   background: radial-gradient(circle at top right, #17263d 0%, #0a0c00 38%);
   color: #f4f8ff;
   position: relative;
+  overflow: hidden;
 }
 
 .admin-template-root,
@@ -98,6 +100,33 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100dvh;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+  scrollbar-color: #d9e8f8 #111827;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-template-main::-webkit-scrollbar {
+  width: 14px;
+}
+
+.admin-template-main::-webkit-scrollbar-track {
+  background: #111827;
+  border-left: 1px solid rgba(217, 232, 248, 0.18);
+}
+
+.admin-template-main::-webkit-scrollbar-thumb {
+  background: #d9e8f8;
+  border: 3px solid #111827;
+  border-radius: 999px;
+  min-height: 48px;
+}
+
+.admin-template-main::-webkit-scrollbar-thumb:hover {
+  background: #ffbf00;
 }
 
 .admin-template-topbar-left {
@@ -977,15 +1006,19 @@
 }
 
 .clinic-fc-event.is-completed {
-  background: rgba(45, 98, 126, 0.94);
+  background: rgba(22, 163, 74, 0.94);
+}
+
+.clinic-fc-event.is-completed.is-failed {
+  background: rgba(220, 38, 38, 0.94);
 }
 
 .clinic-fc-event.is-cancelled {
-  background: rgba(100, 42, 42, 0.9);
+  background: rgba(217, 119, 6, 0.9);
 }
 
-.clinic-fc-event.is-no_show {
-  background: rgba(110, 56, 90, 0.92);
+.clinic-fc-event.is-no-show {
+  background: rgba(124, 58, 237, 0.92);
 }
 
 .clinic-fc-event.is-block {

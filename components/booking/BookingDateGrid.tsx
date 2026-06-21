@@ -113,11 +113,11 @@ export function BookingDateGrid({
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex items-center justify-between gap-3">
-        <Button type="button" variant="outline" size="sm" onClick={() => shiftMonth(-1)} disabled={busy}>
+        <Button type="button" size="sm" className="bg-primary text-primary-foreground hover:bg-primary/85" onClick={() => shiftMonth(-1)} disabled={busy}>
           Prethodni
         </Button>
         <p className="text-sm font-medium text-foreground">{monthLabelSr(month)}</p>
-        <Button type="button" variant="outline" size="sm" onClick={() => shiftMonth(1)} disabled={busy}>
+        <Button type="button" size="sm" className="bg-primary text-primary-foreground hover:bg-primary/85" onClick={() => shiftMonth(1)} disabled={busy}>
           Sledeći
         </Button>
       </div>
@@ -184,4 +184,3 @@ export function BookingDateGrid({
     </div>
   );
 }
-

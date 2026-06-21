@@ -1,5 +1,7 @@
 "use client";
 
+import { fuelLabelSr } from "@/lib/vehicles/fuel-label";
+
 import { useEffect, useState } from "react";
 
 type Vehicle = {
@@ -383,7 +385,7 @@ export function NalogClient() {
                           {dLeft < 0 ? `Istekla pre ${Math.abs(dLeft)} dana` : `Ističe za ${dLeft} dana`}
                         </span>
                       ) : null}
-                      {v.fuelType ? <span className="client-pill">Gorivo: {v.fuelType}</span> : null}
+                      {v.fuelType ? <span className="client-pill">Gorivo: {fuelLabelSr(v.fuelType)}</span> : null}
                       {v.hasLpgOrMethane ? (
                         <span className={`client-pill ${v.lpgMethaneCertificateExpiresOn ? "" : "is-warn"}`}>
                           Gas (atest): {v.lpgMethaneCertificateExpiresOn ? fmtDate(v.lpgMethaneCertificateExpiresOn) : "nije unet"}

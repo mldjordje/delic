@@ -6,6 +6,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import type { EventClickArg } from "@fullcalendar/core";
+import { bookingCalendarColor } from "@/lib/booking/calendar-presentation";
 
 type BookingRow = {
   id: string;
@@ -31,15 +32,6 @@ type Service = {
 type ClientPick = { id: string; email: string | null; phone: string | null; fullName: string | null };
 type VehiclePick = { id: string; make: string; year: number; registrationExpiresOn: string };
 
-const STATUS_COLOR: Record<string, string> = {
-  pending: "#ca8a04",
-  confirmed: "#2563eb",
-  completed: "#16a34a",
-  cancelled: "#6b7280",
-  no_show: "#dc2626",
-  blocked: "#b45309",
-};
-
 export default function AdminKalendarPage() {
   const calendarRef = useRef<FullCalendar>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -54,6 +46,7 @@ export default function AdminKalendarPage() {
   const [msg, setMsg] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [autoConfirmBookings, setAutoConfirmBookings] = useState(true);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createStartIso, setCreateStartIso] = useState<string>("");
@@ -104,7 +97,7 @@ export default function AdminKalendarPage() {
         title: `${b.vehicle.make}${b.serviceName ? ` · ${b.serviceName}` : ""} · ${b.status}`,
         start: typeof b.startsAt === "string" ? b.startsAt : new Date(b.startsAt).toISOString(),
         end: typeof b.endsAt === "string" ? b.endsAt : new Date(b.endsAt).toISOString(),
-        backgroundColor: STATUS_COLOR[b.status] || "#64748b",
+        backgroundColor: bookingCalendarColor(b.status, b.inspectionResult),
         extendedProps: { row: b },
       }))
     );
@@ -121,6 +114,16 @@ export default function AdminKalendarPage() {
           if (prev && cal.some((x) => x.id === prev)) return prev;
           return (cal[0]?.id as string) || "";
         });
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    void (async () => {
+      const r = await fetch("/api/admin/garage-settings", { credentials: "include" }).catch(() => null);
+      const j = await r?.json().catch(() => null);
+      if (r?.ok && typeof j?.settings?.autoConfirmBookings === "boolean") {
+        setAutoConfirmBookings(j.settings.autoConfirmBookings);
       }
     })();
   }, []);
@@ -414,7 +417,11 @@ export default function AdminKalendarPage() {
             eventClassNames={(arg) => {
               const row = (arg.event.extendedProps as any)?.row as BookingRow | undefined;
               const s = String(row?.status || "");
-              return ["clinic-fc-event", s ? `is-${s.replace("_", "-")}` : ""].filter(Boolean);
+              return [
+                "clinic-fc-event",
+                s ? `is-${s.replace("_", "-")}` : "",
+                row?.inspectionResult ? `is-${row.inspectionResult}` : "",
+              ].filter(Boolean);
             }}
           />
         </div>
@@ -516,14 +523,21 @@ export default function AdminKalendarPage() {
               {active.status !== "blocked" ? (
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#475569", marginBottom: 8 }}>Status</div>
+                  {autoConfirmBookings && active.status === "confirmed" ? (
+                    <div style={{ marginBottom: 8, padding: "8px 10px", borderRadius: 8, background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.28)", color: "#60a5fa", fontSize: 12, fontWeight: 600 }}>
+                      Automatski potvrđen termin
+                    </div>
+                  ) : null}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                     {([
-                      { value: "pending",   label: "Na čekanju",       color: "#ca8a04", bg: "rgba(202,138,4,0.12)" },
+                      { value: "pending",   label: "Na čekanju",       color: "#64748b", bg: "rgba(100,116,139,0.12)" },
                       { value: "confirmed", label: "Potvrđeno",         color: "#2563eb", bg: "rgba(37,99,235,0.12)" },
                       { value: "completed", label: "Završeno",          color: "#16a34a", bg: "rgba(22,163,74,0.12)" },
-                      { value: "cancelled", label: "Otkazano",          color: "#6b7280", bg: "rgba(107,114,128,0.12)" },
-                      { value: "no_show",   label: "Nije se pojavio",   color: "#dc2626", bg: "rgba(220,38,38,0.12)" },
-                    ] as const).map((s) => {
+                      { value: "cancelled", label: "Otkazano",          color: "#d97706", bg: "rgba(217,119,6,0.12)" },
+                      { value: "no_show",   label: "Nije se pojavio",   color: "#7c3aed", bg: "rgba(124,58,237,0.12)" },
+                    ] as const)
+                      .filter((item) => !(autoConfirmBookings && item.value === "confirmed"))
+                      .map((s) => {
                       const isActive = status === s.value;
                       return (
                         <button
@@ -549,7 +563,7 @@ export default function AdminKalendarPage() {
                           {isActive ? "✓ " : ""}{s.label}
                         </button>
                       );
-                    })}
+                      })}
                   </div>
                 </div>
               ) : null}

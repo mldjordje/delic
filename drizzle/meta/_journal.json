@@ -29,6 +29,13 @@
       "when": 1782032400000,
       "tag": "0005_booking_followups",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1782118800000,
+      "tag": "0006_auto_confirm_bookings",
+      "breakpoints": true
     }
   ]
 }

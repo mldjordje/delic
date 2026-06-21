@@ -80,6 +80,7 @@ export const employees = pgTable(
 /** Jedna „traka“ za tehnički pregled (jedan lift / jedan termin u isto vreme). */
 export const garageSettings = pgTable("garage_settings", {
   id: uuid("id").defaultRandom().primaryKey(),
+  autoConfirmBookings: boolean("auto_confirm_bookings").default(true).notNull(),
   slotMinutes: integer("slot_minutes").default(30).notNull(),
   bookingWindowDays: integer("booking_window_days").default(31).notNull(),
   workdayStart: varchar("workday_start", { length: 5 }).default("08:00").notNull(),

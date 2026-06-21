@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS "employees" (
 
 CREATE TABLE IF NOT EXISTS "garage_settings" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "auto_confirm_bookings" boolean DEFAULT true NOT NULL,
   "slot_minutes" integer DEFAULT 30 NOT NULL,
   "booking_window_days" integer DEFAULT 31 NOT NULL,
   "workday_start" varchar(5) DEFAULT '08:00' NOT NULL,
@@ -67,6 +68,7 @@ CREATE TABLE IF NOT EXISTS "garage_settings" (
   "created_at" timestamp with time zone DEFAULT now() NOT NULL,
   "updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
+ALTER TABLE "garage_settings" ADD COLUMN IF NOT EXISTS "auto_confirm_bookings" boolean DEFAULT true NOT NULL;
 
 CREATE TABLE IF NOT EXISTS "video_links" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,

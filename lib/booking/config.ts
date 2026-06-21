@@ -4,6 +4,7 @@ import { getDb, schema } from "@/lib/db/client";
 import { WORKING_HOURS_SUMMARY } from "@/lib/booking/schedule";
 
 export type GarageSettingsResolved = {
+  autoConfirmBookings: boolean;
   slotMinutes: number;
   bookingWindowDays: number;
   workdayStart: string;
@@ -22,6 +23,7 @@ export async function getGarageSettings(): Promise<GarageSettingsResolved> {
     .limit(1);
 
   return {
+    autoConfirmBookings: row?.autoConfirmBookings ?? true,
     slotMinutes: row?.slotMinutes ?? env.CLINIC_SLOT_MINUTES,
     bookingWindowDays: row?.bookingWindowDays ?? env.CLINIC_BOOKING_WINDOW_DAYS,
     workdayStart: row?.workdayStart ?? env.CLINIC_WORKDAY_START,

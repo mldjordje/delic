@@ -3,6 +3,7 @@ import { z } from "zod";
 import { fail, ok, readJson } from "@/lib/api/http";
 import { requireAdmin } from "@/lib/auth/guards";
 import { getDb, schema } from "@/lib/db/client";
+import { getGarageSettings } from "@/lib/booking/config";
 
 export const runtime = "nodejs";
 
@@ -12,17 +13,11 @@ export async function GET() {
     return auth.error;
   }
 
-  const db = getDb();
-  const [row] = await db
-    .select()
-    .from(schema.garageSettings)
-    .orderBy(desc(schema.garageSettings.createdAt))
-    .limit(1);
-
-  return ok({ ok: true, settings: row || null });
+  return ok({ ok: true, settings: await getGarageSettings() });
 }
 
 const patchSchema = z.object({
+  autoConfirmBookings: z.boolean().optional(),
   slotMinutes: z.number().int().min(15).max(120).optional(),
   bookingWindowDays: z.number().int().min(1).max(90).optional(),
   workdayStart: z.string().regex(/^\d{2}:\d{2}$/).optional(),
@@ -54,6 +49,7 @@ export async function PATCH(request: Request) {
     const [inserted] = await db
       .insert(schema.garageSettings)
       .values({
+        autoConfirmBookings: parsed.data.autoConfirmBookings ?? true,
         slotMinutes: parsed.data.slotMinutes ?? 30,
         bookingWindowDays: parsed.data.bookingWindowDays ?? 31,
         workdayStart: parsed.data.workdayStart ?? "08:00",
