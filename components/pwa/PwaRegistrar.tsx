@@ -20,8 +20,11 @@ export function PwaRegistrar() {
       window.location.reload();
     });
 
+    // updateViaCache:"none" → skripta SW-a se uvek proverava sa mreže (ne iz
+    // HTTP keša), pa zaglavljeni stari SW na desktopu brže biva zamenjen
+    // non-caching/kill-switch verzijom.
     void navigator.serviceWorker
-      .register("/sw.js")
+      .register("/sw.js", { updateViaCache: "none" })
       .then((reg) => {
         void reg.update().catch(() => undefined);
       })

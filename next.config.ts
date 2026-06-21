@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
         source: "/assets/:path*",
         headers: [{ key: "Cache-Control", value: `public, max-age=${oneYear}, immutable` }],
       },
+      {
+        // SW skripta se nikad ne kešira u HTTP kešu → zaglavljeni stari SW na
+        // desktopu odmah dobija novu (kill-switch) verziju.
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+      },
     ];
   },
   async rewrites() {
