@@ -76,7 +76,8 @@ export default function AdminKlijentiPage() {
             />
           </label>
         </div>
-        {/* Mobile-first cards */}
+        {/* Mobile-first cards (samo na malim ekranima) */}
+        <div className="admin-only-mobile">
         <div style={{ display: "grid", gap: 12, marginTop: 14 }}>
           {filtered.map((c) => {
             const opened = openId === c.id;
@@ -158,8 +159,10 @@ export default function AdminKlijentiPage() {
             );
           })}
         </div>
+        </div>
 
-        {/* Desktop table (kept for large screens) */}
+        {/* Desktop table (samo na velikim ekranima) */}
+        <div className="admin-only-desktop">
         <div style={{ overflowX: "auto", marginTop: 16 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
@@ -223,6 +226,7 @@ export default function AdminKlijentiPage() {
               ) : null}
             </div>
           ) : null}
+        </div>
         </div>
       </section>
     </div>

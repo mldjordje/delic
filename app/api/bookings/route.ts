@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth/guards";
 import { getDb, schema } from "@/lib/db/client";
 import { env } from "@/lib/env";
 import { notifyAdminInbox, sendBookingConfirmationEmail } from "@/lib/auth/email";
+import { getBookingNotifyRecipients } from "@/lib/auth/admin-emails";
 import { getGarageSettings } from "@/lib/booking/config";
 import {
   addMinutes,
@@ -162,7 +163,10 @@ export async function POST(request: Request) {
   // Emailovi idu NAKON što response stigne korisniku — nema čekanja
   const userEmail = auth.user.email;
   const startsAtIso = createdBooking!.startsAt.toISOString();
-  const notify = String(env.MAIL_ADMIN_TO || env.ADMIN_BOOKING_NOTIFY_EMAIL || "").trim();
+  // Uvek obavesti fiksne admin adrese (+ eventualni env primaoci).
+  const notify = getBookingNotifyRecipients();
+  const whenSr = createdBooking!.startsAt.toLocaleString("sr-RS", { timeZone: "Europe/Belgrade" });
+  const vehicleLabel = [vehicle.make, vehicle.model, vehicle.year].filter(Boolean).join(" ");
 
   after(async () => {
     console.log("[bookings:email] sending emails after response", {
@@ -197,8 +201,21 @@ export async function POST(request: Request) {
       notify
         ? notifyAdminInbox({
             to: notify,
-            subject: "Novi zahtev za termin — Auto Delić",
-            text: `Korisnik ${userEmail || auth.user.id} — Tehnički pregled — ${startsAtIso}`,
+            subject: `Novi termin — ${vehicleLabel || "vozilo"} — ${whenSr}`,
+            text: [
+              "Novi zahtev za termin (tehnički pregled).",
+              "",
+              `Termin: ${whenSr}`,
+              `Vozilo: ${vehicleLabel || "—"}${vehicle.plateNumber ? ` (${vehicle.plateNumber})` : ""}`,
+              `Korisnik: ${profile?.fullName || "—"}`,
+              `Email: ${userEmail || "—"}`,
+              auth.user.phone ? `Telefon: ${auth.user.phone}` : null,
+              parsed.data.clientNotes ? `Napomena: ${parsed.data.clientNotes}` : null,
+              "",
+              "Auto Delić — admin obaveštenje",
+            ]
+              .filter(Boolean)
+              .join("\n"),
           })
             .then((r) => {
               if (!r?.sent) console.error("[bookings:email] admin notify NOT sent:", (r as { reason?: string })?.reason);

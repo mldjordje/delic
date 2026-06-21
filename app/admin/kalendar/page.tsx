@@ -432,11 +432,17 @@ export default function AdminKalendarPage() {
           <div
             style={{
               position: "fixed",
-              bottom: 16, right: 16,
+              // Na mobilnom podigni panel iznad donje admin navigacije (fiksna, ~64px)
+              // da dugme „Sačuvaj promene” ne ostane skriveno ispod nje.
+              bottom: isMobile ? "calc(92px + env(safe-area-inset-bottom, 0px))" : 16,
+              right: 16,
               left: isMobile ? 16 : "auto",
               width: isMobile ? "auto" : 480,
-              maxHeight: "calc(100vh - 32px)",
+              maxHeight: isMobile
+                ? "calc(100dvh - 108px - env(safe-area-inset-bottom, 0px))"
+                : "calc(100vh - 32px)",
               overflowY: "auto",
+              WebkitOverflowScrolling: "touch",
               zIndex: 50,
               background: "rgba(10, 15, 25, 0.98)",
               border: "1px solid rgba(255,255,255,0.12)",
@@ -648,7 +654,7 @@ export default function AdminKalendarPage() {
           className="admin-card"
           style={{
             position: "fixed",
-            bottom: 16,
+            bottom: isMobile ? "calc(92px + env(safe-area-inset-bottom, 0px))" : 16,
             left: 16,
             right: 16,
             maxWidth: 980,
@@ -659,8 +665,11 @@ export default function AdminKalendarPage() {
             border: "1px solid rgba(217, 232, 248, 0.22)",
             backdropFilter: "none",
             WebkitBackdropFilter: "none",
-            maxHeight: "calc(100vh - 32px)",
+            maxHeight: isMobile
+              ? "calc(100dvh - 108px - env(safe-area-inset-bottom, 0px))"
+              : "calc(100vh - 32px)",
             overflow: "auto",
+            WebkitOverflowScrolling: "touch",
           }}
           onClick={(e) => e.stopPropagation()}
         >

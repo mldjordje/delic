@@ -184,6 +184,22 @@
   display: none;
 }
 
+/* Responsive prikaz: tabela na desktopu, kartice na telefonu */
+.admin-only-mobile {
+  display: none;
+}
+.admin-only-desktop {
+  display: block;
+}
+@media (max-width: 640px) {
+  .admin-only-mobile {
+    display: block;
+  }
+  .admin-only-desktop {
+    display: none;
+  }
+}
+
 .admin-card {
   background: rgba(217, 232, 248, 0.13);
   border: 1px solid rgba(217, 232, 248, 0.3);

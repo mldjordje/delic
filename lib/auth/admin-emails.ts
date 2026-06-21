@@ -6,6 +6,28 @@ const RAW_ADMIN_EMAILS = ["web.wise018@gmail.com", "predragdelic03@gmail.com"];
 /** Radnik — dodaj mejl ovde ili postavi STAFF_LOGIN_EMAILS na Vercelu (zarezom odvojeno). */
 const RAW_STAFF_EMAILS: string[] = [];
 
+/**
+ * Adrese koje UVEK dobijaju obaveštenje o novom terminu — nezavisno od env
+ * konfiguracije. Dodatni primaoci preko MAIL_ADMIN_TO / ADMIN_BOOKING_NOTIFY_EMAIL.
+ */
+const RAW_BOOKING_NOTIFY_EMAILS = ["adtehnickipregled@gmail.com", "delicivan79@gmail.com"];
+
+/** Zarezom odvojena lista primalaca obaveštenja o terminu (fiksni + env). */
+export function getBookingNotifyRecipients(): string {
+  const out = new Set<string>();
+  for (const e of RAW_BOOKING_NOTIFY_EMAILS) {
+    const t = String(e || "").trim();
+    if (t.includes("@")) out.add(t);
+  }
+  for (const raw of [process.env.MAIL_ADMIN_TO, process.env.ADMIN_BOOKING_NOTIFY_EMAIL]) {
+    for (const part of String(raw || "").split(",")) {
+      const t = part.trim();
+      if (t.includes("@")) out.add(t);
+    }
+  }
+  return Array.from(out).join(",");
+}
+
 function normalizeEmail(value: string) {
   const trimmed = String(value || "").trim().toLowerCase();
   const at = trimmed.lastIndexOf("@");
