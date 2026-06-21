@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CalendarDays, ClipboardList, Globe2, Menu } from "lucide-react";
 import AdminNotificationsBell from "@/components/admin/AdminNotificationsBell";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -32,30 +32,20 @@ const NAV_STAFF = [
 
 const QUICK = [{ href: "/zakazivanje", label: "Javno zakazivanje" }];
 
-export default function AdminShellAutoDelic({ children }: { children: React.ReactNode }) {
+export default function AdminShellAutoDelic({
+  children,
+  role,
+}: {
+  children: React.ReactNode;
+  // Uloga stiže sa servera (admin/layout.tsx) — autoritativna, bez klijentskog
+  // fetch-a koji je service worker (admin PWA) umeo da posluži keširan/zastareo
+  // i tako srušio sidebar na staff meni (samo Kalendar + Termini).
+  role: Role;
+}) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [role, setRole] = useState<Role | null>(null);
 
-  useEffect(() => {
-    void (async () => {
-      const r = await fetch("/api/admin/me", { credentials: "include" });
-      const j = await r.json().catch(() => null);
-      if (r.ok && j?.user?.role) {
-        setRole(j.user.role as Role);
-      }
-    })();
-  }, []);
-
-  const nav = useMemo(() => {
-    if (!role) {
-      return NAV_OWNER;
-    }
-    if (role === "staff") {
-      return NAV_STAFF;
-    }
-    return NAV_OWNER;
-  }, [role]);
+  const nav = useMemo(() => (role === "staff" ? NAV_STAFF : NAV_OWNER), [role]);
 
   const activeTitle = useMemo(() => {
     const hit = nav.find(

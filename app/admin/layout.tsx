@@ -20,5 +20,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/prijava");
   }
 
-  return <AdminShellAutoDelic>{children}</AdminShellAutoDelic>;
+  return <AdminShellAutoDelic role={user.role as "admin" | "staff"}>{children}</AdminShellAutoDelic>;
 }
