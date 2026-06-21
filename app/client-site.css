@@ -429,6 +429,28 @@ body:has(.autodelic-client-site) {
   margin-top: 0;
 }
 
+/* --- Čitljiv tekst u poljima (legacy style.css resetuje boju → crn tekst na
+   tamnoj kartici, npr. /zakazivanje). Forsiraj svetlu boju + placeholder. --- */
+.autodelic-client-site input,
+.autodelic-client-site textarea,
+.autodelic-client-site select {
+  color: hsl(var(--foreground));
+}
+.autodelic-client-site input::placeholder,
+.autodelic-client-site textarea::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 1;
+}
+.autodelic-client-site select option {
+  color: #0f172a;
+}
+/* date/time ikonice vidljive na tamnoj pozadini */
+.autodelic-client-site input[type="date"]::-webkit-calendar-picker-indicator,
+.autodelic-client-site input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+}
+
 /* --- Istaknute web-app prečice u glavnom (overlay) meniju --- */
 .autodelic-client-site .nav-app-shortcuts {
   list-style: none !important;
