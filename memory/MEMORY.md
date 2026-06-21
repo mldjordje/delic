@@ -1,1 +1,2 @@
 - [SW cache staleness](sw-cache-staleness.md) — PWA service worker caching causes stale admin/portal bugs; bump version, keep navigations network-first
+- [Vercel deploy blocked by migrate](vercel-deploy-blocked-by-migrate.md) — fixes not reaching prod? migrate-ci used to fail the build on migrate error, freezing production
