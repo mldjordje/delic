@@ -61,10 +61,15 @@ export const env = {
 };
 
 export function getPublicAppUrl() {
+  // Vercel uvek izloži produkcijski host — koristi ga kao rezervu da
+  // robots.txt / sitemap / canonical NIKAD ne pokazuju na localhost (što bi
+  // sajt učinilo nevidljivim za pretragu i AI krolere).
+  const vercelHost =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
   return (
     base.NEXT_PUBLIC_APP_URL ||
     base.APP_URL ||
     base.NEXT_PUBLIC_SITE_URL ||
-    "http://localhost:3000"
+    (vercelHost ? `https://${vercelHost}` : "http://localhost:3000")
   );
 }
