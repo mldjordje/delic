@@ -21,16 +21,23 @@ const NAV_BG = [
 
 type NavItem = { href: string; label: string };
 
+// Web-app prečice — istaknute na vrhu menija radi lakšeg pristupa korisničkom
+// portalu. /dashboard, /vehicles i /bookings se sami štite (redirect na
+// /prijava?next=… ako korisnik nije prijavljen).
+const APP_NAV: NavItem[] = [
+  { href: "/zakazivanje", label: "Zakazivanje" },
+  { href: "/dashboard", label: "Moj portal" },
+  { href: "/vehicles", label: "Moja vozila" },
+];
+
 const NAV: NavItem[] = [
   { href: "/", label: "Početna" },
   { href: "/about.html", label: "O nama" },
   { href: "/services.html", label: "Usluge" },
-  { href: "/zakazivanje", label: "Online zakazivanje" },
   { href: "/polovni-automobili", label: "Polovni automobili" },
   { href: "/blog", label: "Blog" },
   { href: "/video-public", label: "Video" },
-  { href: "/prijava", label: "Moj nalog" },
-  { href: "/nalog#vozila", label: "Moja vozila" },
+  { href: "/prijava", label: "Prijava / Registracija" },
   { href: "/contact.html", label: "Kontakt" },
 ];
 
@@ -102,6 +109,25 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         </div>
 
         <ul className="nav-menu dark-bg-1">
+          <li className="nav-app-shortcuts">
+            <p className="nav-app-shortcuts-title">Korisnička aplikacija</p>
+            <div className="nav-app-shortcuts-row">
+              {APP_NAV.map((item) => {
+                const active = pathMatches(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`nav-app-pill pointer-large${active ? " is-active" : ""}`}
+                    onClick={() => setNavOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </li>
           <li className="nav-box nav-bg-change">
             <div className="nav-link" style={{ padding: "18px 0" }}>
               <InstallPwaButton

@@ -428,3 +428,80 @@ body:has(.autodelic-client-site) {
 .autodelic-client-site .client-card > p:first-of-type {
   margin-top: 0;
 }
+
+/* --- Istaknute web-app prečice u glavnom (overlay) meniju --- */
+.autodelic-client-site .nav-app-shortcuts {
+  list-style: none !important;
+  display: block !important;
+  width: 100%;
+  height: auto !important;
+  overflow: visible !important;
+  background: none !important;
+  margin: 0 0 8px;
+  padding: 4px 0 20px;
+  border-bottom: 1px solid rgba(255, 191, 0, 0.22);
+}
+.autodelic-client-site .nav-app-shortcuts-title {
+  margin: 0 0 14px;
+  font-family: "Oswald", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffbf00;
+}
+.autodelic-client-site .nav-app-shortcuts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.autodelic-client-site .nav-app-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #ffbf00;
+  color: #15191b !important;
+  border: 1px solid #ffbf00;
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 12px 30px -14px rgba(255, 191, 0, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.autodelic-client-site .nav-app-pill span {
+  color: inherit !important;
+}
+.autodelic-client-site .nav-app-pill.is-active {
+  background: #15191b;
+  color: #ffbf00 !important;
+  border-color: #ffbf00;
+}
+@media (hover: hover) {
+  .autodelic-client-site .nav-app-pill:hover {
+    transform: translateY(-2px);
+    background: #ffce3a;
+    box-shadow: 0 16px 36px -12px rgba(255, 191, 0, 0.7);
+  }
+  .autodelic-client-site .nav-app-pill.is-active:hover {
+    background: #1c2225;
+  }
+}
+.autodelic-client-site .nav-app-pill:active {
+  transform: translateY(0) scale(0.97);
+}
+
+@media (max-width: 600px) {
+  .autodelic-client-site .nav-app-shortcuts-row {
+    gap: 8px;
+  }
+  .autodelic-client-site .nav-app-pill {
+    padding: 11px 16px;
+    font-size: 13px;
+  }
+}
