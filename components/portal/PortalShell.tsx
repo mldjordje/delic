@@ -54,13 +54,13 @@ function MobileNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-0.5 px-1 py-2 text-[11px] transition-colors",
+                  "flex flex-1 touch-manipulation select-none flex-col items-center gap-0.5 px-1 py-2 text-[11px] transition-colors active:opacity-70",
                   active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+                    "flex h-9 w-9 items-center justify-center rounded-full transition-transform duration-200 active:scale-90",
                     primary
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : active

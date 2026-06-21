@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditVehicleDialog, type VehicleEdit } from "@/components/portal/EditVehicleDialog";
+import { Reveal } from "@/components/ui/reveal";
 
 export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
   const router = useRouter();
@@ -12,7 +13,7 @@ export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {vehicles.map((v) => {
+      {vehicles.map((v, i) => {
         const regMs = new Date(v.registrationExpiresOn).getTime();
         const regDaysLeft = Math.ceil((regMs - now) / (1000 * 60 * 60 * 24));
         const regTone =
@@ -22,7 +23,8 @@ export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
         const lpgDaysLeft = lpgMs ? Math.ceil((lpgMs - now) / (1000 * 60 * 60 * 24)) : null;
 
         return (
-          <Card key={v.id} className={`glass ${regTone}`}>
+          <Reveal key={v.id} delay={Math.min(i, 6) * 70}>
+          <Card className={`glass hover-lift h-full ${regTone}`}>
             <CardHeader>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
@@ -71,6 +73,7 @@ export function VehiclesListClient({ vehicles }: { vehicles: VehicleEdit[] }) {
               </Button>
             </CardContent>
           </Card>
+          </Reveal>
         );
       })}
     </div>

@@ -6,6 +6,7 @@ import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
 import { BookingsClientActions } from "@/components/portal/BookingsClientActions";
 import { PortalHero } from "@/components/portal/PortalHero";
+import { Reveal } from "@/components/ui/reveal";
 
 const STATUS_SR: Record<string, string> = {
   pending: "Na čekanju",
@@ -50,7 +51,8 @@ export default async function BookingsPage() {
       />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="glass">
+        <Reveal className="h-full">
+        <Card className="glass hover-lift h-full">
           <CardHeader>
             <CardTitle>Predstojeći</CardTitle>
             <CardDescription>Vaši naredni termini.</CardDescription>
@@ -86,8 +88,10 @@ export default async function BookingsPage() {
             )}
           </CardContent>
         </Card>
+        </Reveal>
 
-        <Card className="glass">
+        <Reveal className="h-full" delay={90}>
+        <Card className="glass hover-lift h-full">
           <CardHeader>
             <CardTitle>Istorija</CardTitle>
             <CardDescription>Prethodne posete i napomene servisera.</CardDescription>
@@ -114,6 +118,7 @@ export default async function BookingsPage() {
             )}
           </CardContent>
         </Card>
+        </Reveal>
       </div>
     </div>
   );

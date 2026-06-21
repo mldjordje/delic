@@ -5,6 +5,7 @@ import { requireCompleteClientProfile } from "@/lib/auth/profile-completion";
 import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
 import { PortalHero } from "@/components/portal/PortalHero";
+import { Reveal } from "@/components/ui/reveal";
 
 const STATUS_SR: Record<string, string> = {
   pending: "Na čekanju",
@@ -60,7 +61,8 @@ export default async function DashboardPage() {
       />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="glass">
+        <Reveal className="h-full">
+        <Card className="glass hover-lift h-full">
           <CardHeader>
             <CardTitle>Vozila</CardTitle>
             <CardDescription>
@@ -89,7 +91,9 @@ export default async function DashboardPage() {
             </Button>
           </CardContent>
         </Card>
-        <Card className="glass">
+        </Reveal>
+        <Reveal className="h-full" delay={90}>
+        <Card className="glass hover-lift h-full">
           <CardHeader>
             <CardTitle>Termini</CardTitle>
             <CardDescription>
@@ -115,10 +119,12 @@ export default async function DashboardPage() {
             </Button>
           </CardContent>
         </Card>
+        </Reveal>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="glass md:col-span-2">
+        <Reveal className="md:col-span-2">
+        <Card className="glass hover-lift h-full">
           <CardHeader>
             <CardTitle>Sledeći termin</CardTitle>
             <CardDescription>Detalji vašeg narednog termina.</CardDescription>
@@ -166,8 +172,10 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
+        </Reveal>
 
-        <Card className="glass">
+        <Reveal delay={90}>
+        <Card className="glass hover-lift h-full">
           <CardHeader>
             <CardTitle>Istorija</CardTitle>
             <CardDescription>Poslednjih 5 poseta.</CardDescription>
@@ -195,6 +203,7 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
+        </Reveal>
       </div>
     </div>
   );
