@@ -157,6 +157,9 @@ CREATE TABLE IF NOT EXISTS "bookings" (
   "client_notes" text,
   "inspection_result" "inspection_result",
   "inspection_note" text,
+  "follow_up_on" date,
+  "follow_up_note" text,
+  "follow_up_done" boolean DEFAULT false NOT NULL,
   "cancellation_reason" text,
   "cancelled_at" timestamp with time zone,
   "created_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -166,6 +169,9 @@ CREATE TABLE IF NOT EXISTS "bookings" (
 ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "service_id" uuid;
 ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "inspection_result" "inspection_result";
 ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "inspection_note" text;
+ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "follow_up_on" date;
+ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "follow_up_note" text;
+ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "follow_up_done" boolean DEFAULT false NOT NULL;
 
 -- poveži postojeće/nove termine sa podrazumevanom uslugom
 UPDATE "bookings" SET "service_id" = (SELECT "id" FROM "services" WHERE "name" = 'Tehnički pregled' ORDER BY "created_at" LIMIT 1)
@@ -223,6 +229,7 @@ CREATE INDEX IF NOT EXISTS "bookings_employee_starts_idx" ON "bookings" ("employ
 CREATE INDEX IF NOT EXISTS "bookings_user_idx" ON "bookings" ("user_id");
 CREATE INDEX IF NOT EXISTS "bookings_vehicle_idx" ON "bookings" ("vehicle_id");
 CREATE INDEX IF NOT EXISTS "bookings_service_id_idx" ON "bookings" ("service_id");
+CREATE INDEX IF NOT EXISTS "bookings_follow_up_idx" ON "bookings" ("follow_up_on") WHERE "follow_up_on" IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS "employees_slug_unique" ON "employees" ("slug");
 CREATE UNIQUE INDEX IF NOT EXISTS "profiles_user_id_unique" ON "profiles" ("user_id");
 CREATE UNIQUE INDEX IF NOT EXISTS "users_email_unique" ON "users" ("email");

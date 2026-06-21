@@ -187,6 +187,10 @@ export const bookings = pgTable(
     cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
     inspectionResult: inspectionResultEnum("inspection_result"),
     inspectionNote: text("inspection_note"),
+    // Follow-up / podsetnik za servisera (npr. „pozvati klijenta", „ističe reg.")
+    followUpOn: date("follow_up_on"),
+    followUpNote: text("follow_up_note"),
+    followUpDone: boolean("follow_up_done").default(false).notNull(),
     ...timestamps,
   },
   (table) => ({

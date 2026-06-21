@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { fail } from "@/lib/api/http";
 import { getDb, schema } from "@/lib/db/client";
 import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/auth/session";
+import { mergeRoleForLogin } from "@/lib/auth/admin-emails";
 
 export type AuthUser = {
   id: string;
@@ -35,7 +36,12 @@ export async function getSessionUser(): Promise<AuthUser | null> {
     return null;
   }
 
-  return user as AuthUser;
+  return {
+    ...user,
+    // Owner allow-list is authoritative even for sessions/users created before
+    // an address was promoted. The next login also persists this role in DB.
+    role: mergeRoleForLogin(user.email, user.role),
+  } as AuthUser;
 }
 
 export async function requireUser() {

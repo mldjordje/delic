@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose/jwt/verify";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
+import { ADMIN_EMAILS } from "@/lib/auth/admin-emails";
 
 async function verifyMiddlewareSession(token: string | undefined) {
   const secret = process.env.AUTH_JWT_SECRET;
@@ -75,7 +76,8 @@ export async function middleware(request: NextRequest) {
     return unauthorized(request);
   }
 
-  const role = String(session.role || "");
+  const sessionEmail = String(session.email || "").trim().toLowerCase();
+  const role = ADMIN_EMAILS.has(sessionEmail) ? "admin" : String(session.role || "");
   if (role !== "admin" && role !== "staff") {
     // If someone has a session but not an allowed backoffice role,
     // redirect them out of /admin to avoid an infinite redirect loop.

@@ -14,6 +14,14 @@ const patchSchema = z.object({
   workerNotes: z.string().max(8000).optional(),
   inspectionResult: z.enum(["passed", "failed"]).optional().nullable(),
   inspectionNote: z.string().max(8000).optional().nullable(),
+  // Follow-up / podsetnik (YYYY-MM-DD ili null da se obriše)
+  followUpOn: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/u, "Datum mora biti YYYY-MM-DD")
+    .optional()
+    .nullable(),
+  followUpNote: z.string().max(8000).optional().nullable(),
+  followUpDone: z.boolean().optional(),
 });
 
 function statusLabelSr(s: string) {
@@ -91,6 +99,13 @@ export async function PATCH(
               ? String(nextInspectionNote).trim()
               : (existing.inspectionNote ?? null)) as string | null,
           }),
+      ...(d.followUpOn !== undefined
+        ? { followUpOn: d.followUpOn ? d.followUpOn : null }
+        : {}),
+      ...(d.followUpNote !== undefined
+        ? { followUpNote: d.followUpNote ? String(d.followUpNote).trim() : null }
+        : {}),
+      ...(d.followUpDone !== undefined ? { followUpDone: d.followUpDone } : {}),
       updatedAt: now,
     })
     .where(eq(schema.bookings.id, id))

@@ -1,7 +1,12 @@
 export type AppUserRole = "client" | "staff" | "admin";
 
 /** Email adrese koje uvek dobijaju ulogu admin pri prijavi (Google / OTP). */
-const RAW_ADMIN_EMAILS = ["web.wise018@gmail.com", "predragdelic03@gmail.com"];
+const RAW_ADMIN_EMAILS = [
+  "web.wise018@gmail.com",
+  "predragdelic03@gmail.com",
+  "adtehnickipregled@gmail.com",
+  "delicivan79@gmail.com",
+];
 
 /** Radnik — dodaj mejl ovde ili postavi STAFF_LOGIN_EMAILS na Vercelu (zarezom odvojeno). */
 const RAW_STAFF_EMAILS: string[] = [];
