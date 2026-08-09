@@ -157,6 +157,15 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       </nav>
 
       <div className="client-site-content">{children}</div>
+
+      <footer className="client-site-credit">
+        <p className="footer-credit">
+          Izrada sajta{" "}
+          <a href="https://adspire.rs" target="_blank" rel="noopener noreferrer">
+            Adspire
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }

@@ -25,6 +25,17 @@
   }
 }
 
+/* Potpis agencije — App rute nemaju veliki footer kao statičke stranice */
+.autodelic-client-site .client-site-credit {
+  background: var(--client-bg);
+  border-top: 1px solid rgba(236, 244, 251, 0.08);
+  padding: 26px 20px;
+}
+
+.autodelic-client-site .client-site-credit .footer-credit {
+  margin: 0;
+}
+
 /* Kartice / forme u skladu sa tamnim sekcijama sajta */
 .autodelic-client-site .client-card {
   background: rgba(27, 34, 40, 0.96);
