@@ -5,6 +5,7 @@ import { ToastProviderState } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { PwaRegistrar } from "@/components/pwa/PwaRegistrar";
 import { getPublicAppUrl } from "@/lib/env";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL(getPublicAppUrl()),
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Toaster />
           <PwaRegistrar />
         </ToastProviderState>
+        <Analytics />
       </body>
     </html>
   );
