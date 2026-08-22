@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Open_Sans } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
+import { AnalyticsProvider } from "@/components/analytics";
 import { ToastProviderState } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { PwaRegistrar } from "@/components/pwa/PwaRegistrar";
@@ -53,11 +53,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="sr" className={`dark ${openSans.variable}`}>
       <body className={`${openSans.className} antialiased`}>
+        <AnalyticsProvider />
         <ToastProviderState>
           {children}
           <Toaster />
           <PwaRegistrar />
-          <Analytics />
         </ToastProviderState>
       </body>
     </html>
