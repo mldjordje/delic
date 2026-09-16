@@ -6,7 +6,7 @@ import { getDb, schema } from "@/lib/db/client";
 import { parseDateAtTime, toBelgradeDateKey } from "@/lib/booking/schedule";
 import { addMinutes, findConflicts, isWithinWorkHours, lockEmployeeSchedule } from "@/lib/booking/engine";
 import { getDefaultEmployee } from "@/lib/booking/config";
-import { makePlaceholderEmail, normalizePhone, normalizePlate } from "@/lib/booking/manual-client";
+import { buildVehicleMake, makePlaceholderEmail, normalizePhone, normalizePlate } from "@/lib/booking/manual-client";
 
 export const runtime = "nodejs";
 
@@ -26,7 +26,11 @@ const createSchema = z.object({
   vehicleId: z.string().uuid().optional().nullable(),
   newVehicle: z
     .object({
-      make: z.string().trim().min(1).max(120),
+      /** car | motorcycle — tip se čuva kao prefiks marke („Motor · Yamaha”). */
+      kind: z.enum(["car", "motorcycle"]).optional(),
+      /** Vozilo nije zapisano (npr. u svesci) — kreira se „Nepoznato vozilo” za kasniju dopunu. */
+      unknown: z.boolean().optional(),
+      make: z.string().trim().max(100).optional().nullable(),
       model: z.string().trim().max(120).optional().nullable(),
       plateNumber: z.string().trim().max(16).optional().nullable(),
       year: z.number().int().min(1950).max(2100).optional().nullable(),
@@ -196,6 +200,9 @@ export async function POST(request: Request) {
   if (!data.vehicleId && !data.newVehicle) {
     return fail(400, "Izaberite vozilo ili unesite novo.");
   }
+  if (!data.vehicleId && data.newVehicle && !data.newVehicle.unknown && !data.newVehicle.make) {
+    return fail(400, "Unesite marku vozila ili označite da vozilo nije zapisano.");
+  }
 
   let userId = data.userId || null;
   const newPhone = data.newClient ? normalizePhone(data.newClient.phone) : "";
@@ -293,9 +300,9 @@ export async function POST(request: Request) {
           .insert(schema.vehicles)
           .values({
             userId: clientId,
-            make: nv.make.trim(),
+            make: buildVehicleMake(nv.kind, nv.unknown ? null : nv.make),
             model: nv.model?.trim() || null,
-            plateNumber: normalizePlate(nv.plateNumber) || null,
+            plateNumber: nv.unknown ? null : normalizePlate(nv.plateNumber) || null,
             year: nv.year ?? now.getFullYear(),
             // Na tehnički se obično dolazi pred istek registracije — podrazumevano datum termina.
             registrationExpiresOn: nv.registrationExpiresOn || toBelgradeDateKey(startAt),

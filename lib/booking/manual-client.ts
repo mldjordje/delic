@@ -30,6 +30,21 @@ export function normalizePhone(raw: string | null | undefined) {
   return digits;
 }
 
+export const UNKNOWN_VEHICLE_MAKE = "Nepoznato vozilo";
+export const MOTORCYCLE_PREFIX = "Motor · ";
+
+/**
+ * Tabela vozila nema kolonu za tip, pa se motor označava prefiksom marke
+ * („Motor · Yamaha”) — vidljivo svuda gde se prikazuje marka (kalendar, liste).
+ */
+export function buildVehicleMake(kind: "car" | "motorcycle" | undefined, make: string | null | undefined) {
+  const clean = String(make || "").trim();
+  if (kind === "motorcycle") {
+    return `${MOTORCYCLE_PREFIX}${clean || "nepoznat"}`;
+  }
+  return clean || UNKNOWN_VEHICLE_MAKE;
+}
+
 /** Tablica: velika slova, bez suvišnih razmaka ("ni 123-ab" → "NI 123-AB"). */
 export function normalizePlate(raw: string | null | undefined) {
   return String(raw || "")

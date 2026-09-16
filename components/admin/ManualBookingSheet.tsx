@@ -28,6 +28,7 @@ const TZ = "Europe/Belgrade";
 const PLACEHOLDER_DOMAIN = "bez-emaila.autodelic.invalid";
 const BRAND_NAMES: string[] = (brandsData as { name: string }[]).map((b) => b.name);
 const POPULAR_BRANDS = ["Volkswagen", "Opel", "Fiat", "Peugeot", "Renault", "Škoda", "Ford", "Audi", "BMW", "Toyota"];
+const MOTO_BRANDS = ["Yamaha", "Honda", "Suzuki", "Kawasaki", "BMW", "KTM", "Piaggio", "Vespa", "Aprilia", "Ducati", "Harley-Davidson", "Kymco", "SYM"];
 
 /** YYYY-MM-DD u beogradskom vremenu. */
 function belgradeDateKey(d: Date) {
@@ -106,6 +107,8 @@ export default function ManualBookingSheet({
   const [vehiclesBusy, setVehiclesBusy] = useState(false);
   const [vehicleId, setVehicleId] = useState<string>("");
   const [make, setMake] = useState("");
+  const [vehicleKind, setVehicleKind] = useState<"car" | "motorcycle">("car");
+  const [unknownVehicle, setUnknownVehicle] = useState(false);
   const [model, setModel] = useState("");
   const [plate, setPlate] = useState("");
   const [year, setYear] = useState("");
@@ -137,6 +140,8 @@ export default function ManualBookingSheet({
     setVehicles([]);
     setVehicleId("");
     setMake("");
+    setVehicleKind("car");
+    setUnknownVehicle(false);
     setModel("");
     setPlate("");
     setYear("");
@@ -274,11 +279,11 @@ export default function ManualBookingSheet({
     }
     if (!serviceId) return "Izaberite uslugu.";
     if (client) {
-      if (newVehicleMode && !make.trim()) return "Unesite marku vozila.";
+      if (newVehicleMode && !unknownVehicle && !make.trim()) return "Unesite marku ili izaberite „Nije zapisano”.";
       return null;
     }
     if (newName.trim().length < 2) return "Unesite ime klijenta.";
-    if (!make.trim()) return "Unesite marku vozila.";
+    if (!unknownVehicle && !make.trim()) return "Unesite marku ili izaberite „Nije zapisano”.";
     return null;
   }
 
@@ -342,7 +347,9 @@ export default function ManualBookingSheet({
     } else {
       const y = Number(year);
       payload.newVehicle = {
-        make: make.trim(),
+        kind: vehicleKind,
+        unknown: unknownVehicle,
+        make: unknownVehicle ? null : make.trim(),
         model: model.trim() || null,
         plateNumber: plate.trim() || null,
         year: Number.isFinite(y) && y >= 1950 && y <= 2100 ? y : null,
@@ -367,7 +374,9 @@ export default function ManualBookingSheet({
     const who = client ? clientLabel(client) : newName.trim();
     const car = client && !newVehicleMode
       ? vehicles.find((x) => x.id === vehicleId)?.make || ""
-      : make.trim();
+      : unknownVehicle
+        ? vehicleKind === "motorcycle" ? "motor (nepoznat)" : "vozilo nije zapisano"
+        : `${vehicleKind === "motorcycle" ? "Motor · " : ""}${make.trim()}`;
     const entry: SavedEntry = {
       id: j?.booking?.id || `${Date.now()}`,
       when: `${dateKey.slice(8, 10)}.${dateKey.slice(5, 7)}. ${time}`,
@@ -661,7 +670,7 @@ export default function ManualBookingSheet({
                       {!vehiclesBusy ? (
                         <button type="button" className={`mb-result ${newVehicleMode ? "is-on" : ""}`} onClick={() => setVehicleId("__new")}>
                           <strong>
-                            <Plus size={14} /> Novo vozilo
+                            <Plus size={14} /> Novo vozilo / motor / nije zapisano
                           </strong>
                         </button>
                       ) : null}
@@ -671,6 +680,34 @@ export default function ManualBookingSheet({
 
                 {!client || (newVehicleMode && !vehiclesBusy) ? (
                   <div className="mb-grid2" style={{ marginTop: client ? 12 : 0 }}>
+                    <div className="mb-seg mb-span2">
+                      <button
+                        type="button"
+                        className={vehicleKind === "car" ? "is-on" : ""}
+                        onClick={() => {
+                          if (vehicleKind !== "car") setMake("");
+                          setVehicleKind("car");
+                        }}
+                      >
+                        Automobil
+                      </button>
+                      <button
+                        type="button"
+                        className={vehicleKind === "motorcycle" ? "is-on" : ""}
+                        onClick={() => {
+                          if (vehicleKind !== "motorcycle") setMake("");
+                          setVehicleKind("motorcycle");
+                        }}
+                      >
+                        Motor
+                      </button>
+                    </div>
+                    <label className="mb-check mb-span2">
+                      <input type="checkbox" checked={unknownVehicle} onChange={(e) => setUnknownVehicle(e.target.checked)} />
+                      <span>Vozilo nije zapisano u svesci (dopuniti kasnije)</span>
+                    </label>
+                    {!unknownVehicle ? (
+                    <>
                     <label className="mb-field">
                       <span>Marka *</span>
                       <input
@@ -679,7 +716,7 @@ export default function ManualBookingSheet({
                         list="mb-brands"
                         autoComplete="off"
                         autoCapitalize="words"
-                        placeholder="npr. Golf → Volkswagen"
+                        placeholder={vehicleKind === "motorcycle" ? "npr. Yamaha" : "npr. Golf → Volkswagen"}
                       />
                     </label>
                     <label className="mb-field">
@@ -688,7 +725,7 @@ export default function ManualBookingSheet({
                     </label>
                     {!make ? (
                       <div className="mb-chips mb-span2">
-                        {POPULAR_BRANDS.map((b) => (
+                        {(vehicleKind === "motorcycle" ? MOTO_BRANDS : POPULAR_BRANDS).map((b) => (
                           <button key={b} type="button" className="mb-chip is-small" onClick={() => setMake(b)}>
                             {b}
                           </button>
@@ -713,8 +750,10 @@ export default function ManualBookingSheet({
                       <span>Registracija ističe (opciono — podrazumevano datum termina)</span>
                       <input type="date" value={regExp} onChange={(e) => setRegExp(e.target.value)} />
                     </label>
+                    </>
+                    ) : null}
                     <datalist id="mb-brands">
-                      {BRAND_NAMES.map((b) => (
+                      {(vehicleKind === "motorcycle" ? MOTO_BRANDS : BRAND_NAMES).map((b) => (
                         <option key={b} value={b} />
                       ))}
                     </datalist>

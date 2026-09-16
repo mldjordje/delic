@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isPlaceholderEmail, makePlaceholderEmail, normalizePhone, normalizePlate } from "./manual-client";
+import { buildVehicleMake, isPlaceholderEmail, makePlaceholderEmail, normalizePhone, normalizePlate } from "./manual-client";
 
 test("placeholder email je prepoznat i ne liči na pravu adresu", () => {
   const e = makePlaceholderEmail("Petar Petrović");
@@ -14,6 +14,14 @@ test("normalizePhone čisti razmake i crtice", () => {
   assert.equal(normalizePhone("+381 64 123 4567"), "+381641234567");
   assert.equal(normalizePhone("00381641234567"), "+381641234567");
   assert.equal(normalizePhone("   "), "");
+});
+
+test("buildVehicleMake označava motor i nepoznato vozilo", () => {
+  assert.equal(buildVehicleMake("car", "Opel"), "Opel");
+  assert.equal(buildVehicleMake("car", null), "Nepoznato vozilo");
+  assert.equal(buildVehicleMake(undefined, "  "), "Nepoznato vozilo");
+  assert.equal(buildVehicleMake("motorcycle", "Yamaha"), "Motor · Yamaha");
+  assert.equal(buildVehicleMake("motorcycle", null), "Motor · nepoznat");
 });
 
 test("normalizePlate pretvara u velika slova", () => {
