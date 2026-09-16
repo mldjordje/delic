@@ -1,0 +1,566 @@
+/* ——— Ručni unos termina (ManualBookingSheet) ——— */
+.mb-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mb-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+
+.mb-sheet {
+  position: relative;
+  width: min(600px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: #0b111c;
+  border: 1px solid rgba(217, 232, 248, 0.18);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7);
+  color: #e8eef7;
+  overflow: hidden;
+}
+
+.mb-sheet-head,
+.mb-sheet-foot {
+  flex-shrink: 0;
+  background: #0e1522;
+}
+
+.mb-sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(217, 232, 248, 0.1);
+}
+
+.mb-sheet-head .mb-seg {
+  flex: 1;
+}
+
+.mb-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 6px 16px 16px;
+}
+
+.mb-sheet-foot {
+  padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(217, 232, 248, 0.1);
+  display: grid;
+  gap: 8px;
+}
+
+.mb-section {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(217, 232, 248, 0.07);
+}
+
+.mb-section:last-child {
+  border-bottom: 0;
+}
+
+.mb-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9fb3cc;
+}
+
+.mb-step {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffbf00;
+  color: #111;
+  font-size: 12px;
+}
+
+.mb-seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(217, 232, 248, 0.07);
+}
+
+.mb-seg-full {
+  margin-bottom: 12px;
+}
+
+.mb-seg button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #9fb3cc;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.mb-seg button.is-on {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.mb-icon-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(217, 232, 248, 0.14);
+  border-radius: 12px;
+  background: rgba(217, 232, 248, 0.05);
+  color: #cbd8e8;
+  cursor: pointer;
+}
+
+.mb-date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mb-date {
+  position: relative;
+  flex: 1;
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(217, 232, 248, 0.2);
+  border-radius: 12px;
+  background: rgba(9, 15, 25, 0.9);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+/* Nativni date picker preko celog polja — tap bilo gde otvara kalendar. */
+.mb-date input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mb-date input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.mb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.mb-chip {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(217, 232, 248, 0.16);
+  border-radius: 999px;
+  background: rgba(217, 232, 248, 0.05);
+  color: #cbd8e8;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mb-chip.is-small {
+  min-height: 34px;
+  padding: 0 11px;
+  font-size: 13px;
+}
+
+.mb-chip.is-on {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.2);
+  color: #fff;
+}
+
+.mb-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0 8px;
+  font-size: 12px;
+  color: #8ea3bd;
+}
+
+.mb-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
+}
+
+.mb-slot {
+  min-height: 44px;
+  border: 1px solid rgba(217, 232, 248, 0.16);
+  border-radius: 10px;
+  background: rgba(22, 163, 74, 0.1);
+  color: #d7f5e1;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.mb-slot.is-taken {
+  background: rgba(217, 232, 248, 0.03);
+  color: #5b6b80;
+  text-decoration: line-through;
+}
+
+.mb-slot.is-on {
+  border-color: #ffbf00;
+  background: #ffbf00;
+  color: #111;
+  text-decoration: none;
+}
+
+.mb-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+}
+
+.mb-span2 {
+  grid-column: 1 / -1;
+}
+
+.mb-field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.mb-field > span {
+  font-size: 12px;
+  color: #8ea3bd;
+}
+
+/* 16px sprečava auto-zoom na iOS-u. */
+.mb-field input,
+.mb-field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid rgba(217, 232, 248, 0.2);
+  border-radius: 11px;
+  background: rgba(9, 15, 25, 0.9);
+  color: #f4f8ff;
+  font: inherit;
+  font-size: 16px;
+  color-scheme: dark;
+}
+
+.mb-field textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.mb-field input:focus,
+.mb-field textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.mb-check {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #cbd8e8;
+  cursor: pointer;
+}
+
+.mb-check input {
+  width: 20px;
+  height: 20px;
+  accent-color: #3b82f6;
+}
+
+.mb-link {
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: #60a5fa;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mb-muted {
+  margin: 6px 0;
+  font-size: 13px;
+  color: #7c8ea6;
+}
+
+.mb-results {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.mb-result {
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 1px solid rgba(217, 232, 248, 0.14);
+  border-radius: 12px;
+  background: rgba(217, 232, 248, 0.04);
+  color: #e8eef7;
+  font: inherit;
+  text-align: left;
+  display: grid;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.mb-result strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.mb-result small {
+  font-size: 12px;
+  color: #8ea3bd;
+}
+
+.mb-result.is-on {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.mb-picked {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 12px;
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.mb-picked div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mb-picked small {
+  color: #8ea3bd;
+}
+
+.mb-warn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  font-size: 13px;
+  color: #fcd34d;
+}
+
+.mb-warn .mb-chip {
+  margin: 0;
+}
+
+.mb-flash {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(22, 163, 74, 0.14);
+  border: 1px solid rgba(22, 163, 74, 0.35);
+  color: #86efac;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.mb-flash-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: #bbf7d0;
+}
+
+.mb-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.14);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: #fca5a5;
+  font-size: 14px;
+}
+
+.mb-summary {
+  font-size: 13px;
+  color: #9fb3cc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mb-summary b {
+  color: #fff;
+}
+
+.mb-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.mb-actions .mb-btn:only-child {
+  grid-column: 1 / -1;
+}
+
+.mb-btn {
+  min-height: 50px;
+  padding: 0 18px;
+  border: 1px solid rgba(217, 232, 248, 0.2);
+  border-radius: 12px;
+  background: rgba(217, 232, 248, 0.06);
+  color: #e8eef7;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mb-btn-primary {
+  border-color: transparent;
+  background: #2563eb;
+  color: #fff;
+}
+
+.mb-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.mb-saved {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: #cbd8e8;
+}
+
+.mb-saved li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mb-saved svg {
+  color: #4ade80;
+  flex-shrink: 0;
+}
+
+.admin-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-add-btn {
+  min-height: 42px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 11px;
+  background: #2563eb;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  /* Telefon: forma preko celog ekrana (i preko donje navigacije). */
+  .mb-sheet-root {
+    align-items: stretch;
+  }
+
+  .mb-sheet {
+    width: 100%;
+    max-height: none;
+    height: 100dvh;
+    border-radius: 0;
+    border: 0;
+  }
+
+  .mb-sheet-head {
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  }
+
+  .mb-slots {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+
+  .admin-page-actions .admin-add-btn {
+    display: none;
+  }
+}

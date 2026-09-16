@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { CalendarDays, ClipboardList, Globe2, Menu } from "lucide-react";
+import { CalendarDays, ClipboardList, Globe2, Menu, Plus } from "lucide-react";
 import AdminNotificationsBell from "@/components/admin/AdminNotificationsBell";
 import { LogoutButton } from "@/components/LogoutButton";
 import { InstallPwaButton } from "@/components/pwa/InstallPwaButton";
@@ -43,7 +43,17 @@ export default function AdminShellAutoDelic({
   role: Role;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  function openManualEntry() {
+    setMenuOpen(false);
+    if (pathname === "/admin" || pathname.startsWith("/admin/kalendar")) {
+      window.dispatchEvent(new CustomEvent("admin:new-booking"));
+    } else {
+      router.push("/admin/kalendar?unos=1");
+    }
+  }
 
   const nav = useMemo(() => (role === "staff" ? NAV_STAFF : NAV_OWNER), [role]);
 
@@ -170,9 +180,13 @@ export default function AdminShellAutoDelic({
           <ClipboardList aria-hidden="true" />
           <span>Termini</span>
         </Link>
+        <button type="button" className="admin-mobile-nav-item is-primary" onClick={openManualEntry}>
+          <Plus aria-hidden="true" />
+          <span>Unos</span>
+        </button>
         <Link href="/zakazivanje" className="admin-mobile-nav-item">
           <Globe2 aria-hidden="true" />
-          <span>Javni sajt</span>
+          <span>Sajt</span>
         </Link>
         <button
           type="button"

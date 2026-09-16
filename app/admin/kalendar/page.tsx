@@ -6,7 +6,9 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import type { EventClickArg } from "@fullcalendar/core";
+import { Plus } from "lucide-react";
 import { bookingCalendarColor } from "@/lib/booking/calendar-presentation";
+import ManualBookingSheet from "@/components/admin/ManualBookingSheet";
 
 type BookingRow = {
   id: string;
@@ -29,8 +31,6 @@ type Service = {
   description: string | null;
   calendarEnabled: boolean;
 };
-type ClientPick = { id: string; email: string | null; phone: string | null; fullName: string | null };
-type VehiclePick = { id: string; make: string; year: number; registrationExpiresOn: string };
 
 export default function AdminKalendarPage() {
   const calendarRef = useRef<FullCalendar>(null);
@@ -49,23 +49,9 @@ export default function AdminKalendarPage() {
   const [autoConfirmBookings, setAutoConfirmBookings] = useState(true);
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [createStartIso, setCreateStartIso] = useState<string>("");
-  const [createEndIso, setCreateEndIso] = useState<string>("");
+  const [createStart, setCreateStart] = useState<Date | null>(null);
+  const [createEnd, setCreateEnd] = useState<Date | null>(null);
   const [createServices, setCreateServices] = useState<Service[]>([]);
-  const [createServiceId, setCreateServiceId] = useState<string>("");
-  const [clientQuery, setClientQuery] = useState("");
-  const [clientBusy, setClientBusy] = useState(false);
-  const [clientResults, setClientResults] = useState<ClientPick[]>([]);
-  const [selectedClient, setSelectedClient] = useState<ClientPick | null>(null);
-  const [vehiclesBusy, setVehiclesBusy] = useState(false);
-  const [vehicles, setVehicles] = useState<VehiclePick[]>([]);
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
-  const [createNotes, setCreateNotes] = useState("");
-  const [createSaving, setCreateSaving] = useState(false);
-  const [createError, setCreateError] = useState("");
-  const [createOk, setCreateOk] = useState("");
-  const [createMode, setCreateMode] = useState<"booking" | "block">("booking");
-  const [blockReason, setBlockReason] = useState("");
 
   useEffect(() => {
     function calc() {
@@ -110,13 +96,45 @@ export default function AdminKalendarPage() {
       if (r?.ok && j?.services) {
         const cal = (j.services as Service[]).filter((s) => s.calendarEnabled);
         setCreateServices(cal);
-        setCreateServiceId((prev) => {
-          if (prev && cal.some((x) => x.id === prev)) return prev;
-          return (cal[0]?.id as string) || "";
-        });
       }
     })();
   }, []);
+
+  // /admin/kalendar?unos=1 (donja navigacija) odmah otvara ručni unos.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("unos") === "1") {
+      setCreateStart(null);
+      setCreateEnd(null);
+      setCreateOpen(true);
+      params.delete("unos");
+      const qs = params.toString();
+      window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
+    }
+  }, []);
+
+  // Dugme „Unos” u donjoj navigaciji dok smo već na kalendaru.
+  useEffect(() => {
+    function onNew() {
+      setActive(null);
+      setCreateStart(null);
+      setCreateEnd(null);
+      setCreateOpen(true);
+    }
+    window.addEventListener("admin:new-booking", onNew);
+    return () => window.removeEventListener("admin:new-booking", onNew);
+  }, []);
+
+  const reloadVisible = useCallback(async () => {
+    const api = calendarRef.current?.getApi();
+    const start = api?.view.activeStart;
+    const endEx = api?.view.activeEnd;
+    if (start && endEx) {
+      const from = start.toISOString().slice(0, 10);
+      const to = new Date(endEx.getTime() - 86400000).toISOString().slice(0, 10);
+      await loadRange(from, to);
+    }
+  }, [loadRange]);
 
   useEffect(() => {
     void (async () => {
@@ -209,156 +227,10 @@ export default function AdminKalendarPage() {
     setDeleteConfirm(false);
   }
 
-  function openCreateFromSelection(startStr: string, endStr: string) {
-    setCreateError("");
-    setCreateOk("");
-    setCreateNotes("");
-    setSelectedClient(null);
-    setClientQuery("");
-    setClientResults([]);
-    setVehicles([]);
-    setSelectedVehicleId("");
-    setCreateMode("booking");
-    setBlockReason("");
-    setCreateStartIso(startStr);
-    setCreateEndIso(endStr);
+  function openCreate(start: Date | null, end: Date | null = null) {
+    setCreateStart(start);
+    setCreateEnd(end);
     setCreateOpen(true);
-  }
-
-  function openCreateFromStart(startIso: string) {
-    // use selected service duration if available, otherwise 30min
-    const svc = createServices.find((s) => s.id === createServiceId) || null;
-    const durationMin = svc?.durationMin || 30;
-    const start = new Date(startIso);
-    const end = new Date(start.getTime() + durationMin * 60 * 1000);
-    openCreateFromSelection(start.toISOString(), end.toISOString());
-  }
-
-  async function searchClients(q: string) {
-    const s = q.trim();
-    if (s.length < 2) {
-      setClientResults([]);
-      return;
-    }
-    setClientBusy(true);
-    const r = await fetch(`/api/admin/lookup/clients?q=${encodeURIComponent(s)}`, { credentials: "include" });
-    const j = await r.json().catch(() => null);
-    setClientBusy(false);
-    if (!r.ok) {
-      setCreateError(j?.message || "Greška pri pretrazi klijenata.");
-      setClientResults([]);
-      return;
-    }
-    setClientResults((j?.clients || []) as ClientPick[]);
-  }
-
-  async function loadVehiclesForClient(userId: string) {
-    setVehiclesBusy(true);
-    const r = await fetch(`/api/admin/lookup/vehicles?userId=${encodeURIComponent(userId)}`, { credentials: "include" });
-    const j = await r.json().catch(() => null);
-    setVehiclesBusy(false);
-    if (!r.ok) {
-      setCreateError(j?.message || "Greška pri učitavanju vozila klijenta.");
-      setVehicles([]);
-      return;
-    }
-    const list = (j?.vehicles || []) as VehiclePick[];
-    setVehicles(list);
-    setSelectedVehicleId(list[0]?.id || "");
-  }
-
-  useEffect(() => {
-    const t = setTimeout(() => {
-      void searchClients(clientQuery);
-    }, 250);
-    return () => clearTimeout(t);
-  }, [clientQuery]);
-
-  async function createBooking() {
-    setCreateError("");
-    setCreateOk("");
-    if (createMode === "block") {
-      if (!createStartIso || !createEndIso) {
-        setCreateError("Nije izabran opseg vremena.");
-        return;
-      }
-      setCreateSaving(true);
-      const r = await fetch("/api/admin/blocked-slots", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          startsAt: new Date(createStartIso).toISOString(),
-          endsAt: new Date(createEndIso).toISOString(),
-          reason: blockReason.trim() || null,
-        }),
-      });
-      const j = await r.json().catch(() => null);
-      setCreateSaving(false);
-      if (!r.ok) {
-        setCreateError(j?.message || "Greška pri blokadi termina.");
-        return;
-      }
-      setCreateOk("Termin je blokiran.");
-      const api = calendarRef.current?.getApi();
-      const start = api?.view.activeStart;
-      const endEx = api?.view.activeEnd;
-      if (start && endEx) {
-        const from = start.toISOString().slice(0, 10);
-        const to = new Date(endEx.getTime() - 86400000).toISOString().slice(0, 10);
-        await loadRange(from, to);
-      }
-      setCreateOpen(false);
-      return;
-    }
-    if (!createServiceId) {
-      setCreateError("Izaberite uslugu.");
-      return;
-    }
-    if (!selectedClient?.id) {
-      setCreateError("Izaberite klijenta.");
-      return;
-    }
-    if (!selectedVehicleId) {
-      setCreateError("Izaberite vozilo.");
-      return;
-    }
-    if (!createStartIso) {
-      setCreateError("Nije izabran start.");
-      return;
-    }
-
-    setCreateSaving(true);
-    const r = await fetch("/api/admin/bookings", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: selectedClient.id,
-        vehicleId: selectedVehicleId,
-        serviceId: createServiceId,
-        startsAt: new Date(createStartIso).toISOString(),
-        status: "confirmed",
-        workerNotes: createNotes.trim() || null,
-      }),
-    });
-    const j = await r.json().catch(() => null);
-    setCreateSaving(false);
-    if (!r.ok) {
-      setCreateError(j?.message || "Greška pri kreiranju termina.");
-      return;
-    }
-    setCreateOk("Termin je kreiran.");
-
-    const api = calendarRef.current?.getApi();
-    const start = api?.view.activeStart;
-    const endEx = api?.view.activeEnd;
-    if (start && endEx) {
-      const from = start.toISOString().slice(0, 10);
-      const to = new Date(endEx.getTime() - 86400000).toISOString().slice(0, 10);
-      await loadRange(from, to);
-    }
-    setCreateOpen(false);
   }
 
   const linkBtnStyle: React.CSSProperties = {
@@ -376,9 +248,18 @@ export default function AdminKalendarPage() {
   return (
     <div className="admin-stack">
       <section className="admin-card">
-        <p style={{ marginTop: 0, color: "#94a3b8", fontSize: 14 }}>
-          {loading ? "Učitavam termine za prikazani period…" : "Klik na termin za izmenu statusa i napomene radnika."}
-        </p>
+        <div className="admin-page-actions">
+          <p style={{ margin: 0, color: "#94a3b8", fontSize: 14 }}>
+            {loading
+              ? "Učitavam termine za prikazani period…"
+              : isMobile
+                ? "Tap na termin za izmenu, na prazno polje za novi."
+                : "Klik na termin za izmenu, na prazno polje za novi termin."}
+          </p>
+          <button type="button" className="admin-add-btn" onClick={() => openCreate(null)}>
+            <Plus size={18} /> Ručni unos
+          </button>
+        </div>
         {error ? <p style={{ color: "#f87171" }}>{error}</p> : null}
         <div className={`clinic-fc-wrap${isMobile ? " is-mobile-stage" : ""}`} style={{ marginTop: 10 }}>
           <FullCalendar
@@ -400,13 +281,13 @@ export default function AdminKalendarPage() {
             dateClick={(arg) => {
               // Make every slot clickable (not just drag-select)
               if (arg.dateStr) {
-                openCreateFromStart(arg.date.toISOString());
+                openCreate(arg.date);
               }
             }}
             selectable={true}
             selectMirror={true}
             select={(arg) => {
-              openCreateFromSelection(arg.startStr, arg.endStr);
+              openCreate(arg.start, arg.end);
             }}
             unselectAuto={false}
             datesSet={(arg) => {
@@ -667,158 +548,14 @@ export default function AdminKalendarPage() {
         </>
       ) : null}
 
-      {createOpen ? (
-        <>
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0,0,0,0.55)",
-              zIndex: 54,
-            }}
-            onClick={() => setCreateOpen(false)}
-          />
-        <div
-          className="admin-card"
-          style={{
-            position: "fixed",
-            bottom: isMobile ? "calc(92px + env(safe-area-inset-bottom, 0px))" : 16,
-            left: 16,
-            right: 16,
-            maxWidth: 980,
-            marginLeft: "auto",
-            zIndex: 55,
-            boxShadow: "0 12px 40px rgba(0,0,0,0.55)",
-            background: "rgba(12, 18, 29, 0.98)",
-            border: "1px solid rgba(217, 232, 248, 0.22)",
-            backdropFilter: "none",
-            WebkitBackdropFilter: "none",
-            maxHeight: isMobile
-              ? "calc(100dvh - 108px - env(safe-area-inset-bottom, 0px))"
-              : "calc(100vh - 32px)",
-            overflow: "auto",
-            WebkitOverflowScrolling: "touch",
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex-container response-999" style={{ justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-            <div>
-              <h3 style={{ marginTop: 0 }}>Novi termin</h3>
-              <p style={{ marginTop: 6, color: "#94a3b8", fontSize: 14 }}>
-                Start: <span style={{ color: "#e2e8f0" }}>{new Date(createStartIso).toLocaleString("sr-RS")}</span>
-              </p>
-            </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button type="button" className="admin-template-link-btn" onClick={() => void createBooking()} disabled={createSaving}>
-                {createSaving ? "Kreiram…" : "Kreiraj"}
-              </button>
-              <button type="button" className="admin-template-link-btn" onClick={() => setCreateOpen(false)}>
-                Zatvori
-              </button>
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-            <label className="admin-field">
-              <span>Tip</span>
-              <select value={createMode} onChange={(e) => setCreateMode(e.target.value as any)} className="admin-input">
-                <option value="booking">Zakazivanje</option>
-                <option value="block">Blokada</option>
-              </select>
-            </label>
-
-            <label className="admin-field">
-              <span>Usluga</span>
-              <select value={createServiceId} onChange={(e) => setCreateServiceId(e.target.value)} className="admin-input">
-                {createServices.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name} ({s.durationMin} min)
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {createMode === "booking" ? (
-              <div className="admin-field">
-                <span>Klijent (email / telefon / ime)</span>
-                <input
-                  className="admin-input"
-                  value={clientQuery}
-                  onChange={(e) => {
-                    setClientQuery(e.target.value);
-                    setCreateError("");
-                  }}
-                  placeholder="npr. ivan@gmail.com ili 064..."
-                />
-                <div style={{ marginTop: 8 }}>
-                  {clientBusy ? <p style={{ margin: 0, color: "#94a3b8", fontSize: 14 }}>Tražim…</p> : null}
-                  {!clientBusy && clientResults.length ? (
-                    <div style={{ display: "grid", gap: 8 }}>
-                      {clientResults.map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          className="admin-template-link-btn"
-                          onClick={() => {
-                            setSelectedClient(c);
-                            setClientResults([]);
-                            void loadVehiclesForClient(c.id);
-                          }}
-                          style={{ justifyContent: "space-between", display: "flex" }}
-                        >
-                          <span>
-                            {(c.fullName || c.email || c.phone || "Klijent")}{" "}
-                            <span style={{ color: "#94a3b8" }}>
-                              {c.email ? `· ${c.email}` : ""} {c.phone ? `· ${c.phone}` : ""}
-                            </span>
-                          </span>
-                          <span style={{ opacity: 0.8 }}>Izaberi</span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
-                  {selectedClient ? (
-                    <p style={{ margin: "8px 0 0", color: "#94a3b8", fontSize: 14 }}>
-                      Izabran: <span style={{ color: "#e2e8f0" }}>{selectedClient.fullName || selectedClient.email || selectedClient.id}</span>
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            ) : (
-              <label className="admin-field">
-                <span>Razlog (opciono)</span>
-                <textarea value={blockReason} onChange={(e) => setBlockReason(e.target.value)} className="admin-input" rows={3} />
-              </label>
-            )}
-
-            {createMode === "booking" ? (
-              <label className="admin-field">
-                <span>Vozilo</span>
-                <select value={selectedVehicleId} onChange={(e) => setSelectedVehicleId(e.target.value)} className="admin-input" disabled={!selectedClient || vehiclesBusy}>
-                  {!selectedClient ? <option value="">— prvo izaberite klijenta —</option> : null}
-                  {vehicles.map((v) => (
-                    <option key={v.id} value={v.id}>
-                      {v.make} ({v.year})
-                    </option>
-                  ))}
-                </select>
-                {vehiclesBusy ? <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: 14 }}>Učitavam vozila…</p> : null}
-              </label>
-            ) : null}
-
-            {createMode === "booking" ? (
-              <label className="admin-field">
-                <span>Napomena radnika (opciono)</span>
-                <textarea value={createNotes} onChange={(e) => setCreateNotes(e.target.value)} className="admin-input" rows={3} />
-              </label>
-            ) : null}
-          </div>
-
-          {createError ? <p style={{ color: "#f87171", marginTop: 12 }}>{createError}</p> : null}
-          {createOk ? <p style={{ color: "#86efac", marginTop: 12 }}>{createOk}</p> : null}
-        </div>
-        </>
-      ) : null}
+      <ManualBookingSheet
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        services={createServices}
+        initialStart={createStart}
+        initialEnd={createEnd}
+        onSaved={reloadVisible}
+      />
     </div>
   );
 }

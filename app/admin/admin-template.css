@@ -1548,7 +1548,7 @@
     bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     left: 10px;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 4px;
     padding: 6px;
     border: 1px solid rgba(217, 232, 248, 0.25);
@@ -1588,6 +1588,11 @@
   .admin-mobile-nav-item.is-active {
     color: #ffffff;
     background: rgba(217, 232, 248, 0.18);
+  }
+
+  .admin-mobile-nav-item.is-primary {
+    color: #ffffff;
+    background: #2563eb;
   }
 
   .admin-mobile-nav-item:focus-visible {

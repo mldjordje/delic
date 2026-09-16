@@ -4,6 +4,7 @@ import { fail, ok, readJson } from "@/lib/api/http";
 import { requireStaffOrAdmin } from "@/lib/auth/guards";
 import { sendBookingUpdateEmail } from "@/lib/auth/email";
 import { getDb, schema } from "@/lib/db/client";
+import { isPlaceholderEmail } from "@/lib/booking/manual-client";
 
 export const runtime = "nodejs";
 
@@ -138,7 +139,7 @@ export async function PATCH(
         ))
   );
 
-  if (shouldNotifyClient && userRow?.email) {
+  if (shouldNotifyClient && userRow?.email && !isPlaceholderEmail(userRow.email)) {
     try {
       const emailResult = await sendBookingUpdateEmail({
         to: userRow.email,
