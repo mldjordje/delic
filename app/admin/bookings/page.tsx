@@ -130,7 +130,7 @@ export default function AdminBookingsPage() {
             <Plus size={18} /> Ručni unos
           </button>
         </div>
-        <p style={{ color: "#94a3b8", fontSize: 14, marginTop: 0 }}>
+        <p style={{ color: "#b9b9b9", fontSize: 14, marginTop: 0 }}>
           Radnik vidi samo današnji dan (API). Administrator bira opseg.
         </p>
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "auto auto 1fr auto", gap: 10, marginBottom: 16, alignItems: "end" }}>
@@ -159,7 +159,7 @@ export default function AdminBookingsPage() {
           ) : null}
         </div>
         {msg ? <p style={{ fontSize: 14 }}>{msg}</p> : null}
-        {loading ? <p style={{ color: "#94a3b8", fontSize: 14 }}>Učitavam…</p> : null}
+        {loading ? <p style={{ color: "#b9b9b9", fontSize: 14 }}>Učitavam…</p> : null}
 
         {isMobile ? (
           <div style={{ display: "grid", gap: 10 }}>
@@ -171,7 +171,7 @@ export default function AdminBookingsPage() {
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
               <thead>
-                <tr style={{ textAlign: "left", color: "#94a3b8" }}>
+                <tr style={{ textAlign: "left", color: "#b9b9b9" }}>
                   <th style={{ padding: 8 }}>Termin</th>
                   <th style={{ padding: 8 }}>Status</th>
                   <th style={{ padding: 8 }}>Klijent</th>
@@ -188,7 +188,7 @@ export default function AdminBookingsPage() {
             </table>
           </div>
         )}
-        {!loading && filtered.length === 0 ? <p style={{ color: "#64748b" }}>Nema termina.</p> : null}
+        {!loading && filtered.length === 0 ? <p style={{ color: "#858585" }}>Nema termina.</p> : null}
       </section>
 
       <ManualBookingSheet open={createOpen} onClose={() => setCreateOpen(false)} services={services} onSaved={load} />
@@ -231,11 +231,11 @@ function BookingEditorRow({
       </td>
       <td style={{ padding: 8 }}>
         {clientName(b.client)}
-        {b.client.phone ? <div style={{ color: "#64748b", fontSize: 12 }}>{b.client.phone}</div> : null}
+        {b.client.phone ? <div style={{ color: "#858585", fontSize: 12 }}>{b.client.phone}</div> : null}
       </td>
       <td style={{ padding: 8 }}>
         {b.vehicle.make} ({b.vehicle.year})
-        {b.vehicle.plateNumber ? <div style={{ color: "#64748b", fontSize: 12 }}>{b.vehicle.plateNumber}</div> : null}
+        {b.vehicle.plateNumber ? <div style={{ color: "#858585", fontSize: 12 }}>{b.vehicle.plateNumber}</div> : null}
       </td>
       <td style={{ padding: 8, minWidth: 200 }}>
         <input
@@ -268,26 +268,26 @@ function BookingEditorCard({
   return (
     <article
       style={{
-        border: "1px solid rgba(217,232,248,0.14)",
+        border: "1px solid rgba(255, 255, 255, 0.14)",
         borderRadius: 14,
         padding: 12,
-        background: "rgba(217,232,248,0.03)",
+        background: "rgba(255, 255, 255, 0.03)",
         display: "grid",
         gap: 8,
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
         <strong style={{ fontSize: 15 }}>{formatWhen(b.startsAt)}</strong>
-        {b.serviceName ? <span style={{ fontSize: 12, color: "#64748b" }}>{b.serviceName}</span> : null}
+        {b.serviceName ? <span style={{ fontSize: 12, color: "#858585" }}>{b.serviceName}</span> : null}
       </div>
       <div style={{ fontSize: 14 }}>
         {clientName(b.client)}
         {b.client.phone ? (
-          <a href={`tel:${b.client.phone}`} style={{ marginLeft: 8, color: "#60a5fa", fontSize: 13 }}>
+          <a href={`tel:${b.client.phone}`} style={{ marginLeft: 8, color: "#b4b4b4", fontSize: 13 }}>
             {b.client.phone}
           </a>
         ) : null}
-        <div style={{ color: "#94a3b8", fontSize: 13 }}>
+        <div style={{ color: "#b9b9b9", fontSize: 13 }}>
           {b.vehicle.make} ({b.vehicle.year}){b.vehicle.plateNumber ? ` · ${b.vehicle.plateNumber}` : ""}
         </div>
       </div>
@@ -309,7 +309,7 @@ function BookingEditorCard({
         <button
           type="button"
           onClick={() => onSave(b.id, status, workerNotes)}
-          style={{ minHeight: 44, borderRadius: 10, border: 0, background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 15 }}
+          style={{ minHeight: 44, borderRadius: 10, border: 0, background: "#ffffff", color: "#000000", fontWeight: 700, fontSize: 15 }}
         >
           Sačuvaj
         </button>

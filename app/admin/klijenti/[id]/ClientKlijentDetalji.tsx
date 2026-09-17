@@ -68,7 +68,7 @@ export function ClientKlijentDetalji({ id }: { id: string }) {
         >
           <div>
             <h2 style={{ marginTop: 0 }}>Klijent</h2>
-            <p style={{ color: "#94a3b8", fontSize: 14, marginTop: 8, marginBottom: 0 }}>
+            <p style={{ color: "#b9b9b9", fontSize: 14, marginTop: 8, marginBottom: 0 }}>
               Detalji profila, vozila i istorija termina.
             </p>
           </div>
@@ -79,14 +79,14 @@ export function ClientKlijentDetalji({ id }: { id: string }) {
           </div>
         </div>
 
-        {busy ? <p style={{ color: "#94a3b8", fontSize: 14, marginTop: 14 }}>Učitavam…</p> : null}
+        {busy ? <p style={{ color: "#b9b9b9", fontSize: 14, marginTop: 14 }}>Učitavam…</p> : null}
         {err ? <p style={{ color: "#f87171", marginTop: 14 }}>{err}</p> : null}
 
         {!busy && !err && client ? (
           <div style={{ marginTop: 14, display: "grid", gap: 16 }}>
-            <div className="admin-card" style={{ background: "rgba(12, 18, 29, 0.65)" }}>
+            <div className="admin-card" style={{ background: "rgba(9, 9, 9, 0.65)" }}>
               <h3 style={{ marginTop: 0 }}>Kontakt</h3>
-              <p style={{ marginTop: 8, color: "#e2e8f0" }}>{client.fullName || "—"}</p>
+              <p style={{ marginTop: 8, color: "#ffffff" }}>{client.fullName || "—"}</p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
                 {client.phone ? (
                   <a className="admin-template-link-btn" href={`tel:${client.phone}`}>
@@ -104,20 +104,20 @@ export function ClientKlijentDetalji({ id }: { id: string }) {
                   </a>
                 ) : null}
               </div>
-              <p style={{ marginTop: 10, color: "#94a3b8", fontSize: 14 }}>
+              <p style={{ marginTop: 10, color: "#b9b9b9", fontSize: 14 }}>
                 Email: {client.email || "—"} · Telefon: {client.phone || "—"}
               </p>
             </div>
 
-            <div className="admin-card" style={{ background: "rgba(12, 18, 29, 0.65)" }}>
+            <div className="admin-card" style={{ background: "rgba(9, 9, 9, 0.65)" }}>
               <h3 style={{ marginTop: 0 }}>Vozila</h3>
               {vehicles.length === 0 ? (
-                <p style={{ color: "#94a3b8", fontSize: 14 }}>Nema vozila.</p>
+                <p style={{ color: "#b9b9b9", fontSize: 14 }}>Nema vozila.</p>
               ) : (
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
                     <thead>
-                      <tr style={{ textAlign: "left", color: "#94a3b8" }}>
+                      <tr style={{ textAlign: "left", color: "#b9b9b9" }}>
                         <th style={{ padding: 8 }}>Vozilo</th>
                         <th style={{ padding: 8 }}>Tablice</th>
                         <th style={{ padding: 8 }}>Reg. do</th>
@@ -141,15 +141,15 @@ export function ClientKlijentDetalji({ id }: { id: string }) {
               )}
             </div>
 
-            <div className="admin-card" style={{ background: "rgba(12, 18, 29, 0.65)" }}>
+            <div className="admin-card" style={{ background: "rgba(9, 9, 9, 0.65)" }}>
               <h3 style={{ marginTop: 0 }}>Istorija termina</h3>
               {bookings.length === 0 ? (
-                <p style={{ color: "#94a3b8", fontSize: 14 }}>Nema termina.</p>
+                <p style={{ color: "#b9b9b9", fontSize: 14 }}>Nema termina.</p>
               ) : (
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
                     <thead>
-                      <tr style={{ textAlign: "left", color: "#94a3b8" }}>
+                      <tr style={{ textAlign: "left", color: "#b9b9b9" }}>
                         <th style={{ padding: 8 }}>Vreme</th>
                         <th style={{ padding: 8 }}>Usluga</th>
                         <th style={{ padding: 8 }}>Vozilo</th>

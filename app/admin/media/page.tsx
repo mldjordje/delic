@@ -95,7 +95,7 @@ export default function AdminMediaPage() {
             >
               <div>
                 <strong>{v.title}</strong>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>{v.youtubeUrl}</div>
+                <div style={{ fontSize: 12, color: "#b9b9b9" }}>{v.youtubeUrl}</div>
               </div>
               <button type="button" className="admin-template-link-btn" onClick={() => void remove(v.id)}>
                 Obriši

@@ -136,7 +136,7 @@ export default function AdminBlogPage() {
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Blog</h2>
-        <p style={{ color: "#94a3b8", maxWidth: 640, fontSize: 14 }}>Javne objave na /blog. Slike: jedan URL po liniji ili otpremanje fajla.</p>
+        <p style={{ color: "#b9b9b9", maxWidth: 640, fontSize: 14 }}>Javne objave na /blog. Slike: jedan URL po liniji ili otpremanje fajla.</p>
         {err ? <p style={{ color: "#f87171" }}>{err}</p> : null}
         <form onSubmit={create} className="admin-field" style={{ display: "grid", gap: 12, maxWidth: 720 }}>
           <label>
@@ -161,7 +161,7 @@ export default function AdminBlogPage() {
           </label>
           {imageList.length ? (
             <div style={{ display: "grid", gap: 10 }}>
-              <div style={{ color: "#94a3b8", fontSize: 12 }}>
+              <div style={{ color: "#b9b9b9", fontSize: 12 }}>
                 Preview ({imageList.length}) — kliknite “Ukloni” da izbacite URL iz liste.
               </div>
               <div
@@ -175,16 +175,16 @@ export default function AdminBlogPage() {
                   <div
                     key={u}
                     style={{
-                      border: "1px solid rgba(148,163,184,0.25)",
+                      border: "1px solid rgba(185, 185, 185, 0.25)",
                       borderRadius: 10,
                       overflow: "hidden",
-                      background: "rgba(2,6,23,0.5)",
+                      background: "rgba(3, 3, 3, 0.5)",
                     }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={u} alt="" style={{ width: "100%", height: 110, objectFit: "cover", display: "block" }} loading="lazy" />
                     <div style={{ padding: 10, display: "grid", gap: 8 }}>
-                      <div style={{ fontSize: 11, color: "#94a3b8", wordBreak: "break-all", lineHeight: 1.3 }}>{u}</div>
+                      <div style={{ fontSize: 11, color: "#b9b9b9", wordBreak: "break-all", lineHeight: 1.3 }}>{u}</div>
                       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                         <a
                           href={u}
@@ -211,7 +211,7 @@ export default function AdminBlogPage() {
             </div>
           ) : null}
           <label style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <span style={{ color: "#94a3b8", fontSize: 14 }}>Otpremi slike</span>
+            <span style={{ color: "#b9b9b9", fontSize: 14 }}>Otpremi slike</span>
             <input
               type="file"
               multiple
@@ -220,7 +220,7 @@ export default function AdminBlogPage() {
               onChange={(e) => void uploadImages(e.target.files)}
               style={{ maxWidth: "100%" }}
             />
-            {uploadBusy ? <span style={{ color: "#94a3b8", fontSize: 14 }}>Otpremanje…</span> : null}
+            {uploadBusy ? <span style={{ color: "#b9b9b9", fontSize: 14 }}>Otpremanje…</span> : null}
           </label>
           <label style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <input type="checkbox" checked={pub} onChange={(e) => setPub(e.target.checked)} />
@@ -234,7 +234,7 @@ export default function AdminBlogPage() {
 
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Sve objave</h2>
-        {loading ? <p style={{ color: "#94a3b8" }}>Učitavanje…</p> : null}
+        {loading ? <p style={{ color: "#b9b9b9" }}>Učitavanje…</p> : null}
         <table className="admin-table" style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>

@@ -44,7 +44,7 @@ export default function AdminAnalitikaPage() {
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Analitika</h2>
-        <p style={{ color: "#94a3b8" }}>
+        <p style={{ color: "#b9b9b9" }}>
           Pregled termina iz baze (poslednjih {analytics?.range?.days ?? 30} dana) + agregati po statusu i
           po traci/radniku.
         </p>
@@ -116,7 +116,7 @@ export default function AdminAnalitikaPage() {
                 ))}
                 {analytics.perDay.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ color: "#94a3b8" }}>
+                    <td colSpan={7} style={{ color: "#b9b9b9" }}>
                       Nema termina u izabranom opsegu.
                     </td>
                   </tr>
@@ -149,7 +149,7 @@ export default function AdminAnalitikaPage() {
                 ))}
                 {analytics.byEmployee.length === 0 ? (
                   <tr>
-                    <td colSpan={2} style={{ color: "#94a3b8" }}>
+                    <td colSpan={2} style={{ color: "#b9b9b9" }}>
                       Nema podataka.
                     </td>
                   </tr>

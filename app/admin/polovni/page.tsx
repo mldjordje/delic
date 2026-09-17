@@ -135,9 +135,9 @@ export default function AdminPolovniPage() {
   const inputStyle: React.CSSProperties = {
     padding: "10px 12px",
     borderRadius: 8,
-    border: "1px solid #334155",
-    background: "#0f172a",
-    color: "#f8fafc",
+    border: "1px solid #4c4c4c",
+    background: "#0b0b0b",
+    color: "#ffffff",
     width: "100%",
   };
 
@@ -145,7 +145,7 @@ export default function AdminPolovniPage() {
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Polovni automobili</h2>
-        <p style={{ color: "#94a3b8", maxWidth: 640 }}>
+        <p style={{ color: "#b9b9b9", maxWidth: 640 }}>
           Oglasi se prikazuju na javnoj stranici <strong>/polovni-automobili</strong>. Otpremite sliku (JPEG, PNG,
           WebP do 8 MB) ili unesite pun URL slike.
         </p>
@@ -195,7 +195,7 @@ export default function AdminPolovniPage() {
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
             <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: uploadBusy ? "wait" : "pointer" }}>
-              <span style={{ color: "#94a3b8", fontSize: 14 }}>Otpremi sliku</span>
+              <span style={{ color: "#b9b9b9", fontSize: 14 }}>Otpremi sliku</span>
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -204,7 +204,7 @@ export default function AdminPolovniPage() {
                 style={{ maxWidth: "100%" }}
               />
             </label>
-            {uploadBusy ? <span style={{ color: "#94a3b8", fontSize: 14 }}>Otpremanje…</span> : null}
+            {uploadBusy ? <span style={{ color: "#b9b9b9", fontSize: 14 }}>Otpremanje…</span> : null}
           </div>
           <input
             placeholder="URL slike (https://...) — opciono ako ste otpremili fajl"
@@ -219,18 +219,18 @@ export default function AdminPolovniPage() {
                 alignItems: "center",
                 gap: 12,
                 padding: 10,
-                border: "1px solid #334155",
+                border: "1px solid #4c4c4c",
                 borderRadius: 8,
-                background: "#0f172a",
+                background: "#0b0b0b",
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageUrl}
                 alt="Pregled slike"
-                style={{ width: 96, height: 72, objectFit: "cover", borderRadius: 6, background: "#1e293b" }}
+                style={{ width: 96, height: 72, objectFit: "cover", borderRadius: 6, background: "#323232" }}
               />
-              <span style={{ color: "#94a3b8", fontSize: 13, flex: 1, wordBreak: "break-all" }}>
+              <span style={{ color: "#b9b9b9", fontSize: 13, flex: 1, wordBreak: "break-all" }}>
                 Slika spremna za objavu
               </span>
               <button
@@ -265,8 +265,8 @@ export default function AdminPolovniPage() {
 
       <section className="admin-card">
         <h3 style={{ marginTop: 0 }}>Oglasi</h3>
-        {loading ? <p style={{ color: "#94a3b8" }}>Učitavanje…</p> : null}
-        {!loading && items.length === 0 ? <p style={{ color: "#94a3b8" }}>Nema oglasa.</p> : null}
+        {loading ? <p style={{ color: "#b9b9b9" }}>Učitavanje…</p> : null}
+        {!loading && items.length === 0 ? <p style={{ color: "#b9b9b9" }}>Nema oglasa.</p> : null}
         <div className="admin-table-wrap" style={{ marginTop: 12 }}>
           <table className="admin-table">
             <thead>
@@ -287,17 +287,17 @@ export default function AdminPolovniPage() {
                         <img
                           src={l.imageUrl}
                           alt=""
-                          style={{ width: 56, height: 42, objectFit: "cover", borderRadius: 6, background: "#1e293b", flexShrink: 0 }}
+                          style={{ width: 56, height: 42, objectFit: "cover", borderRadius: 6, background: "#323232", flexShrink: 0 }}
                         />
                       ) : (
                         <span
-                          style={{ width: 56, height: 42, borderRadius: 6, background: "#1e293b", flexShrink: 0, display: "inline-block" }}
+                          style={{ width: 56, height: 42, borderRadius: 6, background: "#323232", flexShrink: 0, display: "inline-block" }}
                           aria-hidden
                         />
                       )}
                       <div>
                         <strong>{l.title}</strong>
-                        <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                        <div style={{ fontSize: 12, color: "#b9b9b9" }}>
                           {[l.make, l.year].filter(Boolean).join(" · ")}
                         </div>
                       </div>

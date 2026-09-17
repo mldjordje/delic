@@ -6,6 +6,7 @@ const RAW_ADMIN_EMAILS = [
   "predragdelic03@gmail.com",
   "adtehnickipregled@gmail.com",
   "delicivan79@gmail.com",
+  "vlahovicisidora5@gmail.com",
 ];
 
 /** Radnik — dodaj mejl ovde ili postavi STAFF_LOGIN_EMAILS na Vercelu (zarezom odvojeno). */

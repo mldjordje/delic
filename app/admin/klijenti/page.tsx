@@ -61,7 +61,7 @@ export default function AdminKlijentiPage() {
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Klijenti</h2>
-        <p style={{ color: "#94a3b8", fontSize: 14, marginTop: 8 }}>
+        <p style={{ color: "#b9b9b9", fontSize: 14, marginTop: 8 }}>
           Pretraga po imenu, email-u ili telefonu.
         </p>
         {err ? <p style={{ color: "#f87171" }}>{err}</p> : null}
@@ -88,20 +88,20 @@ export default function AdminKlijentiPage() {
                 key={c.id}
                 className="admin-card"
                 style={{
-                  background: "rgba(12, 18, 29, 0.7)",
-                  border: "1px solid rgba(217, 232, 248, 0.18)",
+                  background: "rgba(9, 9, 9, 0.7)",
+                  border: "1px solid rgba(255, 255, 255, 0.18)",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
                   <div style={{ minWidth: 220 }}>
-                    <p style={{ margin: 0, color: "#e2e8f0", fontWeight: 700 }}>
+                    <p style={{ margin: 0, color: "#ffffff", fontWeight: 700 }}>
                       {c.fullName || c.email || "Klijent"}
                     </p>
-                    <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: 13 }}>
+                    <p style={{ margin: "6px 0 0", color: "#b9b9b9", fontSize: 13 }}>
                       {c.email || "—"} {c.phone ? `· ${c.phone}` : ""}
                     </p>
-                    <p style={{ margin: "8px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                      Vozila: <span style={{ color: "#e2e8f0" }}>{c.vehicleCount}</span>
+                    <p style={{ margin: "8px 0 0", color: "#b9b9b9", fontSize: 13 }}>
+                      Vozila: <span style={{ color: "#ffffff" }}>{c.vehicleCount}</span>
                     </p>
                   </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -126,10 +126,10 @@ export default function AdminKlijentiPage() {
                 {opened ? (
                   <div style={{ marginTop: 12 }}>
                     {busy ? (
-                      <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>Učitavam vozila…</p>
+                      <p style={{ margin: 0, color: "#b9b9b9", fontSize: 13 }}>Učitavam vozila…</p>
                     ) : null}
                     {!busy && vehicles && vehicles.length === 0 ? (
-                      <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>Nema vozila.</p>
+                      <p style={{ margin: 0, color: "#b9b9b9", fontSize: 13 }}>Nema vozila.</p>
                     ) : null}
                     {!busy && vehicles && vehicles.length ? (
                       <div style={{ display: "grid", gap: 8 }}>
@@ -143,10 +143,10 @@ export default function AdminKlijentiPage() {
                               borderRadius: 10,
                             }}
                           >
-                            <p style={{ margin: 0, color: "#e2e8f0", fontSize: 13, fontWeight: 700 }}>
+                            <p style={{ margin: 0, color: "#ffffff", fontSize: 13, fontWeight: 700 }}>
                               {v.make} {v.model ? `(${v.model})` : ""} ({v.year})
                             </p>
-                            <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: 12 }}>
+                            <p style={{ margin: "6px 0 0", color: "#b9b9b9", fontSize: 12 }}>
                               Tablice: {v.plateNumber || "—"} · Reg. do: {v.registrationExpiresOn || "—"}
                             </p>
                           </div>
@@ -166,7 +166,7 @@ export default function AdminKlijentiPage() {
         <div style={{ overflowX: "auto", marginTop: 16 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
-              <tr style={{ textAlign: "left", color: "#94a3b8" }}>
+              <tr style={{ textAlign: "left", color: "#b9b9b9" }}>
                 <th style={{ padding: 8 }}>Ime</th>
                 <th style={{ padding: 8 }}>Email</th>
                 <th style={{ padding: 8 }}>Telefon</th>
@@ -194,7 +194,7 @@ export default function AdminKlijentiPage() {
               ))}
               {filtered.length === 0 ? (
                 <tr>
-                  <td style={{ padding: 8, color: "#94a3b8" }} colSpan={5}>
+                  <td style={{ padding: 8, color: "#b9b9b9" }} colSpan={5}>
                     Nema rezultata.
                   </td>
                 </tr>
@@ -204,20 +204,20 @@ export default function AdminKlijentiPage() {
 
           {openId ? (
             <div style={{ marginTop: 10 }}>
-              <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>
+              <p style={{ margin: 0, color: "#b9b9b9", fontSize: 13 }}>
                 Vozila za izabranog klijenta:
               </p>
               {vehiclesBusyId === openId ? (
-                <p style={{ margin: "6px 0 0", color: "#94a3b8", fontSize: 13 }}>Učitavam…</p>
+                <p style={{ margin: "6px 0 0", color: "#b9b9b9", fontSize: 13 }}>Učitavam…</p>
               ) : null}
               {vehiclesByClient[openId] && vehiclesByClient[openId].length ? (
                 <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
                   {vehiclesByClient[openId].map((v: any) => (
                     <div key={v.id} style={{ border: "1px solid rgba(255,255,255,0.10)", padding: "10px 12px", borderRadius: 10 }}>
-                      <strong style={{ color: "#e2e8f0" }}>
+                      <strong style={{ color: "#ffffff" }}>
                         {v.make} {v.model ? `(${v.model})` : ""} ({v.year})
                       </strong>
-                      <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 6 }}>
+                      <div style={{ color: "#b9b9b9", fontSize: 13, marginTop: 6 }}>
                         Tablice: {v.plateNumber || "—"} · Reg. do: {v.registrationExpiresOn || "—"}
                       </div>
                     </div>

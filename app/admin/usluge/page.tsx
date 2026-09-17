@@ -152,7 +152,7 @@ export default function AdminUslugePage() {
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Usluge za zakazivanje</h2>
-        <p style={{ color: "#94a3b8", maxWidth: 640 }}>
+        <p style={{ color: "#b9b9b9", maxWidth: 640 }}>
           Javno je zakazivanje uvek <strong>Tehnički pregled</strong>. Ostale stavke mogu biti informativne: isključite „U
           kalendaru” da ne uđu u admin kalendar (ne zauzimaju traku).
         </p>
@@ -170,9 +170,9 @@ export default function AdminUslugePage() {
             style={{
               padding: "10px 12px",
               borderRadius: 8,
-              border: "1px solid #334155",
-              background: "#0f172a",
-              color: "#f8fafc",
+              border: "1px solid #4c4c4c",
+              background: "#0b0b0b",
+              color: "#ffffff",
             }}
           />
           <textarea
@@ -183,13 +183,13 @@ export default function AdminUslugePage() {
             style={{
               padding: "10px 12px",
               borderRadius: 8,
-              border: "1px solid #334155",
-              background: "#0f172a",
-              color: "#f8fafc",
+              border: "1px solid #4c4c4c",
+              background: "#0b0b0b",
+              color: "#ffffff",
             }}
           />
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+            <label style={{ color: "#b9b9b9", fontSize: 14 }}>
               Trajanje (min)
               <input
                 type="number"
@@ -202,14 +202,14 @@ export default function AdminUslugePage() {
                   marginTop: 4,
                   padding: "8px 10px",
                   borderRadius: 8,
-                  border: "1px solid #334155",
-                  background: "#0f172a",
-                  color: "#f8fafc",
+                  border: "1px solid #4c4c4c",
+                  background: "#0b0b0b",
+                  color: "#ffffff",
                   width: 120,
                 }}
               />
             </label>
-            <label style={{ color: "#94a3b8", fontSize: 14, minWidth: 180 }}>
+            <label style={{ color: "#b9b9b9", fontSize: 14, minWidth: 180 }}>
               Slug
               <input
                 value={slug}
@@ -220,18 +220,18 @@ export default function AdminUslugePage() {
                   marginTop: 4,
                   padding: "8px 10px",
                   borderRadius: 8,
-                  border: "1px solid #334155",
-                  background: "#0f172a",
-                  color: "#f8fafc",
+                  border: "1px solid #4c4c4c",
+                  background: "#0b0b0b",
+                  color: "#ffffff",
                   width: "100%",
                 }}
               />
             </label>
-            <label style={{ color: "#94a3b8", fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
+            <label style={{ color: "#b9b9b9", fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
               <input type="checkbox" checked={calendarEnabled} onChange={(e) => setCalendarEnabled(e.target.checked)} />
               U kalendaru
             </label>
-            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+            <label style={{ color: "#b9b9b9", fontSize: 14 }}>
               Redosled
               <input
                 type="number"
@@ -242,9 +242,9 @@ export default function AdminUslugePage() {
                   marginTop: 4,
                   padding: "8px 10px",
                   borderRadius: 8,
-                  border: "1px solid #334155",
-                  background: "#0f172a",
-                  color: "#f8fafc",
+                  border: "1px solid #4c4c4c",
+                  background: "#0b0b0b",
+                  color: "#ffffff",
                   width: 100,
                 }}
               />
@@ -262,9 +262,9 @@ export default function AdminUslugePage() {
 
       <section className="admin-card">
         <h3 style={{ marginTop: 0 }}>Lista</h3>
-        {loading ? <p style={{ color: "#94a3b8" }}>Učitavanje…</p> : null}
+        {loading ? <p style={{ color: "#b9b9b9" }}>Učitavanje…</p> : null}
         {!loading && items.length === 0 ? (
-          <p style={{ color: "#94a3b8" }}>Nema usluga.</p>
+          <p style={{ color: "#b9b9b9" }}>Nema usluga.</p>
         ) : null}
         <div className="admin-table-wrap" style={{ marginTop: 12 }}>
           <table className="admin-table">
@@ -283,7 +283,7 @@ export default function AdminUslugePage() {
                   <td>
                     <strong>{s.name}</strong>
                     {s.description ? (
-                      <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{s.description}</div>
+                      <div style={{ fontSize: 12, color: "#b9b9b9", marginTop: 4 }}>{s.description}</div>
                     ) : null}
                   </td>
                   <td>{s.durationMin}</td>
@@ -342,8 +342,8 @@ export default function AdminUslugePage() {
           <div className="flex-container response-999" style={{ justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
             <div>
               <h3 style={{ marginTop: 0, marginBottom: 6 }}>Izmena usluge</h3>
-              <p style={{ marginTop: 0, color: "#94a3b8", fontSize: 14 }}>
-                ID: <span style={{ color: "#e2e8f0" }}>{editing.id}</span>
+              <p style={{ marginTop: 0, color: "#b9b9b9", fontSize: 14 }}>
+                ID: <span style={{ color: "#ffffff" }}>{editing.id}</span>
               </p>
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -357,7 +357,7 @@ export default function AdminUslugePage() {
           </div>
 
           <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+            <label style={{ color: "#b9b9b9", fontSize: 14 }}>
               Naziv
               <input
                 value={editName}
@@ -368,15 +368,15 @@ export default function AdminUslugePage() {
                   marginTop: 4,
                   padding: "10px 12px",
                   borderRadius: 8,
-                  border: "1px solid #334155",
-                  background: "#0f172a",
-                  color: "#f8fafc",
+                  border: "1px solid #4c4c4c",
+                  background: "#0b0b0b",
+                  color: "#ffffff",
                   width: "100%",
                 }}
               />
             </label>
 
-            <label style={{ color: "#94a3b8", fontSize: 14 }}>
+            <label style={{ color: "#b9b9b9", fontSize: 14 }}>
               Opis (opciono)
               <textarea
                 value={editDescription}
@@ -387,16 +387,16 @@ export default function AdminUslugePage() {
                   marginTop: 4,
                   padding: "10px 12px",
                   borderRadius: 8,
-                  border: "1px solid #334155",
-                  background: "#0f172a",
-                  color: "#f8fafc",
+                  border: "1px solid #4c4c4c",
+                  background: "#0b0b0b",
+                  color: "#ffffff",
                   width: "100%",
                 }}
               />
             </label>
 
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <label style={{ color: "#94a3b8", fontSize: 14 }}>
+              <label style={{ color: "#b9b9b9", fontSize: 14 }}>
                 Trajanje (min)
                 <input
                   type="number"
@@ -409,14 +409,14 @@ export default function AdminUslugePage() {
                     marginTop: 4,
                     padding: "8px 10px",
                     borderRadius: 8,
-                    border: "1px solid #334155",
-                    background: "#0f172a",
-                    color: "#f8fafc",
+                    border: "1px solid #4c4c4c",
+                    background: "#0b0b0b",
+                    color: "#ffffff",
                     width: 140,
                   }}
                 />
               </label>
-              <label style={{ color: "#94a3b8", fontSize: 14, minWidth: 180 }}>
+              <label style={{ color: "#b9b9b9", fontSize: 14, minWidth: 180 }}>
                 Slug
                 <input
                   value={editSlug}
@@ -426,14 +426,14 @@ export default function AdminUslugePage() {
                     marginTop: 4,
                     padding: "8px 10px",
                     borderRadius: 8,
-                    border: "1px solid #334155",
-                    background: "#0f172a",
-                    color: "#f8fafc",
+                    border: "1px solid #4c4c4c",
+                    background: "#0b0b0b",
+                    color: "#ffffff",
                     width: "100%",
                   }}
                 />
               </label>
-              <label style={{ color: "#94a3b8", fontSize: 14, display: "flex", alignItems: "center", gap: 8, marginTop: 22 }}>
+              <label style={{ color: "#b9b9b9", fontSize: 14, display: "flex", alignItems: "center", gap: 8, marginTop: 22 }}>
                 <input
                   type="checkbox"
                   checked={editCalendarEnabled}
@@ -441,7 +441,7 @@ export default function AdminUslugePage() {
                 />
                 U kalendaru
               </label>
-              <label style={{ color: "#94a3b8", fontSize: 14 }}>
+              <label style={{ color: "#b9b9b9", fontSize: 14 }}>
                 Redosled
                 <input
                   type="number"
@@ -452,14 +452,14 @@ export default function AdminUslugePage() {
                     marginTop: 4,
                     padding: "8px 10px",
                     borderRadius: 8,
-                    border: "1px solid #334155",
-                    background: "#0f172a",
-                    color: "#f8fafc",
+                    border: "1px solid #4c4c4c",
+                    background: "#0b0b0b",
+                    color: "#ffffff",
                     width: 120,
                   }}
                 />
               </label>
-              <label style={{ color: "#94a3b8", fontSize: 14, display: "flex", alignItems: "center", gap: 10, marginTop: 22 }}>
+              <label style={{ color: "#b9b9b9", fontSize: 14, display: "flex", alignItems: "center", gap: 10, marginTop: 22 }}>
                 <input type="checkbox" checked={editIsActive} onChange={(e) => setEditIsActive(e.target.checked)} />
                 Aktivna
               </label>

@@ -22,18 +22,18 @@
   max-height: calc(100dvh - 48px);
   display: flex;
   flex-direction: column;
-  background: #0b111c;
-  border: 1px solid rgba(217, 232, 248, 0.18);
+  background: #080808;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 18px;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7);
-  color: #e8eef7;
+  color: #ffffff;
   overflow: hidden;
 }
 
 .mb-sheet-head,
 .mb-sheet-foot {
   flex-shrink: 0;
-  background: #0e1522;
+  background: #0a0a0a;
 }
 
 .mb-sheet-head {
@@ -41,7 +41,7 @@
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(217, 232, 248, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mb-sheet-head .mb-seg {
@@ -58,14 +58,14 @@
 
 .mb-sheet-foot {
   padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid rgba(217, 232, 248, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: grid;
   gap: 8px;
 }
 
 .mb-section {
   padding: 14px 0;
-  border-bottom: 1px solid rgba(217, 232, 248, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .mb-section:last-child {
@@ -81,7 +81,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9fb3cc;
+  color: #cacaca;
 }
 
 .mb-step {
@@ -91,7 +91,7 @@
   height: 22px;
   border-radius: 50%;
   background: #ffbf00;
-  color: #111;
+  color: #080808;
   font-size: 12px;
 }
 
@@ -102,7 +102,7 @@
   gap: 4px;
   padding: 4px;
   border-radius: 12px;
-  background: rgba(217, 232, 248, 0.07);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .mb-seg-full {
@@ -114,7 +114,7 @@
   border: 0;
   border-radius: 9px;
   background: transparent;
-  color: #9fb3cc;
+  color: #cacaca;
   font: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -126,8 +126,8 @@
 }
 
 .mb-seg button.is-on {
-  background: #1d4ed8;
-  color: #fff;
+  background: #ffffff;
+  color: #000000;
 }
 
 .mb-icon-btn {
@@ -136,10 +136,10 @@
   height: 44px;
   display: inline-grid;
   place-items: center;
-  border: 1px solid rgba(217, 232, 248, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
-  background: rgba(217, 232, 248, 0.05);
-  color: #cbd8e8;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3f3f3;
   cursor: pointer;
 }
 
@@ -155,9 +155,9 @@
   min-height: 48px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(217, 232, 248, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  background: rgba(9, 15, 25, 0.9);
+  background: rgba(7, 7, 7, 0.9);
   font-size: 15px;
   font-weight: 700;
   text-transform: capitalize;
@@ -192,10 +192,10 @@
 .mb-chip {
   min-height: 38px;
   padding: 0 14px;
-  border: 1px solid rgba(217, 232, 248, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  background: rgba(217, 232, 248, 0.05);
-  color: #cbd8e8;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3f3f3;
   font: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -210,9 +210,9 @@
 }
 
 .mb-chip.is-on {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.2);
-  color: #fff;
+  border-color: #8f8f8f;
+  background: rgba(143, 143, 143, 0.2);
+  color: #ffffff;
 }
 
 .mb-sub {
@@ -221,7 +221,7 @@
   justify-content: space-between;
   margin: 14px 0 8px;
   font-size: 12px;
-  color: #8ea3bd;
+  color: #b8b8b8;
 }
 
 .mb-slots {
@@ -232,10 +232,10 @@
 
 .mb-slot {
   min-height: 44px;
-  border: 1px solid rgba(217, 232, 248, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 10px;
   background: rgba(22, 163, 74, 0.1);
-  color: #d7f5e1;
+  color: #ffffff;
   font: inherit;
   font-size: 15px;
   font-weight: 700;
@@ -244,15 +244,15 @@
 }
 
 .mb-slot.is-taken {
-  background: rgba(217, 232, 248, 0.03);
-  color: #5b6b80;
+  background: rgba(255, 255, 255, 0.03);
+  color: #7b7b7b;
   text-decoration: line-through;
 }
 
 .mb-slot.is-on {
   border-color: #ffbf00;
   background: #ffbf00;
-  color: #111;
+  color: #080808;
   text-decoration: none;
 }
 
@@ -275,7 +275,7 @@
 
 .mb-field > span {
   font-size: 12px;
-  color: #8ea3bd;
+  color: #b8b8b8;
 }
 
 /* 16px sprečava auto-zoom na iOS-u. */
@@ -284,10 +284,10 @@
   width: 100%;
   min-height: 46px;
   padding: 10px 12px;
-  border: 1px solid rgba(217, 232, 248, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 11px;
-  background: rgba(9, 15, 25, 0.9);
-  color: #f4f8ff;
+  background: rgba(7, 7, 7, 0.9);
+  color: #ffffff;
   font: inherit;
   font-size: 16px;
   color-scheme: dark;
@@ -301,8 +301,8 @@
 .mb-field input:focus,
 .mb-field textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  border-color: #8f8f8f;
+  box-shadow: 0 0 0 3px rgba(143, 143, 143, 0.25);
 }
 
 .mb-check {
@@ -311,21 +311,21 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #cbd8e8;
+  color: #f3f3f3;
   cursor: pointer;
 }
 
 .mb-check input {
   width: 20px;
   height: 20px;
-  accent-color: #3b82f6;
+  accent-color: #8f8f8f;
 }
 
 .mb-link {
   padding: 4px 2px;
   border: 0;
   background: none;
-  color: #60a5fa;
+  color: #b4b4b4;
   font: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -335,7 +335,7 @@
 .mb-muted {
   margin: 6px 0;
   font-size: 13px;
-  color: #7c8ea6;
+  color: #999999;
 }
 
 .mb-results {
@@ -347,10 +347,10 @@
 .mb-result {
   min-height: 52px;
   padding: 8px 12px;
-  border: 1px solid rgba(217, 232, 248, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
-  background: rgba(217, 232, 248, 0.04);
-  color: #e8eef7;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
   font: inherit;
   text-align: left;
   display: grid;
@@ -367,12 +367,12 @@
 
 .mb-result small {
   font-size: 12px;
-  color: #8ea3bd;
+  color: #b8b8b8;
 }
 
 .mb-result.is-on {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.16);
+  border-color: #8f8f8f;
+  background: rgba(143, 143, 143, 0.16);
 }
 
 .mb-picked {
@@ -393,7 +393,7 @@
 }
 
 .mb-picked small {
-  color: #8ea3bd;
+  color: #b8b8b8;
 }
 
 .mb-warn {
@@ -430,7 +430,7 @@
 .mb-flash-count {
   margin-left: auto;
   font-size: 12px;
-  color: #bbf7d0;
+  color: #ffffff;
 }
 
 .mb-error {
@@ -448,14 +448,14 @@
 
 .mb-summary {
   font-size: 13px;
-  color: #9fb3cc;
+  color: #cacaca;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .mb-summary b {
-  color: #fff;
+  color: #ffffff;
 }
 
 .mb-actions {
@@ -471,10 +471,10 @@
 .mb-btn {
   min-height: 50px;
   padding: 0 18px;
-  border: 1px solid rgba(217, 232, 248, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  background: rgba(217, 232, 248, 0.06);
-  color: #e8eef7;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
   font: inherit;
   font-size: 15px;
   font-weight: 700;
@@ -483,8 +483,8 @@
 
 .mb-btn-primary {
   border-color: transparent;
-  background: #2563eb;
-  color: #fff;
+  background: #ffffff;
+  color: #000000;
 }
 
 .mb-btn:disabled {
@@ -499,7 +499,7 @@
   display: grid;
   gap: 4px;
   font-size: 13px;
-  color: #cbd8e8;
+  color: #f3f3f3;
 }
 
 .mb-saved li {
@@ -529,8 +529,8 @@
   gap: 6px;
   border: 0;
   border-radius: 11px;
-  background: #2563eb;
-  color: #fff;
+  background: #ffffff;
+  color: #000000;
   font: inherit;
   font-size: 14px;
   font-weight: 700;

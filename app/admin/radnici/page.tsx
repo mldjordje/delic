@@ -69,7 +69,7 @@ export default function AdminRadniciPage() {
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Radnici</h2>
-        <p style={{ color: "#94a3b8" }}>
+        <p style={{ color: "#b9b9b9" }}>
           Dodaj radnika (email) koji može da se prijavi na admin deo i vidi{" "}
           <strong>Kalendar</strong> i <strong>Termine</strong>. Vlasnik (admin)
           ima pun pristup.
@@ -118,7 +118,7 @@ export default function AdminRadniciPage() {
           </div>
         </form>
 
-        {error ? <p style={{ marginTop: 12, color: "#fecaca" }}>{error}</p> : null}
+        {error ? <p style={{ marginTop: 12, color: "#f2f2f2" }}>{error}</p> : null}
       </section>
 
       <section className="admin-card">
@@ -155,7 +155,7 @@ export default function AdminRadniciPage() {
                 ))}
                 {workers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} style={{ color: "#94a3b8" }}>
+                    <td colSpan={5} style={{ color: "#b9b9b9" }}>
                       Nema radnika. Dodaj prvog gore.
                     </td>
                   </tr>

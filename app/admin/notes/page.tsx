@@ -26,8 +26,8 @@ type Draft = {
   followUpDone: boolean;
 };
 
-const MUTED = "#94a3b8";
-const FG = "#e2e8f0";
+const MUTED = "#b9b9b9";
+const FG = "#ffffff";
 
 function fmtDateTime(iso: string) {
   return new Date(iso).toLocaleString("sr-RS", {
@@ -186,7 +186,7 @@ export default function AdminNotesPage() {
 
         {/* Statistika */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 10, marginTop: 16 }}>
-          <StatPill label="Ukupno" value={stats.total} color="#cbd5e1" />
+          <StatPill label="Ukupno" value={stats.total} color="#f1f1f1" />
           <StatPill label="Položili" value={stats.passed} color="#16a34a" />
           <StatPill label="Pali" value={stats.failed} color="#dc2626" />
           <StatPill label="Za praćenje" value={stats.followup} color="#ca8a04" />
@@ -208,7 +208,7 @@ export default function AdminNotesPage() {
                 style={{
                   padding: "8px 14px",
                   borderRadius: 999,
-                  border: filter === key ? "1.5px solid #ffbf00" : "1.5px solid rgba(217,232,248,0.18)",
+                  border: filter === key ? "1.5px solid #ffbf00" : "1.5px solid rgba(255, 255, 255, 0.18)",
                   background: filter === key ? "rgba(255,191,0,0.14)" : "rgba(255,255,255,0.03)",
                   color: filter === key ? "#ffbf00" : MUTED,
                   fontSize: 13,
@@ -262,9 +262,9 @@ export default function AdminNotesPage() {
                 key={b.id}
                 className="admin-card"
                 style={{
-                  background: "rgba(12, 18, 29, 0.6)",
-                  border: `1px solid ${followPending ? "rgba(202,138,4,0.45)" : "rgba(148,163,184,0.22)"}`,
-                  borderLeft: `4px solid ${b.inspectionResult === "passed" ? "#16a34a" : b.inspectionResult === "failed" ? "#dc2626" : "#475569"}`,
+                  background: "rgba(9, 9, 9, 0.6)",
+                  border: `1px solid ${followPending ? "rgba(202,138,4,0.45)" : "rgba(185, 185, 185, 0.22)"}`,
+                  borderLeft: `4px solid ${b.inspectionResult === "passed" ? "#16a34a" : b.inspectionResult === "failed" ? "#dc2626" : "#636363"}`,
                 }}
               >
                 {/* Zaglavlje kartice */}
@@ -278,14 +278,14 @@ export default function AdminNotesPage() {
                       {b.client.fullName || b.client.email || "Klijent"}
                       {b.client.phone ? ` · ${b.client.phone}` : ""}
                     </p>
-                    <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b" }}>
+                    <p style={{ margin: "2px 0 0", fontSize: 12, color: "#858585" }}>
                       {b.serviceName} · {fmtDateTime(b.startsAt)}
                     </p>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
                     <Badge
                       text={passed ? "Položio" : b.inspectionResult === "failed" ? "Nije položio" : "—"}
-                      color={passed ? "#16a34a" : b.inspectionResult === "failed" ? "#dc2626" : "#64748b"}
+                      color={passed ? "#16a34a" : b.inspectionResult === "failed" ? "#dc2626" : "#858585"}
                     />
                     {!editing ? (
                       <button type="button" className="admin-template-link-btn" onClick={() => startEdit(b)} style={{ padding: "6px 12px" }}>
@@ -299,7 +299,7 @@ export default function AdminNotesPage() {
                 {!editing ? (
                   <>
                     {b.inspectionNote ? (
-                      <p style={{ margin: "12px 0 0", fontSize: 14, color: "#cbd5e1", whiteSpace: "pre-wrap" }}>
+                      <p style={{ margin: "12px 0 0", fontSize: 14, color: "#f1f1f1", whiteSpace: "pre-wrap" }}>
                         {b.inspectionNote}
                       </p>
                     ) : null}
@@ -438,8 +438,8 @@ export default function AdminNotesPage() {
                             padding: "10px 16px",
                             borderRadius: 8,
                             border: "none",
-                            background: "#2563eb",
-                            color: "#fff",
+                            background: "#ffffff",
+                            color: "#000000",
                             fontSize: 13,
                             fontWeight: 700,
                             cursor: "pointer",
@@ -481,7 +481,7 @@ function StatPill({ label, value, color }: { label: string; value: number; color
   return (
     <div
       style={{
-        border: "1px solid rgba(217,232,248,0.18)",
+        border: "1px solid rgba(255, 255, 255, 0.18)",
         background: "rgba(255,255,255,0.03)",
         borderRadius: 12,
         padding: "12px 14px",
@@ -516,7 +516,7 @@ function Badge({ text, color }: { text: string; color: string }) {
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>
+    <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#b9b9b9" }}>
       {children}
     </span>
   );

@@ -65,14 +65,14 @@ export default function AdminPodesavanjaPage() {
   }
 
   if (!s) {
-    return <p style={{ color: "#94a3b8" }}>Učitavanje podešavanja…</p>;
+    return <p style={{ color: "#b9b9b9" }}>Učitavanje podešavanja…</p>;
   }
 
   return (
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0, marginBottom: 6 }}>Podešavanja zakazivanja</h2>
-        <p style={{ color: "#94a3b8", fontSize: 14 }}>
+        <p style={{ color: "#b9b9b9", fontSize: 14 }}>
           Kontrolišite potvrdu termina, trajanje slotova i radno vreme u lokalnom vremenu (Beograd).
         </p>
         <form onSubmit={save} style={{ maxWidth: 480 }} className="admin-stack">
@@ -84,14 +84,14 @@ export default function AdminPodesavanjaPage() {
               gap: 18,
               padding: "16px",
               borderRadius: 12,
-              border: `1px solid ${s.autoConfirmBookings ? "rgba(22,163,74,0.4)" : "rgba(148,163,184,0.22)"}`,
+              border: `1px solid ${s.autoConfirmBookings ? "rgba(22,163,74,0.4)" : "rgba(185, 185, 185, 0.22)"}`,
               background: s.autoConfirmBookings ? "rgba(22,163,74,0.08)" : "rgba(255,255,255,0.03)",
               cursor: "pointer",
             }}
           >
             <span>
-              <strong style={{ display: "block", color: "#e2e8f0", fontSize: 14 }}>Automatska potvrda termina</strong>
-              <small style={{ display: "block", color: "#94a3b8", marginTop: 4, lineHeight: 1.45 }}>
+              <strong style={{ display: "block", color: "#ffffff", fontSize: 14 }}>Automatska potvrda termina</strong>
+              <small style={{ display: "block", color: "#b9b9b9", marginTop: 4, lineHeight: 1.45 }}>
                 {s.autoConfirmBookings
                   ? "Novi online termini su odmah potvrđeni."
                   : "Novi online termini čekaju ručnu potvrdu administratora."}
@@ -104,7 +104,7 @@ export default function AdminPodesavanjaPage() {
                 height: 26,
                 padding: 3,
                 borderRadius: 999,
-                background: s.autoConfirmBookings ? "#16a34a" : "#475569",
+                background: s.autoConfirmBookings ? "#16a34a" : "#636363",
                 display: "flex",
                 justifyContent: s.autoConfirmBookings ? "flex-end" : "flex-start",
                 flexShrink: 0,
@@ -123,7 +123,7 @@ export default function AdminPodesavanjaPage() {
 
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 16 }}>
             <h3 style={{ margin: "0 0 6px", fontSize: 15 }}>Radno vreme i slotovi</h3>
-            <p style={{ margin: "0 0 14px", color: "#94a3b8", fontSize: 13 }}>Određuje termine dostupne klijentima.</p>
+            <p style={{ margin: "0 0 14px", color: "#b9b9b9", fontSize: 13 }}>Određuje termine dostupne klijentima.</p>
           </div>
           <label className="admin-field">
             <span>Slot (minuti)</span>

@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
     <div className="admin-stack">
       <section className="admin-card">
         <h2 style={{ marginTop: 0 }}>Kontrolna tabla</h2>
-        <p style={{ color: "#94a3b8" }}>Pregled za vlasnika / glavnog administratora.</p>
+        <p style={{ color: "#b9b9b9" }}>Pregled za vlasnika / glavnog administratora.</p>
         <div className="admin-card-grid">
           <div className="admin-card">
             <h3 style={{ marginTop: 0, fontSize: 16 }}>Termini (ukupno)</h3>
